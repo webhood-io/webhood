@@ -6,8 +6,8 @@ services:
     image: ghcr.io/webhood-io/kong:3.2.2
     restart: unless-stopped
     ports:
-      - ${WEBHOOD_HTTP_PORT}:8000/tcp
-      - ${WEBHOOD_HTTPS_PORT}:8443/tcp
+      - ${WEBHOOD_HTTP_PORT:-8000}:8000/tcp
+      - ${WEBHOOD_HTTPS_PORT:-8443}:8443/tcp
     environment:
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: /usr/local/kong/kong.yml
@@ -15,9 +15,9 @@ services:
       KONG_PLUGINS: request-transformer,cors,key-auth,acl,jwt
       KONG_NGINX_PROXY_PROXY_BUFFER_SIZE: 160k
       KONG_NGINX_PROXY_PROXY_BUFFERS: 64 160k
-      ANON_KEY: ${ANON_KEY}
-      SERVICE_KEY: ${SERVICE_ROLE_KEY}
-      JWT_SECRET: ${JWT_SECRET}
+      ANON_KEY: ${ANON_KEY:?error}
+      SERVICE_KEY: ${SERVICE_ROLE_KEY:?error}
+      JWT_SECRET: ${JWT_SECRET:?error}
       WEBHOOD_CONFIG: /tmp/kong.yml
       KONG_SSL_CERT: ${WEBHOOD_TLS_CERT}
       KONG_SSL_CERT_KEY: ${WEBHOOD_TLS_KEY}
@@ -42,12 +42,12 @@ services:
     environment:
       GOTRUE_API_HOST: 0.0.0.0
       GOTRUE_API_PORT: 9999
-      API_EXTERNAL_URL: ${EXTERNAL_URL}
+      API_EXTERNAL_URL: ${EXTERNAL_URL:?error}
 
       GOTRUE_DB_DRIVER: postgres
-      GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${POSTGRES_PASSWORD}@${POSTGRES_HOST:-db}:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-postgres}
 
-      GOTRUE_SITE_URL: ${EXTERNAL_URL}
+      GOTRUE_SITE_URL: ${EXTERNAL_URL:?error}
       GOTRUE_URI_ALLOW_LIST: ${ADDITIONAL_REDIRECT_URLS}
 #      GOTRUE_DISABLE_SIGNUP: ${DISABLE_SIGNUP}
 
@@ -55,7 +55,7 @@ services:
       GOTRUE_JWT_AUD: authenticated
       GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
       GOTRUE_JWT_EXP: 3600
-      GOTRUE_JWT_SECRET: ${JWT_SECRET}
+      GOTRUE_JWT_SECRET: ${JWT_SECRET:?error}
     networks:
       - rest
       - db
@@ -68,7 +68,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     environment:
-      PGRST_DB_URI: postgres://authenticator:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      PGRST_DB_URI: postgres://authenticator:${POSTGRES_PASSWORD}@${POSTGRES_HOST:-db}:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-postgres}
       PGRST_DB_SCHEMAS: public,storage,graphql_public
       PGRST_DB_ANON_ROLE: anon
       PGRST_JWT_SECRET: ${JWT_SECRET}
@@ -92,11 +92,11 @@ services:
       retries: 3
     restart: unless-stopped
     environment:
-      ANON_KEY: ${ANON_KEY}
-      SERVICE_KEY: ${SERVICE_ROLE_KEY}
+      ANON_KEY: ${ANON_KEY:?error}
+      SERVICE_KEY: ${SERVICE_ROLE_KEY:?error}
       POSTGREST_URL: http://rest:3000
-      PGRST_JWT_SECRET: ${JWT_SECRET}
-      DATABASE_URL: postgres://supabase_storage_admin:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      PGRST_JWT_SECRET: ${JWT_SECRET:?error}
+      DATABASE_URL: postgres://supabase_storage_admin:${POSTGRES_PASSWORD}@${POSTGRES_HOST:-db}:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-postgres}
       FILE_SIZE_LIMIT: 52428800
       STORAGE_BACKEND: file
       FILE_STORAGE_BACKEND_PATH: /var/lib/storage
@@ -127,12 +127,12 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_HOST: /var/run/postgresql
-      PGPORT: ${POSTGRES_PORT}
-      POSTGRES_PORT: ${POSTGRES_PORT}
-      PGPASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      PGDATABASE: ${POSTGRES_DB}
-      POSTGRES_DB: ${POSTGRES_DB}
+      PGPORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      PGPASSWORD: ${POSTGRES_PASSWORD:?error}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?error}
+      PGDATABASE: ${POSTGRES_DB:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
     volumes:
       - db:/var/lib/postgresql/data:Z
       # Initialisation data, only run once
@@ -148,7 +148,7 @@ services:
     restart: always
     environment:
       ENDPOINT: http://kong:8000
-      API_KEY: ${SERVICE_ROLE_KEY}
+      API_KEY: ${SERVICE_ROLE_KEY:?error}
       HTTP_PROXY: ${HTTP_PROXY}
       HTTPS_PROXY: ${HTTPS_PROXY}
       NO_PROXY: ${NO_PROXY}
@@ -164,10 +164,10 @@ services:
     image: ghcr.io/webhood-io/core:latest
     restart: always
     environment:
-      ANON_KEY: ${ANON_KEY}
-      API_URL: ${EXTERNAL_URL}
-      PRIVATE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
-      JWT_SECRET: ${JWT_SECRET} 
+      ANON_KEY: ${ANON_KEY:?error}
+      API_URL: ${EXTERNAL_URL:?error}
+      PRIVATE_SERVICE_KEY: ${SERVICE_ROLE_KEY:?error}
+      JWT_SECRET: ${JWT_SECRET:?error} 
       # Ignore TLS errors for self-signed certificates between the UI and the internal admin API
       # Note that this does not affect the TLS connection between the UI and the browser
       NODE_TLS_REJECT_UNAUTHORIZED: 0
