@@ -218,8 +218,8 @@ services:
 
 
   ## Secure Next routes
-  - name: webhood-ui-v1
-    url: http://ui:3000
+  - name: webhood-core-v1
+    url: http://core:3000
     routes:
       ## Internal administration API
       - name: webhood-beta-api
