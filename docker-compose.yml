@@ -49,7 +49,11 @@ services:
 
       GOTRUE_SITE_URL: ${EXTERNAL_URL:?error}
       GOTRUE_URI_ALLOW_LIST: ${ADDITIONAL_REDIRECT_URLS}
-#      GOTRUE_DISABLE_SIGNUP: ${DISABLE_SIGNUP}
+      # Known issue: user may be able to sign up, but will not be able to login as internal API signup cannot currently be disbeld.
+      # GOTRUE_DISABLE_SIGNUP: ${SELF_REGISTER:-false}
+
+      # This is used to allowing self-registration for now as there is no way currently for the user to confirm their email address. 
+      GOTRUE_MAILER_AUTOCONFIRM: ${SELF_REGISTER:-false}
 
       GOTRUE_JWT_ADMIN_ROLES: service_role
       GOTRUE_JWT_AUD: authenticated
@@ -161,13 +165,14 @@ services:
 
   core:
     container_name: webhood-core
-    image: ghcr.io/webhood-io/core:1.0
+    image: ghcr.io/webhood-io/core:1.1
     restart: always
     environment:
       ANON_KEY: ${ANON_KEY:?error}
       API_URL: ${EXTERNAL_URL:?error}
       PRIVATE_SERVICE_KEY: ${SERVICE_ROLE_KEY:?error}
       JWT_SECRET: ${JWT_SECRET:?error} 
+      SELF_REGISTER: ${SELF_REGISTER:-false}
       # Ignore TLS errors for self-signed certificates between the UI and the internal admin API
       # Note that this does not affect the TLS connection between the UI and the browser
       NODE_TLS_REJECT_UNAUTHORIZED: 0
