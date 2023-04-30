@@ -144,7 +144,7 @@ services:
       
   scanner:
     container_name: webhood-scanner
-    image: ghcr.io/webhood-io/scanner:latest
+    image: ghcr.io/webhood-io/scanner:1.0
     restart: always
     environment:
       ENDPOINT: http://kong:8000
@@ -161,7 +161,7 @@ services:
 
   core:
     container_name: webhood-core
-    image: ghcr.io/webhood-io/core:latest
+    image: ghcr.io/webhood-io/core:1.0
     restart: always
     environment:
       ANON_KEY: ${ANON_KEY:?error}
