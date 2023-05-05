@@ -1,239 +1,30 @@
 _format_version: "1.1"
 
-
-###
-### Plugins
-###
-plugins:
-- name: jwt
-  route: webhood-beta-api
-  config:
-    key_claim_name: role
-    run_on_preflight: false
-- name: jwt
-  route: webhood-beta-scanner-api
-  config:
-    key_claim_name: role
-    run_on_preflight: false
-- name: acl
-  route: webhood-beta-api
-  config: 
-    allow:
-    - admin_group
-    hide_groups_header: true
-- name: acl
-  route: webhood-beta-scanner-api
-  config: 
-    allow:
-    - scanner_group
-    hide_groups_header: false
-
-
-###
-### Consumers / Users
-###
-consumers:
-  - username: anon
-    keyauth_credentials:
-      - key: ANON_KEY_FILE
-  - username: service_role
-    keyauth_credentials:
-      - key: SERVICE_KEY_FILE
-  - username: admin_role
-  - username: scanner
-
-jwt_secrets:
-- consumer: admin_role
-  key: webhood_admin
-  secret: JWT_SECRET_FILE
-- consumer: scanner
-  key: scanner
-  secret: JWT_SECRET_FILE
-
-###
-### Access Control List
-###
-acls:
-  - consumer: anon
-    group: anon
-  - consumer: service_role
-    group: admin
-  - consumer: admin_role
-    group: admin_group
-  - consumer: scanner
-    group: scanner_group
-
 ###
 ### API Routes
 ###
 services:
-  ## Open Auth routes
-  - name: auth-v1-open
-    url: http://auth:9999/verify
-    routes:
-      - name: auth-v1-open
-        strip_path: true
-        paths:
-          - /auth/v1/verify
-    plugins:
-      - name: cors
-  - name: auth-v1-open-callback
-    url: http://auth:9999/callback
-    routes:
-      - name: auth-v1-open-callback
-        strip_path: true
-        paths:
-          - /auth/v1/callback
-    plugins:
-      - name: cors
-  - name: auth-v1-open-authorize
-    url: http://auth:9999/authorize
-    routes:
-      - name: auth-v1-open-authorize
-        strip_path: true
-        paths:
-          - /auth/v1/authorize
-    plugins:
-      - name: cors
-
-  ## Secure Auth routes
-  - name: auth-v1
-    _comment: "GoTrue: /auth/v1/* -> http://auth:9999/*"
-    url: http://auth:9999/
-    routes:
-      - name: auth-v1-all
-        strip_path: true
-        paths:
-          - /auth/v1/
-    plugins:
-      - name: cors
-      - name: key-auth
-        config:
-          hide_credentials: false
-      - name: acl
-        config:
-          hide_groups_header: true
-          allow:
-            - admin
-            - anon
-
-  ## Secure REST routes
-  - name: rest-v1
-    _comment: "PostgREST: /rest/v1/* -> http://rest:3000/*"
-    url: http://rest:3000/
-    routes:
-      - name: rest-v1-all
-        strip_path: true
-        paths:
-          - /rest/v1/
-    plugins:
-      - name: cors
-      - name: key-auth
-        config:
-          hide_credentials: true
-      - name: acl
-        config:
-          hide_groups_header: true
-          allow:
-            - admin
-            - anon
-
-  ## Secure GraphQL routes
-  - name: graphql-v1
-    _comment: "PostgREST: /graphql/v1/* -> http://rest:3000/rpc/graphql"
-    url: http://rest:3000/rpc/graphql
-    routes:
-      - name: graphql-v1-all
-        strip_path: true
-        paths:
-          - /graphql/v1
-    plugins:
-      - name: cors
-      - name: key-auth
-        config:
-          hide_credentials: true
-      - name: request-transformer
-        config:
-          add: 
-            headers:
-              - Content-Profile:graphql_public
-      - name: acl
-        config:
-          hide_groups_header: true
-          allow:
-            - admin
-            - anon
-
-  ## Secure Realtime routes
-  - name: realtime-v1
-    _comment: "Realtime: /realtime/v1/* -> ws://realtime:4000/socket/*"
-    url: http://realtime-dev.supabase-realtime:4000/socket/
-    routes:
-      - name: realtime-v1-all
-        strip_path: true
-        paths:
-          - /realtime/v1/
-    plugins:
-      - name: cors
-      - name: key-auth
-        config:
-          hide_credentials: false
-      - name: acl
-        config:
-          hide_groups_header: true
-          allow:
-            - admin
-            - anon
-
-  ## Storage routes: the storage server manages its own auth
-  - name: storage-v1
-    _comment: "Storage: /storage/v1/* -> http://storage:5000/*"
-    url: http://storage:5000/
-    routes:
-      - name: storage-v1-all
-        strip_path: true
-        paths:
-          - /storage/v1/
-    plugins:
-      - name: cors
-
-  ## Secure Database routes
-  - name: meta
-    _comment: "pg-meta: /pg/* -> http://pg-meta:8080/*"
-    url: http://meta:8080/
-    routes:
-      - name: meta-all
-        strip_path: true
-        paths:
-          - /pg/
-    plugins:
-      - name: key-auth
-        config:
-          hide_credentials: false
-      - name: acl
-        config:
-          hide_groups_header: true
-          allow:
-            - admin
-
-
-  ## Secure Next routes
+    ## Secure Next routes
   - name: webhood-core-v1
     url: http://core:3000
     routes:
-      ## Internal administration API
-      - name: webhood-beta-api
-        strip_path: false
-        paths:
-          - /api/accounts
       ## External API
       - name: webhood-beta-scanner-api
         strip_path: false
         paths:
-          - /api/v1
+          - /api/beta/
       ## All other data such as static files
       - name: webhood-beta-all
         paths:
           - /
     plugins:
       - name: cors
+
+  ## Backend
+  - name: webhood-backend-v1
+    url: http://backend:8090
+    routes:
+      - name: api
+        strip_path: false
+        paths:
+          - /api/
