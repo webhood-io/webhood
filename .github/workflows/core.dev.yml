@@ -1,4 +1,4 @@
-name: dev-build
+name: core.dev-build-push
 
 on:
   pull_request:
@@ -12,7 +12,7 @@ on:
     
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: core 
+  IMAGE_NAME: ${{ github.repository }}/core 
 
 jobs:
   docker:
