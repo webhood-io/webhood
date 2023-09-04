@@ -1,0 +1,14 @@
+services:
+  node-headless:
+    build: ./
+    #image: ghcr.io/markusleh/scan-headless:master
+    ports:
+      - 3030:3030
+    restart: always
+    environment:
+      - ENDPOINT
+      - API_KEY
+      - SELF_SIGNED
+    # https://stackoverflow.com/questions/50662388/running-headless-chrome-puppeteer-with-no-sandbox/53975412#53975412
+    security_opt:
+      - seccomp=./chrome.json
