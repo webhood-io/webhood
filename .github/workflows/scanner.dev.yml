@@ -1,4 +1,4 @@
-name: core.dev-build-push
+name: scanner.dev-build-push
 
 on:
   pull_request:
