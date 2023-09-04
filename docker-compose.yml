@@ -25,7 +25,7 @@ services:
 
   scanner:
     container_name: webhood-scanner
-    image: ghcr.io/webhood-io/scanner:1.0
+    image: ghcr.io/webhood-io/webhood/scanner:1.0
     restart: always
     environment:
       ENDPOINT: http://kong:8000
@@ -42,7 +42,7 @@ services:
 
   core:
     container_name: webhood-core
-    image: ghcr.io/webhood-io/core:pocketbase
+    image: ghcr.io/webhood-io/webhood/core:pocketbase
     restart: always
     environment:
       API_URL: ${EXTERNAL_URL:?error}
@@ -57,9 +57,13 @@ services:
 
   backend:
     container_name: webhood-backend
-    image: ghcr.io/webhood-io/backend:latest
+    image: ghcr.io/webhood-io/webhood/backend:latest
     # build: ./backend
     restart: always
+    environment:
+      # https://github.com/pocketbase/pocketbase/releases/tag/v0.17.3
+      # TODO: Remove once fixed in upstream
+      - TMPDIR=/pb/pb_data/storage/xeb56gcfepjsjb4/
     volumes:
       - data:/pb/pb_data
       - migrations:/pb/pb_migrations
