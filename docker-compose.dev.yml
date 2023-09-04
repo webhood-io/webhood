@@ -1,0 +1,62 @@
+version: "3.8"
+
+services:
+  scanner:
+    container_name: webhood-scanner
+    image: ghcr.io/webhood-io/scanner:latest
+    build: src/scanner
+    restart: always
+    environment:
+      ENDPOINT: http://backend:8090
+      API_KEY: ${SCANNER_TOKEN}
+      HTTP_PROXY: ${HTTP_PROXY}
+      HTTPS_PROXY: ${HTTPS_PROXY}
+      NO_PROXY: ${NO_PROXY}
+    networks:
+      - rest
+      - db
+    security_opt:
+      - seccomp=./files/chrome.json
+
+  core:
+    container_name: webhood-core
+    image: ghcr.io/webhood-io/core:latest
+    build: src/core
+    restart: always
+    environment:
+      API_URL: ${EXTERNAL_URL:?error}
+      JWT_SECRET: ${JWT_SECRET:?error}
+      SELF_REGISTER: ${SELF_REGISTER:-false}
+      # Ignore TLS errors for self-signed certificates between the UI and the internal admin API
+      # Note that this does not affect the TLS connection between the UI and the browser
+      NODE_TLS_REJECT_UNAUTHORIZED: 0
+    networks:
+      - rest
+      - frontend
+
+  backend:
+    container_name: webhood-backend
+    image: ghcr.io/webhood-io/backend:latest
+    build: src/backend
+    restart: always
+    environment:
+      # https://github.com/pocketbase/pocketbase/releases/tag/v0.17.3
+      # TODO: Remove once fixed in upstream
+      - TMPDIR=/pb/pb_data/storage/xeb56gcfepjsjb4/
+    volumes:
+      - data:/pb/pb_data
+      - migrations:/pb/pb_migrations
+    command:
+      - serve
+      - --http=0.0.0.0:8090
+    networks:
+      - frontend
+      - db
+volumes:
+  data:
+  migrations:
+
+networks:
+  db:
+  rest:
+  frontend:
