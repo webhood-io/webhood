@@ -1,7 +1,7 @@
 # Filename: Dockerfile
-FROM node:slim AS base
+FROM node:20-bullseye-slim AS base
 
-FROM node:slim as builder
+FROM node:20-bullseye-slim AS builder
 WORKDIR /app
 
 # Copy package.json
