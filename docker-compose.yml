@@ -29,7 +29,7 @@ services:
     restart: always
     environment:
       ENDPOINT: http://kong:8000
-      API_KEY: ${SCANNER_TOKEN:?error}
+      API_KEY: ${SCANNER_TOKEN}
       HTTP_PROXY: ${HTTP_PROXY}
       HTTPS_PROXY: ${HTTPS_PROXY}
       NO_PROXY: ${NO_PROXY}
