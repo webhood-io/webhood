@@ -3,8 +3,7 @@ version: "3.8"
 services:
   kong:
     container_name: webhood-proxy
-    # image: ghcr.io/webhood-io/kong:3.2.2
-    image: kong:3.2
+    image: kong:3.4
     restart: unless-stopped
     ports:
       - ${WEBHOOD_HTTP_PORT:-8000}:8000/tcp
