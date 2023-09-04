@@ -1,0 +1,13 @@
+Dockerfile
+.dockerignore
+node_modules
+npm-debug.log
+README.md
+.next
+.git
+cypress/
+.env*
+__test__/
+.vscode
+.idea
+.github

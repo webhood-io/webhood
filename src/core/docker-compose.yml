@@ -1,0 +1,12 @@
+version: "3.8"
+
+
+services:
+  core:
+    container_name: webhood-core
+    build: .
+    restart: always
+    env_file:
+      - .env.docker.local
+    ports:
+      - "3003:3000"
