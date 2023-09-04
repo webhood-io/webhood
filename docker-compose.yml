@@ -3,7 +3,8 @@ version: "3.8"
 services:
   kong:
     container_name: webhood-proxy
-    image: ghcr.io/webhood-io/kong:3.2.2
+    # image: ghcr.io/webhood-io/kong:3.2.2
+    image: kong:3.2
     restart: unless-stopped
     ports:
       - ${WEBHOOD_HTTP_PORT:-8000}:8000/tcp
@@ -12,147 +13,24 @@ services:
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: /usr/local/kong/kong.yml
       KONG_DNS_ORDER: LAST,A,CNAME
-      KONG_PLUGINS: request-transformer,cors,key-auth,acl,jwt
+      KONG_PLUGINS: request-transformer,cors,key-auth,acl
       KONG_NGINX_PROXY_PROXY_BUFFER_SIZE: 160k
       KONG_NGINX_PROXY_PROXY_BUFFERS: 64 160k
-      ANON_KEY: ${ANON_KEY:?error}
-      SERVICE_KEY: ${SERVICE_ROLE_KEY:?error}
-      JWT_SECRET: ${JWT_SECRET:?error}
-      WEBHOOD_CONFIG: /tmp/kong.yml
       KONG_SSL_CERT: ${WEBHOOD_TLS_CERT}
       KONG_SSL_CERT_KEY: ${WEBHOOD_TLS_KEY}
     volumes:
-      - ./kong.yml:/tmp/kong.yml:ro
+      - ./kong.yml:/usr/local/kong/kong.yml:ro
     networks:
       - frontend
       - rest
 
-  auth:
-    container_name: supabase-auth
-    image: supabase/gotrue:v2.60.5
-    depends_on:
-      db:
-        condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9999/health" ]
-      timeout: 5s
-      interval: 5s
-      retries: 3
-    restart: unless-stopped
-    environment:
-      GOTRUE_API_HOST: 0.0.0.0
-      GOTRUE_API_PORT: 9999
-      API_EXTERNAL_URL: ${EXTERNAL_URL:?error}
-
-      GOTRUE_DB_DRIVER: postgres
-      GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${POSTGRES_PASSWORD}@${POSTGRES_HOST:-db}:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-postgres}
-
-      GOTRUE_SITE_URL: ${EXTERNAL_URL:?error}
-      GOTRUE_URI_ALLOW_LIST: ${ADDITIONAL_REDIRECT_URLS}
-      # Known issue: user may be able to sign up, but will not be able to login as internal API signup cannot currently be disbeld.
-      # GOTRUE_DISABLE_SIGNUP: ${SELF_REGISTER:-false}
-
-      # This is used to allowing self-registration for now as there is no way currently for the user to confirm their email address. 
-      GOTRUE_MAILER_AUTOCONFIRM: ${SELF_REGISTER:-false}
-
-      GOTRUE_JWT_ADMIN_ROLES: service_role
-      GOTRUE_JWT_AUD: authenticated
-      GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
-      GOTRUE_JWT_EXP: 3600
-      GOTRUE_JWT_SECRET: ${JWT_SECRET:?error}
-    networks:
-      - rest
-      - db
-
-  rest:
-    container_name: supabase-rest
-    image: postgrest/postgrest:v10.2.0
-    depends_on:
-      db: 
-        condition: service_healthy
-    restart: unless-stopped
-    environment:
-      PGRST_DB_URI: postgres://authenticator:${POSTGRES_PASSWORD}@${POSTGRES_HOST:-db}:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-postgres}
-      PGRST_DB_SCHEMAS: public,storage,graphql_public
-      PGRST_DB_ANON_ROLE: anon
-      PGRST_JWT_SECRET: ${JWT_SECRET}
-      PGRST_DB_USE_LEGACY_GUCS: "false"
-    networks:
-      - rest
-      - db
-
-  storage:
-    container_name: supabase-storage
-    image: supabase/storage-api:v0.34.0
-    depends_on:
-      db:
-        condition: service_healthy
-      rest:
-        condition: service_started
-    healthcheck:
-      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/status" ]
-      timeout: 5s
-      interval: 5s
-      retries: 3
-    restart: unless-stopped
-    environment:
-      ANON_KEY: ${ANON_KEY:?error}
-      SERVICE_KEY: ${SERVICE_ROLE_KEY:?error}
-      POSTGREST_URL: http://rest:3000
-      PGRST_JWT_SECRET: ${JWT_SECRET:?error}
-      DATABASE_URL: postgres://supabase_storage_admin:${POSTGRES_PASSWORD}@${POSTGRES_HOST:-db}:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-postgres}
-      FILE_SIZE_LIMIT: 52428800
-      STORAGE_BACKEND: file
-      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
-      TENANT_ID: stub
-      REGION: stub
-      GLOBAL_S3_BUCKET: stub
-      ENABLE_IMAGE_TRANSFORMATION: "true"
-    volumes:
-      - storage:/var/lib/storage:z
-    networks:
-      - rest
-      - db
-
-  db:
-    container_name: supabase-db
-    image: supabase/postgres:15.1.0.70
-    healthcheck:
-      test: pg_isready -U postgres -h localhost
-      interval: 5s
-      timeout: 5s
-      retries: 10
-    command:
-      - postgres
-      - -c
-      - config_file=/etc/postgresql/postgresql.conf
-      - -c
-      - log_min_messages=fatal # prevents Realtime polling queries from appearing in logs
-    restart: unless-stopped
-    environment:
-      POSTGRES_HOST: /var/run/postgresql
-      PGPORT: ${POSTGRES_PORT:-5432}
-      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
-      PGPASSWORD: ${POSTGRES_PASSWORD:?error}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?error}
-      PGDATABASE: ${POSTGRES_DB:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-postgres}
-    volumes:
-      - db:/var/lib/postgresql/data:Z
-      # Initialisation data, only run once
-      - ./migrations/db/realtime.sql:/docker-entrypoint-initdb.d/migrations/98-realtime.sql:Z
-      - ./migrations/db/webhooks.sql:/docker-entrypoint-initdb.d/init-scripts/97-webhooks.sql:Z
-      - ./migrations/db/roles.sql:/docker-entrypoint-initdb.d/init-scripts/98-roles.sql:Z
-    networks:
-      - db
-      
   scanner:
     container_name: webhood-scanner
     image: ghcr.io/webhood-io/scanner:1.0
     restart: always
     environment:
       ENDPOINT: http://kong:8000
-      API_KEY: ${SERVICE_ROLE_KEY:?error}
+      API_KEY: # TODO: Add API key
       HTTP_PROXY: ${HTTP_PROXY}
       HTTPS_PROXY: ${HTTPS_PROXY}
       NO_PROXY: ${NO_PROXY}
@@ -165,13 +43,11 @@ services:
 
   core:
     container_name: webhood-core
-    image: ghcr.io/webhood-io/core:1.1
+    image: ghcr.io/webhood-io/core:pocketbase
     restart: always
     environment:
-      ANON_KEY: ${ANON_KEY:?error}
       API_URL: ${EXTERNAL_URL:?error}
-      PRIVATE_SERVICE_KEY: ${SERVICE_ROLE_KEY:?error}
-      JWT_SECRET: ${JWT_SECRET:?error} 
+      JWT_SECRET: ${JWT_SECRET:?error}
       SELF_REGISTER: ${SELF_REGISTER:-false}
       # Ignore TLS errors for self-signed certificates between the UI and the internal admin API
       # Note that this does not affect the TLS connection between the UI and the browser
@@ -180,20 +56,23 @@ services:
       - rest
       - frontend
 
-  migrate:
-    container_name: webhood-migrate
-    image: ghcr.io/webhood-io/migrate:latest
-    environment:
-      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
-    depends_on:
-      auth: 
-        condition: service_healthy
+  backend:
+    container_name: webhood-backend
+    image: ghcr.io/webhood-io/backend:latest
+    # build: ./backend
+    restart: always
+    volumes:
+      - data:/pb/pb_data
+      - migrations:/pb/pb_migrations
+    command:
+      - serve
+      - --http=0.0.0.0:8090
     networks:
-      - db
+      - frontend
 
 volumes:
-  storage:
-  db: 
+  data:
+  migrations:
 
 networks:
   db:
