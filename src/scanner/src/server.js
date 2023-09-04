@@ -217,11 +217,16 @@ setInterval(async function() {
 }, 15000);
 
 // Subscribe to changes in any scans record
-pb.collection('scans').subscribe('*', async function (e) {
-    if(e.action === 'create') {
-        console.log('New scan created');
-        await checkForNewScans();
-    }
-});
+try {
+    pb.collection('scans').subscribe('*', async function (e) {
+        if(e.action === 'create') {
+            console.log('New scan created');
+            await checkForNewScans();
+        }
+    });
+} catch (error) {
+    console.log('Error while subscribing to changes in scans collection');
+    console.log(error);
+}
 
 console.log("Started")
