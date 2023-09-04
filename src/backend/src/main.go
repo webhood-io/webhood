@@ -69,9 +69,9 @@ func main() {
 	})
 
 	app.RootCmd.AddCommand(&cobra.Command{
-		Use: "create_token",
+		Use: "create_scanner_token",
 		Run: func(command *cobra.Command, args []string) {
-			authRecord, fetchErr := app.Dao().FindRecordById("api_tokens", "bwuub2xmh50ekpw")
+			authRecord, fetchErr := app.Dao().FindRecordById("api_tokens", "mzven27v6pg29mx")
 			if fetchErr != nil {
 				println("Error fetching auth record: " + fetchErr.Error())
 				return
