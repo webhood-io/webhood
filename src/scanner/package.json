@@ -14,7 +14,7 @@
   "dependencies": {
     "dotenv": "^16.0.3",
     "eventsource": "^2.0.2",
-    "pocketbase": "^0.14.3",
+    "pocketbase": "^0.17.2",
     "puppeteer": "^19.8.2",
     "uuid": "^9.0.0"
   },

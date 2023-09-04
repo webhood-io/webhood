@@ -933,10 +933,10 @@ pkg-dir@^4.2.0:
   dependencies:
     find-up "^4.0.0"
 
-pocketbase@^0.14.3:
-  version "0.14.4"
-  resolved "https://registry.yarnpkg.com/pocketbase/-/pocketbase-0.14.4.tgz#d661e25a2accb80700537fe43d97fa9b471f3803"
-  integrity sha512-FZJmZ7+tRJ6ShK9h8nZJNSPVfDIR1gukqcAjrzc7IS2zgK4PdBv7wwIJtCRdYYBxHMNAvU1uFkpQ0sWE094wuw==
+pocketbase@^0.17.2:
+  version "0.17.3"
+  resolved "https://registry.yarnpkg.com/pocketbase/-/pocketbase-0.17.3.tgz#bce74cd7259b63b25ac07a7bbcaf87176f6ae4ba"
+  integrity sha512-tqtk7kd8K4/5BspCzqf8DcbjS+iCBLFdpC7s/d6hAuxeoqP5MH6llRICm22dldJDFcTa1chuCfyeeKoU5mYaHQ==
 
 progress@2.0.3:
   version "2.0.3"
