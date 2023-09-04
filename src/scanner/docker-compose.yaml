@@ -1,7 +1,10 @@
 services:
   node-headless:
-    build: ./
-    #image: ghcr.io/markusleh/scan-headless:master
+    build: 
+      context: ./
+      dockerfile: Dockerfile.dev
+    # use Dockerfile.dev
+
     ports:
       - 3030:3030
     restart: always
