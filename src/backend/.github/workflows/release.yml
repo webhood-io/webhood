@@ -1,0 +1,36 @@
+name: Build and Release on Push to Master
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  release:
+    outputs:
+      status: ${{ steps.semantic.outputs.new_release_published }}
+      version: ${{ steps.semantic.outputs.new_release_version }}
+      major: ${{ steps.semantic.outputs.new_release_major_version }}
+      minor: ${{ steps.semantic.outputs.new_release_minor_version }}
+
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Release on GitHub
+        id: semantic
+        uses: cycjimmy/semantic-release-action@v3
+        with:
+          semantic_version: 19.0.5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish:
+    needs:
+      - release
+    if: success() && needs.release.outputs.status == 'true'
+    # Call publish explicitly because events from actions cannot trigger more actions
+    uses: ./.github/workflows/publish.yml
+    with:
+      version: ${{ needs.release.outputs.version }}
+      major: ${{ needs.release.outputs.major }}
+      minor: ${{ needs.release.outputs.minor }}
+    secrets: inherit
