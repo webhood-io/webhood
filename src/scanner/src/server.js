@@ -172,7 +172,6 @@ async function checkForNewScans() {
         console.log('Error while fetching new scans');
         console.log(error);
     })
-    console.log(data)
     if (data?.items.length > 0) {
         const scan = data.items[0];
         const scanId = scan.id;
@@ -216,17 +215,19 @@ setInterval(async function() {
     await checkForOldScans();
 }, 15000);
 
-// Subscribe to changes in any scans record
-try {
+function subscribeRealtime () {
     pb.collection('scans').subscribe('*', async function (e) {
         if(e.action === 'create') {
             console.log('New scan created');
             await checkForNewScans();
         }
-    });
-} catch (error) {
-    console.log('Error while subscribing to changes in scans collection');
-    console.log(error);
+    }).then(() => {
+        console.log('Subscribed to changes in scans collection');
+    })
+    .catch(error => {
+        console.error('Error while subscribing to changes in scans collection. Realtime updates will not work');
+    })
 }
+subscribeRealtime();
 
 console.log("Started")
