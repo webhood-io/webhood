@@ -55,7 +55,7 @@ function LoginForm() {
           name="email"
           id="email"
           type="username"
-          placeholder="Email"
+          placeholder="Email or username"
           className={invalidCredentials && "border-red-500 dark:border-red-500"}
         />
         <Input
