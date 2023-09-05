@@ -10,7 +10,6 @@ import { useTheme } from "next-themes"
 import useSWR, { useSWRConfig } from "swr"
 
 import { ScansResponse } from "@/types/pocketbase-types"
-import { Scan } from "@/types/pocketbase_db.types"
 import { siteConfig } from "@/config/site"
 import { parseUrl } from "@/lib/utils"
 import { Icons } from "@/components/icons"
