@@ -1,0 +1,19 @@
+version: "3.8"
+
+volumes:
+  data:
+  migrations:
+
+services:
+  core:
+    container_name: webhood-backend
+    build: .
+    restart: always
+    ports:
+      - "8089:8090"
+    volumes:
+      - data:/pb/pb_data
+      - migrations:/pb/pb_migrations
+    command:
+      - serve
+      - --http=0.0.0.0:8090

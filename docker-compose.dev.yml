@@ -1,48 +1,27 @@
 version: "3.8"
 
 services:
-  kong:
-    container_name: webhood-proxy
-    image: kong:3.4
-    restart: unless-stopped
-    ports:
-      - ${WEBHOOD_HTTP_PORT:-8000}:8000/tcp
-      - ${WEBHOOD_HTTPS_PORT:-8443}:8443/tcp
-    environment:
-      KONG_DATABASE: "off"
-      KONG_DECLARATIVE_CONFIG: /usr/local/kong/kong.yml
-      KONG_DNS_ORDER: LAST,A,CNAME
-      KONG_PLUGINS: request-transformer,cors,key-auth,acl
-      KONG_NGINX_PROXY_PROXY_BUFFER_SIZE: 160k
-      KONG_NGINX_PROXY_PROXY_BUFFERS: 64 160k
-      KONG_SSL_CERT: ${WEBHOOD_TLS_CERT}
-      KONG_SSL_CERT_KEY: ${WEBHOOD_TLS_KEY}
-    volumes:
-      - ./kong.yml:/usr/local/kong/kong.yml:ro
-    networks:
-      - frontend
-      - rest
-
   scanner:
     container_name: webhood-scanner
-    image: ghcr.io/webhood-io/webhood/scanner:1.0
+    image: ghcr.io/webhood-io/scanner:latest
+    build: src/scanner
     restart: always
     environment:
-      ENDPOINT: http://kong:8000
+      ENDPOINT: http://backend:8090
       API_KEY: ${SCANNER_TOKEN}
       HTTP_PROXY: ${HTTP_PROXY}
       HTTPS_PROXY: ${HTTPS_PROXY}
       NO_PROXY: ${NO_PROXY}
     networks:
       - rest
+      - db
     security_opt:
-      # Use seccomp to restrict the syscalls that the container can make for Chrome
-      # This allows us to run chrome with sandboxing enabled without having to run the whole container as root
       - seccomp=./files/chrome.json
 
   core:
     container_name: webhood-core
-    image: ghcr.io/webhood-io/webhood/core:pocketbase
+    image: ghcr.io/webhood-io/core:latest
+    build: src/core
     restart: always
     environment:
       API_URL: ${EXTERNAL_URL:?error}
@@ -57,8 +36,8 @@ services:
 
   backend:
     container_name: webhood-backend
-    image: ghcr.io/webhood-io/webhood/backend:latest
-    # build: ./backend
+    image: ghcr.io/webhood-io/backend:latest
+    build: src/backend
     restart: always
     environment:
       # https://github.com/pocketbase/pocketbase/releases/tag/v0.17.3
@@ -72,7 +51,7 @@ services:
       - --http=0.0.0.0:8090
     networks:
       - frontend
-
+      - db
 volumes:
   data:
   migrations:
