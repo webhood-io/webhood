@@ -25,12 +25,9 @@ import {
   Twitter,
   UserPlus,
   X,
-  type Icon as LucideIcon,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-
-export type Icon = LucideIcon
 
 const logo = (
   <span>
