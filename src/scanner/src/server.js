@@ -88,7 +88,7 @@ const browserinit = async () => {
         args: [
             "--disable-gpu",
             "--start-maximized",
-            `--user-agent=${ua || ""}`,
+            `--user-agent=${ua || "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"}`, // TODO: change to most recent chrome version
             `--lang=${lang || "en-US"}`,
             `--disable-extensions-except=${pathToExtension}`,
             `--load-extension=${pathToExtension}`,
