@@ -1,5 +1,7 @@
 import { FormEvent, useState } from "react"
 import Head from "next/head"
+import { useRouter } from "next/router"
+import { useToast } from "@/hooks/use-toast"
 
 import { pb } from "@/lib/pocketbase"
 import { Icons } from "@/components/icons"
@@ -13,8 +15,6 @@ import {
 } from "@/components/ui/statusMessage"
 import { TypographyH3 } from "@/components/ui/typography/h3"
 import { TypographySubtle } from "@/components/ui/typography/subtle"
-import { useToast } from "@/hooks/use-toast"
-import { useRouter } from "next/router"
 
 export function ChangePasswordForm() {
   const [passwordMessage, setPasswordMessage] =
@@ -24,7 +24,7 @@ export function ChangePasswordForm() {
     setPasswordMessage({ message, status })
     setIsLoading(false)
   }
-  const {toast} = useToast()
+  const { toast } = useToast()
   const router = useRouter()
   const onChangePassword = (e: FormEvent<HTMLFormElement>) => {
     setIsLoading(true)
@@ -63,12 +63,11 @@ export function ChangePasswordForm() {
           title: "Password changed",
           description: "Password was changed successfully, please login again",
         })
-       // force login after 2 seconds
-       setTimeout(() => {
-         pb.authStore.clear()
-         router.push("/login")
-       }, 2000)
-
+        // force login after 2 seconds
+        setTimeout(() => {
+          pb.authStore.clear()
+          router.push("/login")
+        }, 2000)
       })
       .catch((error) => {
         setMessage(error.message, "error")
