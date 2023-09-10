@@ -25,6 +25,7 @@ import {
 import { TypographyH3 } from "@/components/ui/typography/h3"
 import { TypographySubtle } from "@/components/ui/typography/subtle"
 import { ScanListItem } from "../components/ScanListItem"
+import { siteConfig } from "@/config/site"
 
 function UrlForm({ refreshScanlist }: { refreshScanlist?: () => void }) {
   const [inputError, setInputError] = useState<StatusMessageProps | undefined>(
@@ -186,7 +187,7 @@ export default function IndexPage() {
         <title>Webhood Dashboard</title>
         <meta
           name="description"
-          content="Scan URL's around the web and identify phishing sites."
+          content={siteConfig.description}
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
