@@ -2,10 +2,10 @@ import { useCallback, useEffect, useState } from "react"
 
 import {
   ApiTokensResponse,
+  ScannersResponse,
   ScansResponse,
   UsersResponse,
 } from "@/types/pocketbase-types"
-import { Scan, Scanner } from "@/types/pocketbase_db.types"
 import { pb } from "@/lib/pocketbase"
 import { urlWithParams } from "@/lib/utils"
 
@@ -29,8 +29,8 @@ function scannerFetcher() {
     .collection("scanners")
     .getFirstListItem("")
     .then((data) => {
-      return data as unknown as Scanner
-    }) as Promise<Scanner>
+      return data as unknown as ScannersResponse
+    }) as Promise<ScannersResponse>
 }
 
 function tokensFetcher() {

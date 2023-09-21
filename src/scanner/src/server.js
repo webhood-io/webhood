@@ -188,7 +188,17 @@ async function checkForNewScans() {
     } 
 }
 async function checkForOldScans() {
-    const fiveMinutesAgo = new Date(new Date().getTime() - 300000).toISOString();
+    // timestamp in format Y-m-d H:i:s.uZ, for example 2021-08-31 12:00:00.000Z
+    // https://github.com/pocketbase/pocketbase/issues/2625
+    const fiveMinutesAgo = new Date(new Date().getTime() - 300000)
+        // format to Y-m-d H:i:s.uZ
+        .toISOString()
+        // remove last 3 characters
+        .slice(0, -5)
+        // replace T with space
+        .replace('T', ' ');
+
+
     const records = await pb.collection("scans").getFullList({
         filter: `status="running" && created<"${fiveMinutesAgo}"`,
         '$cancelKey': "oldScans"

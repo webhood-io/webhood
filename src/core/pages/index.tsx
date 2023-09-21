@@ -6,12 +6,10 @@ import { latestScansFetcher } from "@/hooks/use-api"
 import { useToken } from "@/hooks/use-file"
 import { useSubscription } from "@/hooks/use-sub"
 import { useToast } from "@/hooks/use-toast"
-import { UnsubscribeFunc } from "pocketbase"
 import useSWR, { useSWRConfig } from "swr"
 
 import { Scans } from "@/types/database.types"
-import { ScansRecord, ScansResponse } from "@/types/pocketbase-types"
-import { Scan } from "@/types/pocketbase_db.types"
+import { ScansResponse } from "@/types/pocketbase-types"
 import { pb } from "@/lib/pocketbase"
 import { copyToClipboard, generateSlug, validateUrlRegex } from "@/lib/utils"
 import { Icons } from "@/components/icons"
@@ -27,6 +25,7 @@ import {
 import { TypographyH3 } from "@/components/ui/typography/h3"
 import { TypographySubtle } from "@/components/ui/typography/subtle"
 import { ScanListItem } from "../components/ScanListItem"
+import { siteConfig } from "@/config/site"
 
 function UrlForm({ refreshScanlist }: { refreshScanlist?: () => void }) {
   const [inputError, setInputError] = useState<StatusMessageProps | undefined>(
@@ -188,7 +187,7 @@ export default function IndexPage() {
         <title>Webhood Dashboard</title>
         <meta
           name="description"
-          content="Scan URL's around the web and identify phishing sites."
+          content={siteConfig.description}
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>

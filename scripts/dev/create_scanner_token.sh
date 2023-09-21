@@ -1,0 +1,1 @@
+docker compose -f docker-compose.dev.yml run backend create_scanner_token

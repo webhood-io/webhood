@@ -1,12 +1,12 @@
 /**
- * This file was @generated using pocketbase-typegen
- */
+* This file was @generated using pocketbase-typegen
+*/
 
 export enum Collections {
-  ApiTokens = "api_tokens",
-  Scanners = "scanners",
-  Scans = "scans",
-  Users = "users",
+	ApiTokens = "api_tokens",
+	Scanners = "scanners",
+	Scans = "scans",
+	Users = "users",
 }
 
 // Alias types for improved usability
@@ -16,83 +16,81 @@ export type HTMLString = string
 
 // System fields
 export type BaseSystemFields<T = never> = {
-  id: RecordIdString
-  created: IsoDateString
-  updated: IsoDateString
-  collectionId: string
-  collectionName: Collections
-  expand?: T
+	id: RecordIdString
+	created: IsoDateString
+	updated: IsoDateString
+	collectionId: string
+	collectionName: Collections
+	expand?: T
 }
 
 export type AuthSystemFields<T = never> = {
-  email: string
-  emailVisibility: boolean
-  username: string
-  verified: boolean
+	email: string
+	emailVisibility: boolean
+	username: string
+	verified: boolean
 } & BaseSystemFields<T>
 
 // Record types for each collection
 
 export enum ApiTokensRoleOptions {
-  "scanner" = "scanner",
+	"scanner" = "scanner",
+	"api_user" = "api_user",
 }
 export type ApiTokensRecord = {
-  role?: ApiTokensRoleOptions
-  expires?: IsoDateString
+	expires?: IsoDateString
+	role?: ApiTokensRoleOptions
 }
 
 export type ScannersRecord<Tconfig = unknown> = {
-  config?: null | Tconfig
+	config?: null | Tconfig
 }
 
 export enum ScansStatusOptions {
-  "pending" = "pending",
-  "running" = "running",
-  "error" = "error",
-  "done" = "done",
+	"pending" = "pending",
+	"running" = "running",
+	"error" = "error",
+	"done" = "done",
 }
 export type ScansRecord = {
-  done_at?: IsoDateString
-  error?: string
-  html?: string[]
-  final_url?: string
-  slug?: string
-  status?: ScansStatusOptions
-  url?: string
-  screenshots?: string[]
+	done_at?: IsoDateString
+	error?: string
+	final_url?: string
+	html?: string[]
+	screenshots?: string[]
+	slug?: string
+	status?: ScansStatusOptions
+	url?: string
 }
 
 export enum UsersRoleOptions {
-  "admin" = "admin",
-  "user" = "user",
+	"admin" = "admin",
+	"user" = "user",
 }
 export type UsersRecord = {
-  name?: string
-  avatar?: string
-  role?: UsersRoleOptions
+	avatar?: string
+	name?: string
+	role?: UsersRoleOptions
 }
 
 // Response types include system fields and match responses from the PocketBase API
-export type ApiTokensResponse = Required<ApiTokensRecord> & AuthSystemFields
-export type ScannersResponse<Tconfig = unknown> = Required<
-  ScannersRecord<Tconfig>
-> &
-  BaseSystemFields
-export type ScansResponse = Required<ScansRecord> & BaseSystemFields
-export type UsersResponse = Required<UsersRecord> & AuthSystemFields
+export type ApiTokensResponse<Texpand = unknown> = Required<ApiTokensRecord> & AuthSystemFields<Texpand>
+export type ScannersResponse<Tconfig = unknown, Texpand = unknown> = Required<ScannersRecord<Tconfig>> & BaseSystemFields<Texpand>
+export type ScansResponse<Texpand = unknown> = Required<ScansRecord> & BaseSystemFields<Texpand>
+export type UsersResponse<Texpand = unknown> = Required<UsersRecord> & AuthSystemFields<Texpand>
 
 // Types containing all Records and Responses, useful for creating typing helper functions
 
 export type CollectionRecords = {
-  api_tokens: ApiTokensRecord
-  scanners: ScannersRecord
-  scans: ScansRecord
-  users: UsersRecord
+	api_tokens: ApiTokensRecord
+	scanners: ScannersRecord
+	scans: ScansRecord
+	users: UsersRecord
 }
 
 export type CollectionResponses = {
-  api_tokens: ApiTokensResponse
-  scanners: ScannersResponse
-  scans: ScansResponse
-  users: UsersResponse
+	api_tokens: ApiTokensResponse
+	scanners: ScannersResponse
+	scans: ScansResponse
+	users: UsersResponse
 }

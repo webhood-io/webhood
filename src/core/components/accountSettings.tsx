@@ -50,7 +50,7 @@ import {
 import { TypographyLarge } from "@/components/ui/typography/large"
 import { TypographySubtle } from "@/components/ui/typography/subtle"
 
-const ADMIN_API_URL_PATH = "/api"
+const ADMIN_API_URL_PATH = process.env.NEXT_PUBLIC_API_URL + "/api"
 
 export function UserEditSheet({
   children,

@@ -23,6 +23,7 @@ import {
 import { TypographyH3 } from "@/components/ui/typography/h3"
 import { TypographySubtle } from "@/components/ui/typography/subtle"
 import { ScanListItem } from "../../components/ScanListItem"
+import { siteConfig } from "@/config/site"
 
 function LimitSelector({
   limit,
@@ -92,7 +93,7 @@ export default function DashboardPage() {
         <title>Search - Webhood</title>
         <meta
           name="description"
-          content="Next.js template for building apps with Radix UI and Tailwind CSS"
+          content={siteConfig.description}
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />

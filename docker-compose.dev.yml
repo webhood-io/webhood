@@ -30,6 +30,8 @@ services:
       # Ignore TLS errors for self-signed certificates between the UI and the internal admin API
       # Note that this does not affect the TLS connection between the UI and the browser
       NODE_TLS_REJECT_UNAUTHORIZED: 0
+    ports:
+      - 3000:3000
     networks:
       - rest
       - frontend
@@ -49,6 +51,8 @@ services:
     command:
       - serve
       - --http=0.0.0.0:8090
+    ports:
+      - 8090:8090
     networks:
       - frontend
       - db

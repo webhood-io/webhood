@@ -10,7 +10,7 @@ export function SiteHeader() {
         <div className="container flex flex-col items-center space-x-4 sm:justify-between sm:space-x-0">
           <MainNav items={siteConfig.mainNav} />
         </div>
-        <div className="flex flex items-center justify-center gap-2 max-md:hidden">
+        <div className="flex items-center justify-center gap-2 max-md:hidden">
           <ThemeToggle />
           <LogoutButton />
         </div>
