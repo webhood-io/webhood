@@ -99,7 +99,7 @@ export function GeneralSettings() {
       })
   }
   // @ts-ignore TODO: fix this
-  const { ua, lang } = scanDataSwr?.config || { ua: "", lang: ""}
+  const { ua, lang } = scanDataSwr?.config || { ua: "", lang: "" }
   return (
     <div className="flex flex-col justify-between gap-6">
       <TypographyLarge>Scanner settings</TypographyLarge>

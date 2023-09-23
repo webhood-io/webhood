@@ -10,6 +10,7 @@ import useSWR, { useSWRConfig } from "swr"
 
 import { Scans } from "@/types/database.types"
 import { ScansResponse } from "@/types/pocketbase-types"
+import { siteConfig } from "@/config/site"
 import { pb } from "@/lib/pocketbase"
 import { copyToClipboard, generateSlug, validateUrlRegex } from "@/lib/utils"
 import { Icons } from "@/components/icons"
@@ -25,7 +26,6 @@ import {
 import { TypographyH3 } from "@/components/ui/typography/h3"
 import { TypographySubtle } from "@/components/ui/typography/subtle"
 import { ScanListItem } from "../components/ScanListItem"
-import { siteConfig } from "@/config/site"
 
 function UrlForm({ refreshScanlist }: { refreshScanlist?: () => void }) {
   const [inputError, setInputError] = useState<StatusMessageProps | undefined>(
@@ -185,10 +185,7 @@ export default function IndexPage() {
     <Layout>
       <Head>
         <title>Webhood Dashboard</title>
-        <meta
-          name="description"
-          content={siteConfig.description}
-        />
+        <meta name="description" content={siteConfig.description} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <section className="container grid auto-rows-max gap-6 pb-8 pt-6 md:py-10">
