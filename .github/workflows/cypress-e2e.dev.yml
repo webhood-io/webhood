@@ -1,0 +1,29 @@
+name: Cypress E2E
+on: 
+  push:
+    branches:
+      - "main"
+  workflow_dispatch: # manual
+  pull_request:
+    
+jobs:
+  cypress-e2e:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        containers: [1]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Start backend
+        run: ./scripts/setup-e2e.sh
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          #wait-on: 'http://localhost:8090' 
+          working-directory: src/core
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8090

@@ -21,6 +21,8 @@ import "styles/globals.css"
 
 import { mount } from "cypress/react18"
 
+import "cypress-real-events"
+
 // Augment the Cypress namespace to include type definitions for
 // your custom command.
 // Alternatively, can be defined in cypress/support/component.d.ts

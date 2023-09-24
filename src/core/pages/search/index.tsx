@@ -4,6 +4,8 @@ import { scansSearchFetcher } from "@/hooks/use-api"
 import { useToken } from "@/hooks/use-file"
 import useSWR from "swr"
 
+import { siteConfig } from "@/config/site"
+import { ScanListItem } from "@/components/ScanListItem"
 import { Icons } from "@/components/icons"
 import { Layout } from "@/components/layout"
 import { Button } from "@/components/ui/button"
@@ -22,8 +24,6 @@ import {
 } from "@/components/ui/select"
 import { TypographyH3 } from "@/components/ui/typography/h3"
 import { TypographySubtle } from "@/components/ui/typography/subtle"
-import { ScanListItem } from "../../components/ScanListItem"
-import { siteConfig } from "@/config/site"
 
 function LimitSelector({
   limit,
@@ -91,10 +91,7 @@ export default function DashboardPage() {
     <Layout>
       <Head>
         <title>Search - Webhood</title>
-        <meta
-          name="description"
-          content={siteConfig.description}
-        />
+        <meta name="description" content={siteConfig.description} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>

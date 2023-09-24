@@ -6,13 +6,10 @@ import { useToast } from "@/hooks/use-toast"
 import { pb } from "@/lib/pocketbase"
 import { Icons } from "@/components/icons"
 import { Layout } from "@/components/layout"
+import { StatusMessage, StatusMessageProps } from "@/components/statusMessage"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  StatusMessage,
-  StatusMessageProps,
-} from "@/components/ui/statusMessage"
 import { TypographyH3 } from "@/components/ui/typography/h3"
 import { TypographySubtle } from "@/components/ui/typography/subtle"
 

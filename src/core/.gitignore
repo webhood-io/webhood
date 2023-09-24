@@ -1,5 +1,17 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+### Cypress Custom .gitignore ###
+*.log.*
+dist-*
+build
+.history
+.publish
+_test-output
+cypress.zip
+.babel-cache
+cypress/screenshots
+cypress/videos
+
 # dependencies
 node_modules
 .pnp
