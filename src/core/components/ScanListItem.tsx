@@ -3,7 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useFile } from "@/hooks/use-file"
-import { DataItem } from "@/pages/DataItem"
+import { DataItem } from "@/components/DataItem"
 import ScanLoading from "@/public/scan-in-progress.png"
 import X from "@/public/x.png"
 
