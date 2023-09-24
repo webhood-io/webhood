@@ -20,7 +20,7 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
-          start: scripts/setup-e2e.sh
+          start: ./scripts/setup-e2e.sh
           wait-on: 'http://localhost:8090' # Waits for above
         env:
           NEXT_PUBLIC_API_URL: http://localhost:8090
