@@ -2,11 +2,12 @@ import { useContext, useEffect, useState } from "react"
 
 import { FileTokenContext } from "@/lib/FileTokenProvider"
 import { pb } from "@/lib/pocketbase"
+import { ScansRecord } from "@/types/pocketbase-types"
 
-export function useFile(document, fileField, token) {
+export function useFile(document: ScansRecord, fileField: string, token: string) {
   const [imageUrl, setImageUrl] = useState<string | undefined>(undefined)
   useEffect(() => {
-    if (!document || !fileField || !token) return
+    if (!document || !fileField || !token || document.status !== "done") return
     const url = pb.files.getUrl(document, document[fileField][0], {
       token: token,
     })

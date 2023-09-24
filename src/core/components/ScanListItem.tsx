@@ -22,10 +22,11 @@ export function ScanListItem({
   document,
   token,
 }: {
-  document: ScansResponse
+  document: ScansRecord
   token: string
 }) {
-  let img
+  let img;
+  const imageUrl = useFile(document, "screenshots", token)
   switch (document.status) {
     case "pending":
       img = (
@@ -39,7 +40,6 @@ export function ScanListItem({
       )
       break;
     case "done":
-      const imageUrl = useFile(document, "screenshots", token)
       img = (
         <Image
           alt={"Screenshot of the scan"}
