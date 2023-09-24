@@ -18,11 +18,11 @@ jobs:
       matrix:
         include:
           - context: src/core
-            image: ${{ env.IMAGE_PATH }}/core
+            image: ghcr.io/webhood-io/webhood/core
           - context: src/backend
-            image: ${{ env.IMAGE_PATH }}/backend
+            image: ghcr.io/webhood-io/webhood/backend
           - context: src/scanner
-            image: ${{ env.IMAGE_PATH }}/scanner
+            image: ghcr.io/webhood-io/webhood/scanner
     permissions:
       contents: read
       packages: write
