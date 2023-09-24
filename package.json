@@ -1,0 +1,12 @@
+{
+    "name": "webhood",
+    "version": "0.2",
+    "description": "",
+    "private": true,
+    "scripts": {
+        "test:e2e": "./scripts/setup-e2e.sh"
+    },
+    "devDependencies": {
+        "cypress": "latest"
+    }
+}
