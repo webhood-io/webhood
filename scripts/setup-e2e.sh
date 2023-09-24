@@ -6,4 +6,4 @@ cp -r migrations src/pb_migrations
 cd src
 go run main.go config.go migrate
 go run main.go config.go create_user -u admin -p password123 -e test@example.com
-go run main.go config.go serve
+go run main.go config.go serve &

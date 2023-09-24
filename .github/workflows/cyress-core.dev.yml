@@ -25,6 +25,7 @@ jobs:
         uses: cypress-io/github-action@v6
         with:
           wait-on: 'http://localhost:8090' 
+          working-directory: src/core
         env:
           NEXT_PUBLIC_API_URL: http://localhost:8090
 
