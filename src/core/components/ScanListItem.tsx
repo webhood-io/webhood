@@ -25,7 +25,6 @@ export function ScanListItem({
   document: ScansResponse
   token: string
 }) {
-  const imageUrl = useFile(document, "screenshots", token)
   let img
   switch (document.status) {
     case "pending":
@@ -38,7 +37,9 @@ export function ScanListItem({
           height={108 / 2}
         />
       )
+      break;
     case "done":
+      const imageUrl = useFile(document, "screenshots", token)
       img = (
         <Image
           alt={"Screenshot of the scan"}
@@ -49,16 +50,18 @@ export function ScanListItem({
           blurDataURL={Icons.placeholder}
         />
       )
+      break;
     case "error":
       img = (
         <Image
           src={X}
-          alt={"Placeholder image"}
+          alt={"Error image"}
           placeholder={"blur"}
           width={192 / 2}
           height={108 / 2}
         />
       )
+      break;
   }
   return <ScanListItemComponent document={document} ImageComponent={img} />
 }
