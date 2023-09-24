@@ -3,6 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useFile } from "@/hooks/use-file"
+import { DataItem } from "@/pages/DataItem"
 import ScanLoading from "@/public/scan-in-progress.png"
 import X from "@/public/x.png"
 
@@ -16,7 +17,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
-import { DataItem } from "../pages"
 
 export function ScanListItem({
   document,
@@ -50,13 +50,15 @@ export function ScanListItem({
         />
       )
     case "error":
-      img = (<Image
-        src={X}
-        alt={"Placeholder image"}
-        placeholder={"blur"}
-        width={192 / 2}
-        height={108 / 2}
-      />)
+      img = (
+        <Image
+          src={X}
+          alt={"Placeholder image"}
+          placeholder={"blur"}
+          width={192 / 2}
+          height={108 / 2}
+        />
+      )
   }
   return <ScanListItemComponent document={document} ImageComponent={img} />
 }
@@ -99,13 +101,14 @@ export function ScanListItemComponent({
               )}
             </div>
           </PopoverTrigger>
-          <PopoverContent className="w-[32rem] bg-slate-50" data-cy="scan-modal">
+          <PopoverContent
+            className="w-[32rem] bg-slate-50"
+            data-cy="scan-modal"
+          >
             <div className="grid gap-4 truncate">
               <div className="flex flex-row items-start justify-between">
                 <div className={"flex flex-row items-center gap-2"}>
-                  <div data-cy="image-div">
-                    {ImageComponent}
-                  </div>
+                  <div data-cy="image-div">{ImageComponent}</div>
                   <div className="space-y-1">
                     <h4 className="font-medium leading-none">Details</h4>
                     <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -122,7 +125,10 @@ export function ScanListItemComponent({
                   </div>
                 </Link>
               </div>
-              <div className="mb-1 mr-1 grid gap-2" data-cy="scan-detailed-table">
+              <div
+                className="mb-1 mr-1 grid gap-2"
+                data-cy="scan-detailed-table"
+              >
                 <DataItem content={document.url} label={"Input URL"} copy />
                 <DataItem
                   content={document.final_url}
@@ -144,7 +150,9 @@ export function ScanListItemComponent({
             {document.status === "running" && <Icons.loader className="h-4" />}
             {document.status === "error" && <Icons.error className="h-4" />}
             {document.status === "done" && <Icons.done className="h-4" />}
-            <div className="text-sm" data-cy="scan-status-text">{document.status}</div>
+            <div className="text-sm" data-cy="scan-status-text">
+              {document.status}
+            </div>
           </div>
           {/* When */}
           <div className="flex-rows flex items-center gap-0.5 text-slate-500">
@@ -154,7 +162,12 @@ export function ScanListItemComponent({
           </div>
         </div>
       </div>
-      <Link className="px-1" href={`/scan/${document.slug}`} data-cy="slug-link" target="_blank">
+      <Link
+        className="px-1"
+        href={`/scan/${document.slug}`}
+        data-cy="slug-link"
+        target="_blank"
+      >
         <Button
           variant="ghost"
           className="align-right h-10 w-10"

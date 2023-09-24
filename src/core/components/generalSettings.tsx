@@ -6,14 +6,11 @@ import { z } from "zod"
 import { pb } from "@/lib/pocketbase"
 import { ScannerLangTip, ScannerUaTip } from "@/lib/tips"
 import { Icons } from "@/components/icons"
+import { StatusMessage, StatusMessageProps } from "@/components/statusMessage"
 import { IconButton } from "@/components/ui/button-icon"
 import { GenericTooltip } from "@/components/ui/generic-tooltip"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  StatusMessage,
-  StatusMessageProps,
-} from "@/components/ui/statusMessage"
 import { TypographyLarge } from "@/components/ui/typography/large"
 
 interface MicrosoftAuthOptions {
