@@ -47,9 +47,7 @@ jobs:
             type=ref,event=tag
             type=ref,event=branch
             type=raw,value=latest,enable={{is_default_branch}}
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=raw,value=latest,enable=${{ endsWith(github.ref, '-dev') }}
-
+            type=raw,value=dev,enable=${{ endsWith(github.ref, '-dev') }}
 
       - name: Build and push Docker image 
         uses: docker/build-push-action@v4
