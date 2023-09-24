@@ -2,6 +2,7 @@
 import {ScanListItem, ScanListItemComponent} from './ScanListItem';
 import X from "../public/x.png"
 import Image from "next/image"
+import { pb } from "@/lib/pocketbase"
 
 const testDocumentPending = {
     title: "Test",
@@ -18,6 +19,13 @@ const testDocumentCompleted = {
     status: "done",
     done_at: "2021-01-01T00:01:00.000Z",
     final_url: "https://www.google.com/",
+    screenshots: ["ss.png"]
+}
+
+const testDocumentErrored = {
+    ...testDocumentPending,
+    status: "error",
+    done_at: "2021-01-01T00:01:00.000Z",
 }
 
 describe('ScanListItem', () => {
@@ -54,10 +62,6 @@ describe('ScanListItem', () => {
         cy.get('[data-cy=scan-url]').click();
         cy.get('[data-cy=scan-detailed-table]').should('exist');
     });
-    it('shows the pending image', () => {
-        cy.get('[data-cy=scan-url]').click();
-        cy.get('[data-cy=scan-image]').should('be.visible');
-    });
     it('hides modal when clicking on url again', () => {
         cy.get('[data-cy=scan-url]').click();
         cy.get('[data-cy=scan-url]').click();
@@ -74,5 +78,23 @@ describe('ScanListItem', () => {
         }
         document={testDocumentCompleted} />);
         cy.get('[data-cy=scan-status-text]').should('have.text', 'done');
+    });
+    it('shows the pending image', () => {
+        cy.mount(<ScanListItem document={testDocumentPending} token='123' />);
+        cy.get('[data-cy=scan-url]').click();
+        cy.get('[data-cy=image-div]').children().first().should('have.attr', 'alt', 'Placeholder image');
+    });
+    it('shows the completed image', () => {
+        cy.mount(<ScanListItem document={testDocumentCompleted} token='123' />);
+        // alt text is "Screenshot of the scan"
+        pb.files.getUrl = cy.stub().returns('https://picsum.photos/96/54'); // todo: use a real image, this will not work due to intercept in beforeEach
+        cy.get('[data-cy=scan-url]').click();
+        cy.get('[data-cy=image-div]').children().first().should('have.attr', 'alt', 'Screenshot of the scan');
+    });
+    it('shows error image when scan errors', () => {
+        // alt text is "Error image"
+        cy.mount(<ScanListItem document={testDocumentErrored} token='123'/>);
+        cy.get('[data-cy=scan-url]').click();
+        cy.get('[data-cy=image-div]').children().first().should('have.attr', 'alt', 'Error image');
     });
 });

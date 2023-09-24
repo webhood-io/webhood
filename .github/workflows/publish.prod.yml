@@ -1,0 +1,60 @@
+name: Build & publish Webhood images 
+on:
+  release:
+    types: [published]
+
+  pull_request:
+    branches:
+      - 'main'
+    types: [opened, reopened, review_requested]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PATH: ghcr.io/${{ github.repository }}
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - context: src/core
+            image: ghcr.io/webhood-io/webhood/core
+          - context: src/backend
+            image: ghcr.io/webhood-io/webhood/backend
+          - context: src/scanner
+            image: ghcr.io/webhood-io/webhood/scanner
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ matrix.image }}
+          tags: |
+            type=ref,event=tag
+            type=ref,event=branch
+            type=ref,event=pr
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image 
+        uses: docker/build-push-action@v4
+        with:
+          context: ${{ matrix.context }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
