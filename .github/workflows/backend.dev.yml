@@ -1,10 +1,6 @@
 name: backend.dev-build-push
 
 on:
-  pull_request:
-    branches:
-      - 'main'
-    types: [opened, reopened, review_requested]
   push:
     branches-ignore:
       - 'main'
