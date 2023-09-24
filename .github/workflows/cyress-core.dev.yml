@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false # https://github.com/cypress-io/github-action/issues/48
       matrix:
-        containers: [1, 2] # Uses 2 parallel instances
+        containers: [1] # Uses 1 parallel instance
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -24,12 +24,12 @@ jobs:
         with:
           # Starts web server for E2E tests - replace with your own server invocation
           # https://docs.cypress.io/guides/continuous-integration/introduction#Boot-your-server
-          start: npm start
-          wait-on: 'http://localhost:3000' # Waits for above
+          # start: yarn run dev
+          # wait-on: 'http://localhost:3000' # Waits for above
           # Records to Cypress Cloud 
           # https://docs.cypress.io/guides/cloud/projects#Set-up-a-project-to-record
-          record: true
-          parallel: true # Runs test in parallel using settings above
+          # record: true
+          # parallel: true # Runs test in parallel using settings above
           working-directory: src/core
           component: true
         env:
