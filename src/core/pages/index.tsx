@@ -16,7 +16,7 @@ import { Title } from "@/components/title"
 import { TypographyH3 } from "@/components/ui/typography/h3"
 import { TypographySubtle } from "@/components/ui/typography/subtle"
 import { ScanListItem } from "../components/ScanListItem"
-import { UrlForm } from "./UrlForm"
+import { UrlForm } from "@/components/UrlForm"
 
 function ScanList({ scans }: { scans: ScansResponse[] }) {
   const { token } = useToken()
