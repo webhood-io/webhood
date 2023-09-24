@@ -1,3 +1,4 @@
 .env
 test.http
 docker-compose.override.yml
+node_modules
