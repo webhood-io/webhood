@@ -31,6 +31,7 @@ jobs:
           tags: |
             type=ref,event=branch
             type=ref,event=pr
+            type=raw,value=dev,enable=${{ endsWith(github.ref, '-dev') }}
             type=sha
 
       - name: Login to GHCR
