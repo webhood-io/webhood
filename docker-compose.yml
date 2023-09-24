@@ -25,7 +25,7 @@ services:
 
   scanner:
     container_name: webhood-scanner
-    image: ghcr.io/webhood-io/webhood/scanner:1.0
+    image: ghcr.io/webhood-io/webhood/scanner:v0.2-dev
     restart: always
     environment:
       ENDPOINT: http://kong:8000
@@ -42,7 +42,7 @@ services:
 
   core:
     container_name: webhood-core
-    image: ghcr.io/webhood-io/webhood/core:pocketbase
+    image: ghcr.io/webhood-io/webhood/core:v0.2-dev
     restart: always
     environment:
       API_URL: ${EXTERNAL_URL:?error}
@@ -57,7 +57,7 @@ services:
 
   backend:
     container_name: webhood-backend
-    image: ghcr.io/webhood-io/webhood/backend:latest
+    image: ghcr.io/webhood-io/webhood/backend:v0.2-dev
     # build: ./backend
     restart: always
     environment:
