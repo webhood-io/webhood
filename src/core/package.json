@@ -76,7 +76,7 @@
     "cypress-real-events": "^1.10.3",
     "eslint": "^8.49.0",
     "eslint-config-next": "13.3.1",
-    "eslint-config-prettier": "^8.8.0",
+    "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-tailwindcss": "^3.11.0",
     "identity-obj-proxy": "^3.0.0",
