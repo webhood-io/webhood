@@ -1,10 +1,14 @@
 import { useContext, useEffect, useState } from "react"
 
+import { ScansRecord } from "@/types/pocketbase-types"
 import { FileTokenContext } from "@/lib/FileTokenProvider"
 import { pb } from "@/lib/pocketbase"
-import { ScansRecord } from "@/types/pocketbase-types"
 
-export function useFile(document: ScansRecord, fileField: string, token: string) {
+export function useFile(
+  document: ScansRecord,
+  fileField: string,
+  token: string
+) {
   const [imageUrl, setImageUrl] = useState<string | undefined>(undefined)
   useEffect(() => {
     if (!document || !fileField || !token || document.status !== "done") return

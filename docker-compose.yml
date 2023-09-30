@@ -25,7 +25,7 @@ services:
 
   scanner:
     container_name: webhood-scanner
-    image: ghcr.io/webhood-io/webhood/scanner:v0.2-dev
+    image: ghcr.io/webhood-io/webhood/scanner:latest
     restart: always
     environment:
       ENDPOINT: http://kong:8000
@@ -42,11 +42,10 @@ services:
 
   core:
     container_name: webhood-core
-    image: ghcr.io/webhood-io/webhood/core:v0.2-dev
+    image: ghcr.io/webhood-io/webhood/core:latest
     restart: always
     environment:
       API_URL: ${EXTERNAL_URL:?error}
-      JWT_SECRET: ${JWT_SECRET:?error}
       SELF_REGISTER: ${SELF_REGISTER:-false}
       # Ignore TLS errors for self-signed certificates between the UI and the internal admin API
       # Note that this does not affect the TLS connection between the UI and the browser
@@ -57,7 +56,7 @@ services:
 
   backend:
     container_name: webhood-backend
-    image: ghcr.io/webhood-io/webhood/backend:v0.2-dev
+    image: ghcr.io/webhood-io/webhood/backend:latest
     # build: ./backend
     restart: always
     environment:

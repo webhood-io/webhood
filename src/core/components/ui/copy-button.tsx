@@ -1,6 +1,6 @@
 import * as React from "react"
 import { useState } from "react"
-import { VariantProps, cva } from "class-variance-authority"
+import { cva, VariantProps } from "class-variance-authority"
 
 import { cn, copyToClipboard } from "@/lib/utils"
 import { Icons } from "@/components/icons"

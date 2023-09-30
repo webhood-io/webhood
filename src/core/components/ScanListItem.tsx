@@ -3,12 +3,12 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useFile } from "@/hooks/use-file"
-import { DataItem } from "@/components/DataItem"
 import ScanLoading from "@/public/scan-in-progress.png"
 import X from "@/public/x.png"
 
 import { ScansRecord, ScansResponse } from "@/types/pocketbase-types"
 import { dateToLocaleString, parseUrl } from "@/lib/utils"
+import { DataItem } from "@/components/DataItem"
 import { Icons } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import {
@@ -25,7 +25,7 @@ export function ScanListItem({
   document: ScansRecord
   token: string
 }) {
-  let img;
+  let img
   const imageUrl = useFile(document, "screenshots", token)
   switch (document.status) {
     case "pending":
@@ -38,7 +38,7 @@ export function ScanListItem({
           height={108 / 2}
         />
       )
-      break;
+      break
     case "done":
       img = (
         <Image
@@ -50,7 +50,7 @@ export function ScanListItem({
           blurDataURL={Icons.placeholder}
         />
       )
-      break;
+      break
     case "error":
       img = (
         <Image
@@ -61,7 +61,7 @@ export function ScanListItem({
           height={108 / 2}
         />
       )
-      break;
+      break
   }
   return <ScanListItemComponent document={document} ImageComponent={img} />
 }

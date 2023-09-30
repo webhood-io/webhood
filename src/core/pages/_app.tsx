@@ -3,6 +3,7 @@ import { Inter as FontSans } from "next/font/google"
 import { ThemeProvider } from "next-themes"
 
 import "@/styles/globals.css"
+
 import Head from "next/head"
 
 import { FileTokenProvider } from "@/lib/FileTokenProvider"

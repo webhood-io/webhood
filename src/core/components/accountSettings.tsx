@@ -49,179 +49,24 @@ import {
 } from "@/components/ui/tooltip"
 import { TypographyLarge } from "@/components/ui/typography/large"
 import { TypographySubtle } from "@/components/ui/typography/subtle"
+import { UserEditSheet } from "./UserEditSheet"
 
 const ADMIN_API_URL_PATH = process.env.NEXT_PUBLIC_API_URL + "/api"
 
-export function UserEditSheet({
-  children,
-  user,
-  onClose,
-}: {
-  children: React.ReactNode
-  user: UsersResponse
-  onClose: () => void
-}) {
-  const [isOpen, setIsOpen] = React.useState(false)
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-    const data = Object.fromEntries(formData)
-    if (user.id) {
-      pb.collection("users")
-        .update(user.id, data)
-        .then((res) => {
-          setIsOpen(false)
-          onClose()
-        })
-        .catch((err) => {
-          console.log(err)
-        })
-    } else {
-      pb.collection("users")
-        .create(data)
-        .then((res) => {
-          setIsOpen(false)
-          onClose()
-        })
-        .catch((err) => {
-          console.log(err)
-        })
-    }
-  }
-  const deleteUser = () => {
-    pb.collection("users")
-      .delete(user.id)
-      .then((res) => {
-        setIsOpen(false)
-        onClose()
-      })
-      .catch((err) => {
-        console.log(err)
-      })
-  }
-  return (
-    <Sheet open={isOpen} onOpenChange={() => setIsOpen(!isOpen)}>
-      <SheetTrigger asChild>{children}</SheetTrigger>
-      <SheetContent position="right" size="content">
-        <SheetHeader>
-          <SheetTitle>Edit profile</SheetTitle>
-          <SheetDescription>
-            Make changes user here. Click save when you&apos;re done.
-          </SheetDescription>
-        </SheetHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="username" className="text-right">
-                Username
-              </Label>
-              <Input
-                id="username"
-                name="username"
-                type="username"
-                className="col-span-3"
-                defaultValue={user.username}
-                placeholder="Username"
-                // @ts-ignore
-                disabled={user.id}
-                required
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="email" className="text-right">
-                Email
-              </Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                className="col-span-3"
-                defaultValue={user.email}
-                placeholder="Email address"
-                // @ts-ignore
-                disabled={user.id}
-                required
-              />
-            </div>
-            {!user.id && (
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="password" className="text-right">
-                  Password
-                </Label>
-                <Input
-                  id="password"
-                  type="password"
-                  name="password"
-                  className="col-span-3"
-                  placeholder="New password"
-                  required
-                  autoComplete="new-password"
-                />
-              </div>
-            )}
-            {!user.id && (
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="password-confirm" className="text-right">
-                  Confirm password
-                </Label>
-                <Input
-                  id="password-confirm"
-                  type="password"
-                  name="passwordConfirm"
-                  className="col-span-3"
-                  placeholder="Confirm new password"
-                  required
-                  autoComplete="new-password"
-                />
-              </div>
-            )}
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">Role</Label>
-              <Select name="role" defaultValue={user.role || "user"} required>
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select a role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="user">User</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <SheetFooter>
-            {user.id && (
-              <Button variant="destructive" type="button" onClick={deleteUser}>
-                Delete
-              </Button>
-            )}
-            {/* TODO: add loading and errors */}
-            <Button type="submit">Save changes</Button>
-            <div></div>
-          </SheetFooter>
-          <div className="my-4 text-right">
-            {/* error && (
-              <div className="text-red-500">{error.message || error}</div>
-            )*/}
-          </div>
-        </form>
-      </SheetContent>
-    </Sheet>
-  )
+export const newUser = {
+  username: "",
+  email: "",
+  password: "",
+  passwordConfirm: "",
+  role: undefined,
+  name: "",
+  avatar: "",
 }
+
 function UsersTable() {
   const { data, error, isLoading } = useSWR("/api/accounts", usersFetcher)
   const { mutate } = useSWRConfig()
   const refresh = () => mutate("/api/accounts")
-
-  const newUser = {
-    username: "",
-    email: "",
-    password: "",
-    passwordConfirm: "",
-    role: undefined,
-    name: "",
-    avatar: "",
-  }
 
   const currentUser = pb.authStore.model
 
