@@ -95,7 +95,9 @@ export function MainNav({ items }: MainNavProps) {
           <DropdownMenuSeparator />
           {items?.map(
             (item, index) =>
-              item.href && (
+              item.roleRequired && item.roleRequired !== role
+              ? null
+              : item.href && (
                 <DropdownMenuItem key={index} asChild>
                   <Link href={item.href}>{item.title}</Link>
                 </DropdownMenuItem>
