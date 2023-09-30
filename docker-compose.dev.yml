@@ -3,7 +3,7 @@ version: "3.8"
 services:
   scanner:
     container_name: webhood-scanner
-    image: ghcr.io/webhood-io/scanner:latest
+    image: ghcr.io/webhood-io/scanner:dev
     build: src/scanner
     restart: always
     environment:
@@ -20,7 +20,7 @@ services:
 
   core:
     container_name: webhood-core
-    image: ghcr.io/webhood-io/core:latest
+    image: ghcr.io/webhood-io/core:dev
     build: src/core
     restart: always
     environment:
@@ -38,7 +38,7 @@ services:
 
   backend:
     container_name: webhood-backend
-    image: ghcr.io/webhood-io/backend:latest
+    image: ghcr.io/webhood-io/backend:dev
     build: src/backend
     restart: always
     environment:
