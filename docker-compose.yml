@@ -47,6 +47,7 @@ services:
     environment:
       API_URL: ${EXTERNAL_URL:?error}
       SELF_REGISTER: ${SELF_REGISTER:-false}
+      HOSTNAME: 0.0.0.0 # bind to all interfaces. This is needed for nextjs to work. Note that this by itself does not expose the docker directly.
       # Ignore TLS errors for self-signed certificates between the UI and the internal admin API
       # Note that this does not affect the TLS connection between the UI and the browser
       NODE_TLS_REJECT_UNAUTHORIZED: 0
