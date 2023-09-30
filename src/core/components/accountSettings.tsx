@@ -68,7 +68,6 @@ function UsersTable() {
   const { mutate } = useSWRConfig()
   const refresh = () => mutate("/api/accounts")
 
-
   const currentUser = pb.authStore.model
 
   const users = data || []

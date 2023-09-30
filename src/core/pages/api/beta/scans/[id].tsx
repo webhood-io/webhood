@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid"
 import { z } from "zod"
 
 import { catchErrorsFrom } from "@/lib/api_error"
-import { ScanApiScanResponse, client } from "."
+import { client, ScanApiScanResponse } from "."
 
 const getApiScanSchema = z.object({
   id: z.string(),

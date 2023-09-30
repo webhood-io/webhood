@@ -1,27 +1,12 @@
-import React from "react";
-import { UsersResponse } from "@/types/pocketbase-types";
-import { pb } from "@/lib/pocketbase";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger
-} from "@/components/ui/sheet";
-import {z} from "zod";
+import { on } from "events"
+import React from "react"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { set, useForm } from "react-hook-form"
+import { z } from "zod"
 
+import { UsersResponse } from "@/types/pocketbase-types"
+import { pb } from "@/lib/pocketbase"
+import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
@@ -31,21 +16,38 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { set, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod"
-import { TypographySubtle } from "./ui/typography/subtle";
-import { on } from "events";
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+import { TypographySubtle } from "./ui/typography/subtle"
 
-const userCreateSchema = z.object({
-  username: z.string().min(3).max(20),
-  email: z.string().email(),
-  password: z.string().min(8).max(20),
-  passwordConfirm: z.string().min(8).max(20),
-  role: z.enum(["user", "admin"]),
-}).refine((data) => data.password === data.passwordConfirm, {
-  message: "Passwords don't match",
-  path: ["passwordConfirm"],
-});;
+const userCreateSchema = z
+  .object({
+    username: z.string().min(3).max(20),
+    email: z.string().email(),
+    password: z.string().min(8).max(20),
+    passwordConfirm: z.string().min(8).max(20),
+    role: z.enum(["user", "admin"]),
+  })
+  .refine((data) => data.password === data.passwordConfirm, {
+    message: "Passwords don't match",
+    path: ["passwordConfirm"],
+  })
 
 const userEditSchema = z.object({
   username: z.string().min(3).max(20),
@@ -54,24 +56,29 @@ const userEditSchema = z.object({
   role: z.enum(["user", "admin"]),
 })
 
-
+function getEditSchema(user) {
+  if (user.id) {
+    return userEditSchema
+  } else {
+    return userCreateSchema
+  }
+}
 
 export function UserEditSheet({
-  user, children, onClose,
+  user,
+  children,
+  onClose,
 }: {
-  user: UsersResponse;
-  children?: React.ReactNode;
-  onClose: () => void;
+  user: UsersResponse
+  children?: React.ReactNode
+  onClose: () => void
 }) {
-  const form = (user.id)
-  ? useForm<z.infer<typeof userEditSchema>>({
-    resolver: zodResolver(userEditSchema),
+  const schema = getEditSchema(user)
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
     defaultValues: {
-      ...user
+      ...user,
     },
-  })
-  : useForm<z.infer<typeof userCreateSchema>>({
-    resolver: zodResolver(userCreateSchema),
   })
   const [isOpen, setIsOpen] = React.useState(false)
 
@@ -88,144 +95,161 @@ export function UserEditSheet({
       pb.collection("users")
         .update(user.id, data)
         .then((res) => {
-          handleClose();
+          handleClose()
         })
         .catch((err) => {
-          console.log(err);
-        });
+          console.log(err)
+        })
     } else {
       pb.collection("users")
         .create(data)
         .then((res) => {
-          handleClose();
+          handleClose()
         })
         .catch((err) => {
-          console.log(err);
-        });
+          console.log(err)
+        })
     }
-  };
+  }
   const deleteUser = () => {
     pb.collection("users")
       .delete(user.id)
       .then((res) => {
-        handleClose();
+        handleClose()
       })
       .catch((err) => {
-        console.log(err);
-      });
-  };
+        console.log(err)
+      })
+  }
   return (
     <Sheet open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
-      <SheetTrigger data-cy="trigger" asChild>{children}</SheetTrigger>
-      <SheetContent position="right" size="content" className="overflow-y-scroll max-h-screen">
+      <SheetTrigger data-cy="trigger" asChild>
+        {children}
+      </SheetTrigger>
+      <SheetContent
+        position="right"
+        size="content"
+        className="max-h-screen overflow-y-scroll"
+      >
         <SheetHeader>
           <SheetTitle>Edit profile</SheetTitle>
           <SheetDescription>
             <TypographySubtle>
-            Make changes to user accounts here or create a new one. <br/> Click save when you&apos;re done.
+              Make changes to user accounts here or create a new one. <br />{" "}
+              Click save when you&apos;re done.
             </TypographySubtle>
           </SheetDescription>
         </SheetHeader>
         <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)}>
-          <div className="grid gap-4 py-4">
-          <FormField
-          control={form.control}
-          name="username"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Username</FormLabel>
-              <FormControl>
-                <Input placeholder="username" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-          <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email address</FormLabel>
-              <FormControl>
-                <Input placeholder="john@example.com"  {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-          <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input {...field} type="password"/>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {!user.id && 
-          <FormField
-          control={form.control}
-          /* @ts-ignore */
-          name="passwordConfirm"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password again</FormLabel>
-              <FormControl>
-                <Input {...field} type="password"/>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        }
-          <FormField
-          control={form.control}
-          name="role"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Role</FormLabel>
-              <FormControl>
-              <Select onValueChange={field.onChange} defaultValue={field.value} name={field.name}>
-              <FormControl>
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select a role" />
-                </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="user">User</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                </SelectContent>
-              </Select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-                  </div>
-          <SheetFooter>
-            {user.id && (
-              <Button variant="destructive" type="button" onClick={deleteUser}>
-                Delete
+          <form onSubmit={form.handleSubmit(handleSubmit)}>
+            <div className="grid gap-4 py-4">
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username</FormLabel>
+                    <FormControl>
+                      <Input placeholder="username" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email address</FormLabel>
+                    <FormControl>
+                      <Input placeholder="john@example.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="password" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {!user.id && (
+                <FormField
+                  control={form.control}
+                  /* @ts-ignore */
+                  name="passwordConfirm"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password again</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="password" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+              <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Role</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        name={field.name}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="col-span-3">
+                            <SelectValue placeholder="Select a role" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="user">User</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <SheetFooter>
+              {user.id && (
+                <Button
+                  variant="destructive"
+                  type="button"
+                  onClick={deleteUser}
+                >
+                  Delete
+                </Button>
+              )}
+              {/* TODO: add loading and errors */}
+              <Button type="submit" data-cy="submit-button">
+                Save changes
               </Button>
-            )}
-            {/* TODO: add loading and errors */}
-            <Button type="submit" data-cy="submit-button">Save changes</Button>
-            <div></div>
-          </SheetFooter>
-          <div className="my-4 text-right">
-            {/* error && (
+              <div></div>
+            </SheetFooter>
+            <div className="my-4 text-right">
+              {/* error && (
               <div className="text-red-500">{error.message || error}</div>
             )*/}
-          </div>
+            </div>
           </form>
         </Form>
       </SheetContent>
     </Sheet>
-  );
+  )
 }
