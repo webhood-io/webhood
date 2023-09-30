@@ -49,12 +49,21 @@ const userCreateSchema = z
     path: ["passwordConfirm"],
   })
 
-const userEditSchema = z.object({
-  username: z.string().min(3).max(20),
-  email: z.string().email(),
-  password: z.string().min(8).max(20).optional(),
-  role: z.enum(["user", "admin"]),
-})
+const userEditSchema = z
+  .object({
+    username: z.string().min(3).max(20),
+    email: z.string().email(),
+    password: z.string().min(8).max(20).optional(),
+    passwordConfirm: z.string().min(8).max(20).optional(),
+    role: z.enum(["user", "admin"]),
+  })
+  .refine(
+    (data) => (data.password ? data.password === data.passwordConfirm : true),
+    {
+      message: "Passwords don't match",
+      path: ["passwordConfirm"],
+    }
+  )
 
 function getEditSchema(user) {
   if (user.id) {
@@ -182,22 +191,19 @@ export function UserEditSheet({
                   </FormItem>
                 )}
               />
-              {!user.id && (
-                <FormField
-                  control={form.control}
-                  /* @ts-ignore */
-                  name="passwordConfirm"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password again</FormLabel>
-                      <FormControl>
-                        <Input {...field} type="password" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
+              <FormField
+                control={form.control}
+                name="passwordConfirm"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password again</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="password" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="role"
