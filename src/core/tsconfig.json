@@ -19,7 +19,7 @@
     }
   },
   "types": ["node", "jest", "@testing-library/jest-dom"],
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "jest.setup.ts", "__test__/ChangePasswordForm.test.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "jest.setup.ts", "__test__/ChangePasswordForm.test.js", "cypress/e2e/api-tests/scan.cy.js"],
   "exclude": [
     // https://stackoverflow.com/questions/58999086/cypress-causing-type-errors-in-jest-assertions/72663546#72663546
     "./cypress.config.ts",

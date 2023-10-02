@@ -81,7 +81,7 @@ func main() {
 				println("Error creating token: " + tokenFetchErr.Error())
 				return
 			}
-			print("New token created: " + token + "\n")
+			print("SCANNER_TOKEN=" + token + "\n")
 		},
 	})
 	create_user_cmd := &cobra.Command{

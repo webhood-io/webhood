@@ -1,6 +1,5 @@
 // error handler middleware
 import { ApiError } from "next/dist/server/api-utils"
-import { v4 as uuidv4 } from "uuid"
 import { z } from "zod"
 
 import { catchErrorsFrom } from "@/lib/api_error"
@@ -46,9 +45,14 @@ async function apiGetScans(req, res) {
   console.log("auth", authorization, req.headers)
   const { status } = getApiScanSchema.parse(req.query)
   const pbCli = client(req, res)
+  const options = {
+    sort: "-created",
+  }
   const data = await pbCli
     .collection("scans")
-    .getFullList(status ? { filter: `status = "${status}"` } : null)
+    .getFullList(
+      status ? { filter: `status = "${status}"`, ...options } : options
+    )
     .catch((e) => {
       throw new ApiError(e.status, e.message)
     })

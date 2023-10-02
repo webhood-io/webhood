@@ -1,6 +1,6 @@
 {
   "extends": "../tsconfig.json",
-  "include": ["./**/*.ts", "../cypress.d.ts"],
+  "include": ["./**/*.ts", "../cypress.d.ts", "e2e/api-tests/scan.cy.js"],
   "exclude": [],
   "compilerOptions": {
     "types": ["cypress", "@percy/cypress"],
