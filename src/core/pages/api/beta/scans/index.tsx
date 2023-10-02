@@ -33,7 +33,7 @@ export const client = (req, res) => {
   const { authorization } = req.headers
   console.log("auth", authorization, req.headers)
   pb.authStore.save(getToken(authorization), null)
-  return pb 
+  return pb
 }
 
 const getApiScanSchema = z.object({
@@ -50,7 +50,9 @@ async function apiGetScans(req, res) {
   }
   const data = await pbCli
     .collection("scans")
-    .getFullList(status ? { filter: `status = "${status}"`, ...options } : options)
+    .getFullList(
+      status ? { filter: `status = "${status}"`, ...options } : options
+    )
     .catch((e) => {
       throw new ApiError(e.status, e.message)
     })
