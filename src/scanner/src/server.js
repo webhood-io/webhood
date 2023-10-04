@@ -15,7 +15,7 @@ dotenv.config({path: join(rootPath, '.env')});
 // refactor previous line to use require syntax
 import PocketBase from 'pocketbase';
 import { EnvAuthStore } from './memoryAuthStore.js';
-
+import * as errors from "./errors.js"
 // https://github.com/pocketbase/pocketbase/discussions/178
 import EventSource from 'eventsource';
 global.EventSource = EventSource
@@ -25,23 +25,6 @@ const width = 1920;
 const height = 1080;
 
 const GOTO_TIMEOUT = 10000; // 10 seconds
-
-const Config = {
-    followNewTab: false,
-    fps: 25,
-    videoFrame: {
-      width: width,
-      height: height
-    },
-    videoCrf: 18,
-    videoCodec: 'libx264',
-    videoPreset: 'ultrafast',
-    videoBitrate: 1000,
-    autopad: {
-      color: 'black' | '#35A5FF',
-    },
-    aspectRatio: '16:9',
-  };
 
 if (!process.env.ENDPOINT || !process.env.API_KEY) {
     console.error('Please set the ENDPOINT and API_KEY environment variables');
@@ -61,12 +44,11 @@ const errorMessage = (message, scanId) => {
 // save document
 const updateDocument = async (id, data) => {
     const promise = new Promise((resolve, reject) => {
-        console.log(data)
         pb.collection("scans").update(id, data).then((response) => {
             resolve(response);
         }).catch((error) => {
-            console.log(error);
             reject(error);
+            throw new errors.WebhoodScannerBackendError(error);
         });
     });
     return promise;
@@ -74,6 +56,9 @@ const updateDocument = async (id, data) => {
 
 async function getBrowserInfo() {
     const data = await pb.collection("scanners").getFirstListItem('');
+    if(!data?.config) {
+        throw new errors.WebhoodScannerInvalidConfigError('Invalid config');
+    }
     return data.config;
 }
 
@@ -81,7 +66,6 @@ const browserinit = async () => {
     console.log('Starting browser');
     const pathToExtension = join(process.cwd(), 'fihnjjcciajhdojfnbdddfaoknhalnja');
     const {ua, lang} = await getBrowserInfo();
-    console.log('Browser info', ua, lang)
     const browser = await launch({
         headless: 'new',
         executablePath: chromePath,
@@ -104,9 +88,7 @@ const browserinit = async () => {
     return browser;
 }
 
-async function screenshot(res, url, scanId) {
-    const browser = await browserinit();
-    const now = new Date().toISOString();
+async function screenshot(res, url, scanId, browser) {
     const page = await browser.newPage();
     try {
         await page.goto(url, { timeout: GOTO_TIMEOUT });
@@ -116,9 +98,7 @@ async function screenshot(res, url, scanId) {
         if(e instanceof TimeoutError) {
             console.log('Timeout while loading page, trying to continue');
         } else {
-            errorMessage('Error while loading page', scanId);
-            await browser.close();
-            return;
+            throw new errors.WebhoodScannerPageError('Error while loading page:' + e);
         }
     }
 
@@ -155,7 +135,7 @@ async function screenshot(res, url, scanId) {
             done_at: endDateTime,
             status: "done",
         };
-        const response = await updateDocument(scanId, data);
+        await updateDocument(scanId, data);
     } catch (e) {
         console.log('Error while saving document');
         console.log(e);
@@ -170,22 +150,12 @@ async function checkForNewScans() {
         {filter: 'status="pending"'}
     ).catch(error => {
         console.log('Error while fetching new scans');
-        console.log(error);
+        throw new errors.WebhoodScannerBackendError(error);
     })
-    if (data?.items.length > 0) {
-        const scan = data.items[0];
-        const scanId = scan.id;
-        const url = scan.url;
-        // update status here to prevent multiple same scans from running at the same time
-        pb.collection("scans").update(scanId, {
-            status: "running"
-        }).catch(error => {
-            console.log('Error while updating status');
-            console.log(error);
-        }).then(() => {
-            screenshot(null, url, scanId);
-        });
-    } 
+    if(!data?.items) {
+        throw new errors.WebhoodScannerBackendError('Invalid response while fetching new scans');
+    }
+    return data.items;
 }
 async function checkForOldScans() {
     // timestamp in format Y-m-d H:i:s.uZ, for example 2021-08-31 12:00:00.000Z
@@ -204,7 +174,7 @@ async function checkForOldScans() {
         '$cancelKey': "oldScans"
     }).catch(error => {
         console.log('Error while fetching old scans');
-        console.log(error);
+        throw new errors.WebhoodScannerBackendError(error);
     })
     if(records && records.length >= 0) {
         // update all old scans to error
@@ -214,16 +184,6 @@ async function checkForOldScans() {
         }
     }
 }
-
-// Check for new scans every second
-setInterval(async function() {
-    await checkForNewScans();
-}, 10000);
-
-// Check for old scans every 10 seconds
-setInterval(async function() {
-    await checkForOldScans();
-}, 15000);
 
 function subscribeRealtime () {
     pb.collection('scans').subscribe('*', async function (e) {
@@ -235,9 +195,16 @@ function subscribeRealtime () {
         console.log('Subscribed to changes in scans collection');
     })
     .catch(error => {
-        console.error('Error while subscribing to changes in scans collection. Realtime updates will not work');
+        console.error('Error while subscribing to changes in scans collection. Realtime updates will not work', error);
     })
 }
-subscribeRealtime();
 
-console.log("Started")
+export {
+    subscribeRealtime,
+    checkForNewScans,
+    checkForOldScans,
+    browserinit,
+    screenshot,
+    updateDocument,
+    errorMessage,
+}
