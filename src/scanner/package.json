@@ -15,7 +15,7 @@
     "dotenv": "^16.0.3",
     "eventsource": "^2.0.2",
     "pocketbase": "^0.18.2",
-    "puppeteer": "^19.8.2",
+    "puppeteer": "^21.3.8",
     "uuid": "^9.0.1"
   },
   "type": "module",
