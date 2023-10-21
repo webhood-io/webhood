@@ -4,17 +4,16 @@ FROM node:20-bullseye-slim AS base
 FROM node:20-bullseye-slim AS builder
 WORKDIR /app
 
-# Copy package.json
-COPY package.json yarn.lock* ./
 
-# Install NPM dependencies for function
+# Copy everything for build
+ADD . ./
+
+# Install NPM dependencies for build
 RUN yarn install
-
-ADD webpack.config.cjs ./webpack.config.cjs
-ADD src ./src
 
 RUN yarn run build
 
+# Switch to final container
 FROM base as final
 
 
@@ -32,12 +31,17 @@ RUN apt-get update && apt-get install gnupg wget ca-certificates -y && \
 
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
+ENV NODE_ENV=production
+
 # FROM public.ecr.aws/lambda/nodejs:14.2022.09.09.11
 # Create working directory
 WORKDIR /usr/src/app
 
-# Copy the actual nodejs-files
+# Copy the built files from build
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package.json /app/yarn.lock* ./
+
+RUN yarn install --production
 
 ADD https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_x86_64 /usr/local/bin/dumb-init
 RUN chmod +x /usr/local/bin/dumb-init
@@ -57,4 +61,4 @@ USER pptruser
 EXPOSE 3000
 # Run app
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["node", "dist/main.js"]
+CMD ["yarn", "prod"]

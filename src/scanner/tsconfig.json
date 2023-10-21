@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+      "module": "ESNext",
+      "esModuleInterop": true,
+      "target": "ESNext",
+      "moduleResolution": "Node",
+      "outDir": "dist",
+      "forceConsistentCasingInFileNames": true,
+      "noFallthroughCasesInSwitch": true,
+      "isolatedModules": false,
+      "strict": true,
+      "noImplicitAny": true,
+      "useUnknownInCatchVariables": false,
+      "inlineSourceMap": true,
+      "types": ["node", "mocha", "chai", "expect"]
+    },
+    "ts-node": {
+        "esm": true,
+        "files": true,
+    },
+    "lib": ["esnext", "dom"]
+}

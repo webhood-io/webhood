@@ -2,11 +2,11 @@
   "name": "scan-headless",
   "version": "1.0.0",
   "description": "Webhood scanner",
-  "main": "src/server.js",
+  "main": "dist/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/server.js",
-    "build": "webpack",
+    "test": "ts-mocha test/*.ts -r dotenv/config",
+    "build": "pkgroll",
+    "start": "tsx src/main.ts",
     "prod": "node dist/main.js"
   },
   "author": "Markus Lehtonen",
@@ -14,13 +14,26 @@
   "dependencies": {
     "dotenv": "^16.0.3",
     "eventsource": "^2.0.2",
-    "pocketbase": "^0.18.2",
-    "puppeteer": "^19.8.2",
+    "pocketbase": "^0.19.0",
+    "puppeteer": "^21.0.0",
     "uuid": "^9.0.1"
   },
-  "type": "module",
   "devDependencies": {
-    "webpack": "^5.81.0",
-    "webpack-cli": "^5.0.1"
-  }
+    "@types/chai": "^4.3.9",
+    "@types/eventsource": "^1.1.12",
+    "@types/expect": "^24.3.0",
+    "@types/mocha": "^10.0.3",
+    "@types/uuid": "^9.0.4",
+    "chai": "^4.3.10",
+    "mocha": "^10.2.0",
+    "pkgroll": "^2.0.1",
+    "ts-mocha": "^10.0.0",
+    "ts-node": "^10.9.1",
+    "tsx": "^3.14.0",
+    "typescript": "^5.2.2"
+  },
+  "volta": {
+    "node": "20.8.1"
+  },
+  "type": "module"
 }
