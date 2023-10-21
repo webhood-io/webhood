@@ -38,6 +38,9 @@ WORKDIR /usr/src/app
 
 # Copy the actual nodejs-files
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package.json /app/yarn.lock* ./
+
+RUN yarn install --production
 
 ADD https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_x86_64 /usr/local/bin/dumb-init
 RUN chmod +x /usr/local/bin/dumb-init
@@ -57,4 +60,4 @@ USER pptruser
 EXPOSE 3000
 # Run app
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/src/main.js"]
