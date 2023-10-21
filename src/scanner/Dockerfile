@@ -4,13 +4,12 @@ FROM node:20-bullseye-slim AS base
 FROM node:20-bullseye-slim AS builder
 WORKDIR /app
 
-ENV NODE_ENV=production
 
 # Copy package.json
 COPY package.json yarn.lock* ./
 
 # Install NPM dependencies for function
-RUN yarn install --production
+RUN yarn install
 
 # ADD webpack.config.cjs ./webpack.config.cjs
 ADD src ./src
@@ -33,6 +32,8 @@ RUN apt-get update && apt-get install gnupg wget ca-certificates -y && \
     rm -rf /var/lib/apt/lists/*
 
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+
+ENV NODE_ENV=production
 
 # FROM public.ecr.aws/lambda/nodejs:14.2022.09.09.11
 # Create working directory
