@@ -1,6 +1,22 @@
 # Filename: Dockerfile
 FROM node:20-bullseye-slim AS base
 
+FROM node:20-bullseye-slim AS builder
+WORKDIR /app
+
+
+# Copy everything for build
+ADD . ./
+
+# Install NPM dependencies for build
+RUN yarn install
+
+RUN yarn run build
+
+# Switch to final container
+FROM base as final
+
+
 # We don't need the standalone Chromium
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 
@@ -21,8 +37,9 @@ ENV NODE_ENV=production
 # Create working directory
 WORKDIR /usr/src/app
 
-# Copy the actual nodejs-files
-ADD . ./
+# Copy the built files from build
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package.json /app/yarn.lock* ./
 
 RUN yarn install --production
 

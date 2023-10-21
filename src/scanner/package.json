@@ -2,11 +2,12 @@
   "name": "scan-headless",
   "version": "1.0.0",
   "description": "Webhood scanner",
-  "main": "src/server.js",
+  "main": "dist/main.js",
   "scripts": {
     "test": "ts-mocha test/*.ts -r dotenv/config",
+    "build": "pkgroll",
     "start": "tsx src/main.ts",
-    "prod": "tsx src/main.ts"
+    "prod": "node dist/main.js"
   },
   "author": "Markus Lehtonen",
   "license": "SEE LICENSE IN LICENSE",
@@ -15,7 +16,6 @@
     "eventsource": "^2.0.2",
     "pocketbase": "^0.19.0",
     "puppeteer": "^21.0.0",
-    "tsx": "^3.14.0",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
@@ -26,8 +26,10 @@
     "@types/uuid": "^9.0.4",
     "chai": "^4.3.10",
     "mocha": "^10.2.0",
+    "pkgroll": "^2.0.1",
     "ts-mocha": "^10.0.0",
     "ts-node": "^10.9.1",
+    "tsx": "^3.14.0",
     "typescript": "^5.2.2"
   },
   "volta": {
