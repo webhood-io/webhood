@@ -38,7 +38,7 @@ WORKDIR /usr/src/app
 
 # Copy the actual nodejs-files
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package.json /app/yarn.lock* ./
+COPY --from=builder /app/package.json /app/yarn.lock* /app/tsconfig.json* ./
 
 RUN yarn install --production
 
