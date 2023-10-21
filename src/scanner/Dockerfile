@@ -6,7 +6,7 @@ WORKDIR /app
 
 
 # Copy package.json
-ADD . ./src
+ADD . ./
 
 # Install NPM dependencies for function
 RUN yarn install
