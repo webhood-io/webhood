@@ -6,13 +6,10 @@ WORKDIR /app
 
 
 # Copy package.json
-COPY package.json yarn.lock* ./
+ADD . ./src
 
 # Install NPM dependencies for function
 RUN yarn install
-
-# ADD webpack.config.cjs ./webpack.config.cjs
-ADD src ./src
 
 RUN yarn run build
 
