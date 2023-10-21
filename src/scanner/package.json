@@ -5,9 +5,8 @@
   "main": "src/server.js",
   "scripts": {
     "test": "ts-mocha test/*.ts -r dotenv/config",
-    "start": "node --experimental-specifier-resolution=node --loader ts-node/esm ./src/main.ts",
-    "build": "tsc",
-    "prod": "node --experimental-specifier-resolution=node --loader ts-node/esm  dist/src/main.js"
+    "start": "tsx src/main.ts",
+    "prod": "tsx src/main.ts"
   },
   "author": "Markus Lehtonen",
   "license": "SEE LICENSE IN LICENSE",
@@ -16,8 +15,8 @@
     "eventsource": "^2.0.2",
     "pocketbase": "^0.19.0",
     "puppeteer": "^21.0.0",
-    "uuid": "^9.0.1",
-    "ts-node": "^10.9.1"
+    "tsx": "^3.14.0",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@types/chai": "^4.3.9",
@@ -28,6 +27,7 @@
     "chai": "^4.3.10",
     "mocha": "^10.2.0",
     "ts-mocha": "^10.0.0",
+    "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
   },
   "volta": {

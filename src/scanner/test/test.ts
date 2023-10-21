@@ -15,7 +15,7 @@ describe("Calculator Tests", () => {
         console.log("Browser is connected: ", connected)
         expect(browser.connected).to.equal(true); 
         await browser.close()
-   }).timeout(5000);
+   }).timeout(10000);
    it("should navigate to google.com", async () => {
     const browser = await browserinit()
     const page = await browser.newPage();

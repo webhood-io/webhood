@@ -1,21 +1,6 @@
 # Filename: Dockerfile
 FROM node:20-bullseye-slim AS base
 
-FROM node:20-bullseye-slim AS builder
-WORKDIR /app
-
-
-# Copy package.json
-ADD . ./
-
-# Install NPM dependencies for function
-RUN yarn install
-
-RUN yarn run build
-
-FROM base as final
-
-
 # We don't need the standalone Chromium
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 
@@ -37,8 +22,7 @@ ENV NODE_ENV=production
 WORKDIR /usr/src/app
 
 # Copy the actual nodejs-files
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package.json /app/yarn.lock* /app/tsconfig.json* ./
+ADD . ./
 
 RUN yarn install --production
 
@@ -60,4 +44,4 @@ USER pptruser
 EXPOSE 3000
 # Run app
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["node", "dist/src/main.js"]
+CMD ["yarn", "prod"]
