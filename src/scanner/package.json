@@ -4,26 +4,34 @@
   "description": "Webhood scanner",
   "main": "src/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/main.js",
-    "build": "webpack",
-    "prod": "node dist/main.js"
+    "test": "ts-mocha test/*.ts -r dotenv/config",
+    "start": "node --experimental-specifier-resolution=node --loader ts-node/esm ./src/main.ts",
+    "build": "tsc",
+    "prod": "node --experimental-specifier-resolution=node --loader ts-node/esm  dist/src/main.js"
   },
   "author": "Markus Lehtonen",
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
     "dotenv": "^16.0.3",
     "eventsource": "^2.0.2",
-    "pocketbase": "^0.18.0",
-    "puppeteer": "^19.8.2",
+    "pocketbase": "^0.19.0",
+    "puppeteer": "^21.0.0",
     "uuid": "^9.0.1"
   },
-  "type": "module",
   "devDependencies": {
-    "webpack": "^5.81.0",
-    "webpack-cli": "^5.0.1"
+    "@types/chai": "^4.3.9",
+    "@types/eventsource": "^1.1.12",
+    "@types/expect": "^24.3.0",
+    "@types/mocha": "^10.0.3",
+    "@types/uuid": "^9.0.4",
+    "chai": "^4.3.10",
+    "mocha": "^10.2.0",
+    "ts-mocha": "^10.0.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
   },
   "volta": {
-    "node": "20.8.0"
-  }
+    "node": "20.8.1"
+  },
+  "type": "module"
 }

@@ -5,16 +5,16 @@ import {
     errorMessage,
     browserinit,
     subscribeRealtime
-} from './server.js';
+} from './server';
 import PocketBase from 'pocketbase';
-import { EnvAuthStore } from './memoryAuthStore.js';
-import * as errors from "./errors.js"
+import { EnvAuthStore } from './memoryAuthStore';
+import * as errors from "./errors"
 
 export const pb = new PocketBase(process.env.ENDPOINT, new EnvAuthStore());
 
 subscribeRealtime()
 
-function updateScanStatus(scanId, status) {
+function updateScanStatus(scanId: string, status: string) {
     pb.collection("scans").update(scanId, {
         status: status
     }).catch(error => {

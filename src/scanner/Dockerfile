@@ -4,13 +4,15 @@ FROM node:20-bullseye-slim AS base
 FROM node:20-bullseye-slim AS builder
 WORKDIR /app
 
+ENV NODE_ENV=production
+
 # Copy package.json
 COPY package.json yarn.lock* ./
 
 # Install NPM dependencies for function
-RUN yarn install
+RUN yarn install --production
 
-ADD webpack.config.cjs ./webpack.config.cjs
+# ADD webpack.config.cjs ./webpack.config.cjs
 ADD src ./src
 
 RUN yarn run build

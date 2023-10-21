@@ -1,23 +1,15 @@
 // Filename: server.js
 
-import { launch, TimeoutError } from 'puppeteer';
+import { Browser, launch, TimeoutError } from 'puppeteer';
 import { join } from 'path';
 import {v4 as uuidv4} from 'uuid';
-import dotenv from 'dotenv';
-import { chromePath } from "./utils.js";
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-// get root path of the project
-const rootPath = join(__dirname, '..');
-dotenv.config({path: join(rootPath, '.env')});
-// refactor previous line to use require syntax
+import { chromePath } from "./utils";
+import { EnvAuthStore } from './memoryAuthStore';
 import PocketBase from 'pocketbase';
-import { EnvAuthStore } from './memoryAuthStore.js';
-import * as errors from "./errors.js"
+import * as errors from "./errors"
 // https://github.com/pocketbase/pocketbase/discussions/178
 import EventSource from 'eventsource';
+// @ts-ignore
 global.EventSource = EventSource
 
 
@@ -32,17 +24,13 @@ if (!process.env.ENDPOINT || !process.env.API_KEY) {
 
 export const pb = new PocketBase(process.env.ENDPOINT, new EnvAuthStore());
 
-const log = (message) => {
-    console.log(`${new Date().toISOString()} - ${message}`);
-}
-
-const errorMessage = (message, scanId) => {
+const errorMessage = (message: string, scanId: string) => {
     if(scanId) {
         updateDocument(scanId, {status: "error", error: message, done_at: new Date().toISOString()});
     }
 }
 // save document
-const updateDocument = async (id, data) => {
+const updateDocument = async (id: string, data: any) => { // todo: fix typ
     const promise = new Promise((resolve, reject) => {
         pb.collection("scans").update(id, data).then((response) => {
             resolve(response);
@@ -88,7 +76,7 @@ const browserinit = async () => {
     return browser;
 }
 
-async function screenshot(res, url, scanId, browser) {
+async function screenshot(res: null, url: string, scanId: string, browser: Browser) {
     const page = await browser.newPage();
     try {
         await page.goto(url, { timeout: GOTO_TIMEOUT });
@@ -139,7 +127,7 @@ async function screenshot(res, url, scanId, browser) {
     } catch (e) {
         console.log('Error while saving document');
         console.log(e);
-        errorMessage('Error while saving document');
+        errorMessage('Error while saving document', scanId);
     }
 }
 
