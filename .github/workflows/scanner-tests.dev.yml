@@ -1,0 +1,17 @@
+name: Scanner mocha tests
+on: 
+  workflow_dispatch: # manual
+  pull_request:
+    
+jobs:
+  scanner-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Start backend
+        run: ./scripts/setup-scanner-test-env.sh
+
+      - name: Mocha run
+        run: ./scripts/run-scanner-test.sh
