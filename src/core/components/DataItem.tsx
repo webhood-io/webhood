@@ -40,7 +40,7 @@ export function DataItem(props: {
           <div className="max-w-5/6 truncate">
             {props.content || <i>Not available</i>}
           </div>
-          <div className="">
+          <div>
             {copied && (
               <div
                 className="mx-1 flex flex-row items-center"
@@ -54,5 +54,14 @@ export function DataItem(props: {
         </div>
       </div>
     </div>
+  )
+}
+
+export function DataItemValueOnly(props: {children: React.ReactNode}) {
+  // TODO
+  return(
+    <span>
+    {props.children}
+    </span>
   )
 }
