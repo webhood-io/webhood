@@ -169,7 +169,7 @@ export function ScanListItemComponent({
         className="px-1"
         href={`/scan/${document.slug}`}
         data-cy="slug-link"
-        target="_blank"
+        //target="_blank"
       >
         <Button
           variant="ghost"
