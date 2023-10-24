@@ -38,7 +38,7 @@ describe("Calculator Tests", () => {
     expect(updatedData.final_url).to.equal("https://www.google.com/")
     expect(updatedData.status).to.equal("done")
     expect(updatedData.screenshots).to.have.length(1)
-    expect(updatedData.html).to.have.length(1)
+    expect(updatedData.html).to.have.length(2) // with trace
     expect(updatedData.error).to.be.empty
     browser.close()
    }).timeout(10000)

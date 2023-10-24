@@ -17,6 +17,7 @@ import { Layout } from "@/components/layout"
 import { Title } from "@/components/title"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import Traceviewer from "@/components/TraceViewer"
 
 interface ScanImageProps {
   scanItem: ScansResponse
@@ -131,6 +132,7 @@ export default function ScanPage() {
 
   const host = parseUrl(scanItem?.url).host
   const isError = scanItem?.status === "error"
+  const isTraceDisabled = isError || scanItem?.html.length < 2
   return (
     <Layout>
       <Head>
@@ -168,6 +170,9 @@ export default function ScanPage() {
               <TabsTrigger value="html" disabled={isError}>
                 HTML
               </TabsTrigger>
+              <TabsTrigger value="trace" disabled={isTraceDisabled}>
+                Trace
+              </TabsTrigger>
             </TabsList>
             <TabsContent value={"screenshot"}>
               {scanId && (
@@ -179,6 +184,9 @@ export default function ScanPage() {
             </TabsContent>
             <TabsContent value={"html"}>
               <CodeViewer scanItem={scanItem} key={scanId as string} />
+            </TabsContent>
+            <TabsContent value={"trace"}>
+              <Traceviewer scanItem={scanItem}/>
             </TabsContent>
           </Tabs>
         )}

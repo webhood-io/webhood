@@ -3,10 +3,11 @@
 import { Browser, launch, TimeoutError } from 'puppeteer';
 import { join } from 'path';
 import {v4 as uuidv4} from 'uuid';
-import { chromePath } from "./utils";
+import { chromePath, startTracing, stopTracing } from "./utils";
 import { EnvAuthStore } from './memoryAuthStore';
 import PocketBase from 'pocketbase';
 import * as errors from "./errors"
+import MemoryStream from "memorystream"
 // https://github.com/pocketbase/pocketbase/discussions/178
 import EventSource from 'eventsource';
 // @ts-ignore
@@ -78,6 +79,8 @@ const browserinit = async () => {
 
 async function screenshot(res: null, url: string, scanId: string, browser: Browser) {
     const page = await browser.newPage();
+    const memstream = new MemoryStream([]);
+    startTracing(page, memstream)
     try {
         await page.goto(url, { timeout: GOTO_TIMEOUT });
     } catch (e) {
@@ -113,7 +116,11 @@ async function screenshot(res: null, url: string, scanId: string, browser: Brows
     }
     let htmlId = uuidv4();
     const formData = new FormData();
+    // make sure no tracing is being written, so close page
+    await page.close()
+    const trace = JSON.stringify(stopTracing(memstream))
     formData.append('html', new File([html], `${htmlId}.html`, {type: 'text/html'}));
+    formData.append('html', new File([trace], `trace-${scanId}.json`, {type: 'application/json'}));
     formData.append('screenshots', new File([image], `${imageId}.png`, {type: 'image/png'}));
     await updateDocument(scanId, formData);
     await browser.close();
