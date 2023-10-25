@@ -25,7 +25,7 @@ export type TraceObj = {
 export type TraceWrap = {
     type: "requestfinished"|"requestfailed",
     request: RequestTrace,
-    response?: ResponseTrace
+    response: ResponseTrace|null
 }
 
 export type Traces = {
