@@ -83,10 +83,6 @@ async function screenshot(res: null, url: string, scanId: string, browser: Brows
         console.log('Error while loading page (listener)');
         throw new errors.WebhoodScannerPageError('Error while loading page:' + msg);
     });
-    page.on('pageerror', msg => {
-        console.log('Error while loading page (pageerror listener)');
-        throw new errors.WebhoodScannerPageError('Error while loading page (pageerror):' + msg);
-    });
     process.on('unhandledRejection', error => {
         console.log('Error while loading page (unhandledRejection listener)');
         throw new errors.WebhoodScannerPageError('Error while loading page (unhandledRejection):' + error);
