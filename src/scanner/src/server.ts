@@ -203,3 +203,10 @@ export {
     updateDocument,
     errorMessage,
 }
+export function updateScanStatus(scanId: string, status: string) {
+    pb.collection("scans").update(scanId, {
+        status: status
+    }).catch(error => {
+        throw new errors.WebhoodScannerBackendError(error);
+    });
+}
