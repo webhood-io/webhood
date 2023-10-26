@@ -6,7 +6,7 @@ interface SiteConfig {
   name: string
   description: string
   mainNav: NavItem[]
-  selfRegistration: string,
+  selfRegistration: string
   traceVersions: string[] // currently supported traceversions
 }
 
@@ -35,5 +35,5 @@ export const siteConfig: SiteConfig = {
   ],
   // @ts-ignore
   selfRegistration: process.env.NEXT_PUBLIC_SELF_REGISTER,
-  traceVersions: ["0.1"]
+  traceVersions: ["0.1"],
 }

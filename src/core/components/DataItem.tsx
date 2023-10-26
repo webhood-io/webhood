@@ -57,11 +57,7 @@ export function DataItem(props: {
   )
 }
 
-export function DataItemValueOnly(props: {children: React.ReactNode}) {
+export function DataItemValueOnly(props: { children: React.ReactNode }) {
   // TODO
-  return(
-    <span>
-    {props.children}
-    </span>
-  )
+  return <span>{props.children}</span>
 }

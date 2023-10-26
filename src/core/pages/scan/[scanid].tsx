@@ -15,9 +15,9 @@ import { parseUrl } from "@/lib/utils"
 import { Icons } from "@/components/icons"
 import { Layout } from "@/components/layout"
 import { Title } from "@/components/title"
+import Traceviewer from "@/components/TraceViewer"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import Traceviewer from "@/components/TraceViewer"
 
 interface ScanImageProps {
   scanItem: ScansResponse
@@ -186,7 +186,7 @@ export default function ScanPage() {
               <CodeViewer scanItem={scanItem} key={scanId as string} />
             </TabsContent>
             <TabsContent value={"trace"}>
-              <Traceviewer scanItem={scanItem}/>
+              <Traceviewer scanItem={scanItem} />
             </TabsContent>
           </Tabs>
         )}

@@ -8,14 +8,18 @@ export function useFile(
   document: ScansRecord,
   fileField: string,
   token: string,
-  fileNumber?: number 
+  fileNumber?: number
 ) {
   const [imageUrl, setImageUrl] = useState<string | undefined>(undefined)
   useEffect(() => {
     if (!document || !fileField || !token || document.status !== "done") return
-    const url = pb.files.getUrl(document, document[fileField][fileNumber || 0], {
-      token: token,
-    })
+    const url = pb.files.getUrl(
+      document,
+      document[fileField][fileNumber || 0],
+      {
+        token: token,
+      }
+    )
     setImageUrl(url)
   }, [document, fileField, token])
   if (!document[fileField] || document[fileField].length === 0) return undefined
