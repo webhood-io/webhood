@@ -79,18 +79,25 @@ const browserinit = async () => {
 
 async function screenshot(res: null, url: string, scanId: string, browser: Browser) {
     const page = await browser.newPage();
+    page.on('error', msg => {
+        console.log('Error while loading page (listener)');
+        throw new errors.WebhoodScannerPageError('Error while loading page:' + msg);
+    });
+    page.on('pageerror', msg => {
+        console.log('Error while loading page (pageerror listener)');
+        throw new errors.WebhoodScannerPageError('Error while loading page (pageerror):' + msg);
+    });
+    process.on('unhandledRejection', error => {
+        console.log('Error while loading page (unhandledRejection listener)');
+        throw new errors.WebhoodScannerPageError('Error while loading page (unhandledRejection):' + error);
+    });
     const memstream = new MemoryStream([]);
     startTracing(page, memstream)
     try {
         await page.goto(url, { timeout: GOTO_TIMEOUT });
     } catch (e) {
-        console.log('Error while loading page');
-        console.log(e);
-        if(e instanceof TimeoutError) {
-            console.log('Timeout while loading page, trying to continue');
-        } else {
-            throw new errors.WebhoodScannerPageError('Error while loading page:' + e);
-        }
+        console.log('Error while loading page (timeout)', e);
+        throw new errors.WebhoodScannerPageError('Error while loading page:' + e);
     }
 
     // wait until page is fully loaded
