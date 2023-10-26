@@ -19,8 +19,8 @@ const height = 1080;
 
 const GOTO_TIMEOUT = 10000; // 10 seconds
 
-if (!process.env.ENDPOINT || !process.env.API_KEY) {
-    console.error('Please set the ENDPOINT and API_KEY environment variables');
+if (!process.env.ENDPOINT || !process.env.SCANNER_TOKEN) {
+    console.error('Please set the ENDPOINT and SCANNER_TOKEN environment variables');
 }
 
 export const pb = new PocketBase(process.env.ENDPOINT, new EnvAuthStore());
