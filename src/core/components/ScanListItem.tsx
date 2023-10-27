@@ -24,7 +24,7 @@ export function ScanListItem({
   document: ScansRecord
 }) {
   let img
-  const fileName = document.screenshots[0]
+  const fileName = document.screenshots && document.screenshots.length > 0 && document.screenshots[0]
   switch (document.status) {
     case "pending":
       img = (
