@@ -53,7 +53,7 @@ export function useToken() {
   }, [])
 
   const updateToken = async () => {
-    if (token || isLoading) return
+    if (isLoading) return
     setIsLoading(true)
     const newToken = await pb.files
       .getToken({ $autoCancel: false })

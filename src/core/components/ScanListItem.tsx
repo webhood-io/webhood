@@ -17,6 +17,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
+import { ImageFileComponent } from "./ImageFileComponent"
 
 export function ScanListItem({
   document,
@@ -39,15 +40,15 @@ export function ScanListItem({
       break
     case "done":
       img = (
-        <Image
-          alt={"Screenshot of the scan"}
-          src={fileName}
-          loader={(props) => imageLoader(props, document)}
-          width={192 / 2}
-          height={108 / 2}
-          placeholder={"blur"}
-          blurDataURL={Icons.placeholder}
-        />
+        <ImageFileComponent 
+        fileName={fileName} 
+        document={document}
+        alt={"Screenshot of the scan"}
+        width={192 / 2}
+        height={108 / 2}
+        placeholder={"blur"}
+        blurDataURL={Icons.placeholder}
+      />
       )
       break
     case "error":

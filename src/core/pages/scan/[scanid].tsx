@@ -18,25 +18,25 @@ import { Title } from "@/components/title"
 import Traceviewer from "@/components/TraceViewer"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ImageFileComponent } from "@/components/ImageFileComponent"
 
 interface ScanImageProps {
   scanItem: ScansResponse
 }
 
 function ScanImage({ scanItem }: ScanImageProps) {
-  const { token } = useToken()
   const fileName = scanItem.screenshots[0]
   return (
     <div>
       {scanItem && fileName ? (
-        <Image
+        <ImageFileComponent
           alt="Screenshot image of the page"
           width={1920 / 2}
           height={1080 / 2}
           placeholder={"blur"}
-          loader={(props) => imageLoader(props, scanItem)}
           blurDataURL={Icons.placeholder}
-          src={fileName}
+          fileName={fileName}
+          document={scanItem}
         />
       ) : (
         <div className="mx-auto w-full p-4 shadow">
