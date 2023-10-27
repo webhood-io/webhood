@@ -11,7 +11,7 @@ import useSWR, { useSWRConfig } from "swr"
 
 import { ScansResponse } from "@/types/pocketbase-types"
 import { siteConfig } from "@/config/site"
-import { parseUrl } from "@/lib/utils"
+import { imageLoader, parseUrl } from "@/lib/utils"
 import { Icons } from "@/components/icons"
 import { Layout } from "@/components/layout"
 import { Title } from "@/components/title"
@@ -25,17 +25,18 @@ interface ScanImageProps {
 
 function ScanImage({ scanItem }: ScanImageProps) {
   const { token } = useToken()
-  const imageUrl = useFile(scanItem, "screenshots", token)
+  const fileName = scanItem.screenshots[0]
   return (
     <div>
-      {scanItem && imageUrl ? (
+      {scanItem && fileName ? (
         <Image
           alt="Screenshot image of the page"
           width={1920 / 2}
           height={1080 / 2}
           placeholder={"blur"}
+          loader={(props) => imageLoader(props, scanItem)}
           blurDataURL={Icons.placeholder}
-          src={imageUrl}
+          src={fileName}
         />
       ) : (
         <div className="mx-auto w-full p-4 shadow">

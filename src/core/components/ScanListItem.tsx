@@ -2,12 +2,12 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { useFile } from "@/hooks/use-file"
+import { useFile, useToken } from "@/hooks/use-file"
 import ScanLoading from "@/public/scan-in-progress.png"
 import X from "@/public/x.png"
 
 import { ScansRecord, ScansResponse } from "@/types/pocketbase-types"
-import { dateToLocaleString, parseUrl } from "@/lib/utils"
+import { dateToLocaleString, imageLoader, parseUrl } from "@/lib/utils"
 import { DataItem } from "@/components/DataItem"
 import { Icons } from "@/components/icons"
 import { Button } from "@/components/ui/button"
@@ -20,13 +20,11 @@ import { Separator } from "@/components/ui/separator"
 
 export function ScanListItem({
   document,
-  token,
 }: {
   document: ScansRecord
-  token: string
 }) {
   let img
-  const imageUrl = useFile(document, "screenshots", token)
+  const fileName = document.screenshots[0]
   switch (document.status) {
     case "pending":
       img = (
@@ -43,7 +41,8 @@ export function ScanListItem({
       img = (
         <Image
           alt={"Screenshot of the scan"}
-          src={imageUrl}
+          src={fileName}
+          loader={(props) => imageLoader(props, document)}
           width={192 / 2}
           height={108 / 2}
           placeholder={"blur"}

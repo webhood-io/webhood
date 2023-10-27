@@ -10,7 +10,7 @@ export function useFile(
   token: string,
   fileNumber?: number
 ) {
-  const [imageUrl, setImageUrl] = useState<string | undefined>(undefined)
+  const [fileUrl, setFileUrl] = useState<string | undefined>(undefined)
   useEffect(() => {
     if (!document || !fileField || !token || document.status !== "done") return
     const url = pb.files.getUrl(
@@ -20,10 +20,10 @@ export function useFile(
         token: token,
       }
     )
-    setImageUrl(url)
+    setFileUrl(url)
   }, [document, fileField, token])
   if (!document[fileField] || document[fileField].length === 0) return undefined
-  return imageUrl
+  return fileUrl
 }
 
 export function useFile2(scanItem) {
@@ -47,6 +47,9 @@ export function useToken() {
 
   useEffect(() => {
     if (!token) updateToken()
+    setInterval(()=>{
+      updateToken()
+  }, 60000) // token expires currently in two minutes, we update it every 60 seconds to be sure 
   }, [])
 
   const updateToken = async () => {
@@ -55,7 +58,6 @@ export function useToken() {
     const newToken = await pb.files
       .getToken({ $autoCancel: false })
       .catch(() => null)
-    console.log(newToken, token)
     setToken(newToken)
     setIsLoading(false)
   }

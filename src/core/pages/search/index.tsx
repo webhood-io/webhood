@@ -68,7 +68,6 @@ export default function DashboardPage() {
   const [search, setSearch] = useState<string>("")
   const [range, setRange] = useState<Range>({ start: 0, end: limit - 1 })
   const { data, error } = useSWR({ search, limit, range }, scansSearchFetcher)
-  const { token } = useToken()
 
   const isLoading = !data && !error
 
@@ -185,7 +184,6 @@ export default function DashboardPage() {
                     <ScanListItem
                       key={document.id}
                       document={document}
-                      token={token}
                     />
                   ))}
                 </div>
