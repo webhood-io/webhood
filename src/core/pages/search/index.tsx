@@ -181,10 +181,7 @@ export default function DashboardPage() {
                 )}
                 <div className="flex w-full flex-col divide-y divide-slate-500 p-1">
                   {data?.map((document) => (
-                    <ScanListItem
-                      key={document.id}
-                      document={document}
-                    />
+                    <ScanListItem key={document.id} document={document} />
                   ))}
                 </div>
               </div>

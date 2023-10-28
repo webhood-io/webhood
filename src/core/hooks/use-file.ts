@@ -47,9 +47,9 @@ export function useToken() {
 
   useEffect(() => {
     if (!token) updateToken()
-    setInterval(()=>{
+    setInterval(() => {
       updateToken()
-  }, 60000) // token expires currently in two minutes, we update it every 60 seconds to be sure 
+    }, 60000) // token expires currently in two minutes, we update it every 60 seconds to be sure
   }, [])
 
   const updateToken = async () => {

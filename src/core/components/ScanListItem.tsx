@@ -19,13 +19,12 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { ImageFileComponent } from "./ImageFileComponent"
 
-export function ScanListItem({
-  document,
-}: {
-  document: ScansRecord
-}) {
+export function ScanListItem({ document }: { document: ScansRecord }) {
   let img
-  const fileName = document.screenshots && document.screenshots.length > 0 && document.screenshots[0]
+  const fileName =
+    document.screenshots &&
+    document.screenshots.length > 0 &&
+    document.screenshots[0]
   switch (document.status) {
     case "pending":
       img = (
@@ -40,15 +39,15 @@ export function ScanListItem({
       break
     case "done":
       img = (
-        <ImageFileComponent 
-        fileName={fileName} 
-        document={document}
-        alt={"Screenshot of the scan"}
-        width={192 / 2}
-        height={108 / 2}
-        placeholder={"blur"}
-        blurDataURL={Icons.placeholder}
-      />
+        <ImageFileComponent
+          fileName={fileName}
+          document={document}
+          alt={"Screenshot of the scan"}
+          width={192 / 2}
+          height={108 / 2}
+          placeholder={"blur"}
+          blurDataURL={Icons.placeholder}
+        />
       )
       break
     case "error":

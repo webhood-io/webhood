@@ -149,7 +149,7 @@ function TraceTable({ traceData }: { traceData: Traces }) {
                 {value.request.type}
               </TableCell>
               <TableCell className="text-right">
-                {(value.request.method === "POST" && value.request.postData) ? (
+                {value.request.method === "POST" && value.request.postData ? (
                   <HeadersPopover title="Post data" trigger="POST">
                     <div className="w-[80vw]">
                       <CodeViewer data={value.request.postData} />
@@ -210,7 +210,7 @@ function TraceTable({ traceData }: { traceData: Traces }) {
                 {value.response?.status}
               </TableCell>
               <TableCell className="truncate">
-                <DataItemValueOnly content={value.request.url}/>
+                <DataItemValueOnly content={value.request.url} />
               </TableCell>
             </TableRow>
           )

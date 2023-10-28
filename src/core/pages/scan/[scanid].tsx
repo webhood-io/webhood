@@ -13,12 +13,12 @@ import { ScansResponse } from "@/types/pocketbase-types"
 import { siteConfig } from "@/config/site"
 import { imageLoader, parseUrl } from "@/lib/utils"
 import { Icons } from "@/components/icons"
+import { ImageFileComponent } from "@/components/ImageFileComponent"
 import { Layout } from "@/components/layout"
 import { Title } from "@/components/title"
 import Traceviewer from "@/components/TraceViewer"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ImageFileComponent } from "@/components/ImageFileComponent"
 
 interface ScanImageProps {
   scanItem: ScansResponse
