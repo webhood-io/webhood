@@ -74,8 +74,8 @@ function CodeViewer({ data }: { data: string }) {
   return (
     data && (
       <Editor
-        height="90vh"
-        defaultLanguage="html"
+        height="50vh"
+        defaultLanguage="json"
         theme={resolvedTheme == "dark" ? "vs-dark" : "vs-light"}
         loading={
           <div>
@@ -149,7 +149,7 @@ function TraceTable({ traceData }: { traceData: Traces }) {
                 {value.request.type}
               </TableCell>
               <TableCell className="text-right">
-                {value.request.method === "POST" ? (
+                {(value.request.method === "POST" && value.request.postData) ? (
                   <HeadersPopover title="Post data" trigger="POST">
                     <div className="w-[80vw]">
                       <CodeViewer data={value.request.postData} />
@@ -210,7 +210,7 @@ function TraceTable({ traceData }: { traceData: Traces }) {
                 {value.response?.status}
               </TableCell>
               <TableCell className="truncate">
-                <DataItemValueOnly>{value.request.url}</DataItemValueOnly>
+                <DataItemValueOnly content={value.request.url}/>
               </TableCell>
             </TableRow>
           )
