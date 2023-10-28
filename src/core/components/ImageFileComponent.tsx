@@ -1,6 +1,5 @@
 import { imageLoader } from "@/lib/utils"
 import Image from "next/image"
-import { Icons } from "./icons"
 import { useToken } from "@/hooks/use-file"
 
 export function ImageFileComponent({fileName, document, alt, ...props}) {
