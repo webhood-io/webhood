@@ -1,47 +1,20 @@
 "use client"
-
-import { useEffect, useState } from "react"
-
-import { copyToClipboard } from "@/lib/utils"
 import { Icons } from "@/components/icons"
 import { Label } from "@/components/ui/label"
+import { useCopyToClipboard } from "@/hooks/use-copyclipboard"
 
-export function DataItem(props: {
-  label: string
-  content?: string
-  copy?: boolean
-}) {
-  const [copied, setCopied] = useState(false)
-  useEffect(() => {
-    // reset copied state after 2 seconds
-    if (copied) {
-      setTimeout(() => {
-        setCopied(false)
-      }, 2000)
-    }
-  }, [copied])
-  const onClick = () => {
-    if (props.copy) {
-      copyToClipboard(props.content)
-      setCopied(true)
-    }
-  }
-  return (
-    <div
-      className="grid grid-cols-5 items-center gap-4"
-      data-cy="dataitem-wrapper"
-    >
-      <Label>{props.label}</Label>
+function Content(props: {copied: boolean, onClick: () => void, content: string}) {
+  return(
       <div
         className="relative col-span-4 select-all text-sm font-medium"
-        onClick={onClick}
+        onClick={props.onClick}
       >
         <div className="flex flex-row justify-between">
           <div className="max-w-5/6 truncate">
             {props.content || <i>Not available</i>}
           </div>
           <div>
-            {copied && (
+            {props.copied && (
               <div
                 className="mx-1 flex flex-row items-center"
                 data-cy="dataitem-copymessage"
@@ -53,11 +26,32 @@ export function DataItem(props: {
           </div>
         </div>
       </div>
+  )
+}
+
+export function DataItem(props: {
+  label: string
+  content?: string
+  copy?: boolean
+}) {
+
+  const {copied, setCopied, onClick} = useCopyToClipboard({copy: true, content: props.content})
+  return (
+    <div
+      className="grid grid-cols-5 items-center gap-4"
+      data-cy="dataitem-wrapper"
+    >
+      <Label>{props.label}</Label>
+      <Content content={props.content} copied={copied} onClick={onClick} />
     </div>
   )
 }
 
-export function DataItemValueOnly(props: { children: React.ReactNode }) {
-  // TODO
-  return <span>{props.children}</span>
+export function DataItemValueOnly(props: { content: string }) {
+  const {copied, setCopied, onClick} = useCopyToClipboard({copy: true, content: props.content})
+  return (
+    <div className="rounded-md border-2 border-solid p-2">
+      <Content content={props.content} copied={copied} onClick={onClick} />
+    </div>
+  )
 }
