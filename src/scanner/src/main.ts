@@ -28,6 +28,7 @@ setInterval(async function() {
         try {
             await screenshot(null, url, scanId, browser);
         } catch (e) {
+            console.log("error while screenhost", e)
             if(e instanceof errors.WebhoodScannerPageError) {
                 errorMessage(e.message, scanId);
             }
@@ -44,6 +45,7 @@ setInterval(async function() {
                 errorMessage('Unknown error occurred during scan', scanId);
             }
         } finally {
+            console.log("Closing browser")
             browser.close();
         }
     }
