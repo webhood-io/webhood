@@ -7,18 +7,38 @@ import { pb } from "@/lib/pocketbase"
 export function useFile(
   document: ScansRecord,
   fileField: string,
-  token: string
+  token: string,
+  fileNumber?: number
 ) {
-  const [imageUrl, setImageUrl] = useState<string | undefined>(undefined)
+  const [fileUrl, setFileUrl] = useState<string | undefined>(undefined)
   useEffect(() => {
     if (!document || !fileField || !token || document.status !== "done") return
-    const url = pb.files.getUrl(document, document[fileField][0], {
-      token: token,
-    })
-    setImageUrl(url)
+    const url = pb.files.getUrl(
+      document,
+      document[fileField][fileNumber || 0],
+      {
+        token: token,
+      }
+    )
+    setFileUrl(url)
   }, [document, fileField, token])
   if (!document[fileField] || document[fileField].length === 0) return undefined
-  return imageUrl
+  return fileUrl
+}
+
+export function useFile2(scanItem) {
+  const [html, setHtml] = useState("")
+  const { token } = useToken()
+  const htmlUrl = useFile(scanItem, "html", token, 1)
+  useEffect(() => {
+    if (scanItem?.id && htmlUrl) {
+      // fetch the html file using fetch
+      fetch(htmlUrl)
+        .then((res) => res.text())
+        .then((html) => setHtml(html))
+    }
+  }, [scanItem?.id, htmlUrl])
+  return { html }
 }
 
 export function useToken() {
@@ -27,15 +47,17 @@ export function useToken() {
 
   useEffect(() => {
     if (!token) updateToken()
+    setInterval(() => {
+      updateToken()
+    }, 60000) // token expires currently in two minutes, we update it every 60 seconds to be sure
   }, [])
 
   const updateToken = async () => {
-    if (token || isLoading) return
+    if (isLoading) return
     setIsLoading(true)
     const newToken = await pb.files
       .getToken({ $autoCancel: false })
       .catch(() => null)
-    console.log(newToken, token)
     setToken(newToken)
     setIsLoading(false)
   }

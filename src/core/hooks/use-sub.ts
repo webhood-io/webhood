@@ -1,5 +1,4 @@
 import { useEffect } from "react"
-import { ScopedMutator } from "swr/_internal"
 
 import { pb } from "@/lib/pocketbase"
 

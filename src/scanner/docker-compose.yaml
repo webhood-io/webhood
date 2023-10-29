@@ -10,7 +10,7 @@ services:
     restart: always
     environment:
       - ENDPOINT
-      - API_KEY
+      - SCANNER_TOKEN
       - SELF_SIGNED
     # https://stackoverflow.com/questions/50662388/running-headless-chrome-puppeteer-with-no-sandbox/53975412#53975412
     security_opt:

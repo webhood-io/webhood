@@ -3,14 +3,12 @@
 import { useEffect } from "react"
 import Head from "next/head"
 import { latestScansFetcher } from "@/hooks/use-api"
-import { useToken } from "@/hooks/use-file"
 import { useSubscription } from "@/hooks/use-sub"
 import { useToast } from "@/hooks/use-toast"
 import useSWR, { useSWRConfig } from "swr"
 
 import { ScansResponse } from "@/types/pocketbase-types"
 import { siteConfig } from "@/config/site"
-import { validateUrlRegex } from "@/lib/utils"
 import { Layout } from "@/components/layout"
 import { Title } from "@/components/title"
 import { TypographyH3 } from "@/components/ui/typography/h3"
@@ -19,11 +17,10 @@ import { UrlForm } from "@/components/UrlForm"
 import { ScanListItem } from "../components/ScanListItem"
 
 function ScanList({ scans }: { scans: ScansResponse[] }) {
-  const { token } = useToken()
   return (
     <div className="flex w-full flex-col divide-y divide-slate-500">
       {scans?.map((document) => (
-        <ScanListItem key={document.id} document={document} token={token} />
+        <ScanListItem key={document.id} document={document} />
       ))}
     </div>
   )

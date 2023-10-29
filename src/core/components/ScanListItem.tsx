@@ -2,12 +2,12 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { useFile } from "@/hooks/use-file"
+import { useFile, useToken } from "@/hooks/use-file"
 import ScanLoading from "@/public/scan-in-progress.png"
 import X from "@/public/x.png"
 
 import { ScansRecord, ScansResponse } from "@/types/pocketbase-types"
-import { dateToLocaleString, parseUrl } from "@/lib/utils"
+import { dateToLocaleString, imageLoader, parseUrl } from "@/lib/utils"
 import { DataItem } from "@/components/DataItem"
 import { Icons } from "@/components/icons"
 import { Button } from "@/components/ui/button"
@@ -17,16 +17,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
+import { ImageFileComponent } from "./ImageFileComponent"
 
-export function ScanListItem({
-  document,
-  token,
-}: {
-  document: ScansRecord
-  token: string
-}) {
+export function ScanListItem({ document }: { document: ScansRecord }) {
   let img
-  const imageUrl = useFile(document, "screenshots", token)
+  const fileName =
+    document.screenshots &&
+    document.screenshots.length > 0 &&
+    document.screenshots[0]
   switch (document.status) {
     case "pending":
       img = (
@@ -41,9 +39,10 @@ export function ScanListItem({
       break
     case "done":
       img = (
-        <Image
+        <ImageFileComponent
+          fileName={fileName}
+          document={document}
           alt={"Screenshot of the scan"}
-          src={imageUrl}
           width={192 / 2}
           height={108 / 2}
           placeholder={"blur"}
@@ -169,7 +168,7 @@ export function ScanListItemComponent({
         className="px-1"
         href={`/scan/${document.slug}`}
         data-cy="slug-link"
-        target="_blank"
+        //target="_blank"
       >
         <Button
           variant="ghost"

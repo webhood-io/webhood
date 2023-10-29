@@ -6,22 +6,10 @@ import {
     browserinit,
     subscribeRealtime
 } from './server';
-import PocketBase from 'pocketbase';
-import { EnvAuthStore } from './memoryAuthStore';
 import * as errors from "./errors"
-
-export const pb = new PocketBase(process.env.ENDPOINT, new EnvAuthStore());
+import { updateScanStatus } from './server';
 
 subscribeRealtime()
-
-function updateScanStatus(scanId: string, status: string) {
-    pb.collection("scans").update(scanId, {
-        status: status
-    }).catch(error => {
-        throw new errors.WebhoodScannerBackendError(error);
-    })
-}
-
 
 // Check for new scans every second
 setInterval(async function() {
@@ -40,6 +28,7 @@ setInterval(async function() {
         try {
             await screenshot(null, url, scanId, browser);
         } catch (e) {
+            console.log("error while screenhost", e)
             if(e instanceof errors.WebhoodScannerPageError) {
                 errorMessage(e.message, scanId);
             }
@@ -56,6 +45,7 @@ setInterval(async function() {
                 errorMessage('Unknown error occurred during scan', scanId);
             }
         } finally {
+            console.log("Closing browser")
             browser.close();
         }
     }

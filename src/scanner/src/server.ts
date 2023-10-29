@@ -3,10 +3,11 @@
 import { Browser, launch, TimeoutError } from 'puppeteer';
 import { join } from 'path';
 import {v4 as uuidv4} from 'uuid';
-import { chromePath } from "./utils";
+import { chromePath, startTracing, stopTracing } from "./utils";
 import { EnvAuthStore } from './memoryAuthStore';
 import PocketBase from 'pocketbase';
 import * as errors from "./errors"
+import MemoryStream from "memorystream"
 // https://github.com/pocketbase/pocketbase/discussions/178
 import EventSource from 'eventsource';
 // @ts-ignore
@@ -18,8 +19,8 @@ const height = 1080;
 
 const GOTO_TIMEOUT = 10000; // 10 seconds
 
-if (!process.env.ENDPOINT || !process.env.API_KEY) {
-    console.error('Please set the ENDPOINT and API_KEY environment variables');
+if (!process.env.ENDPOINT || !process.env.SCANNER_TOKEN) {
+    console.error('Please set the ENDPOINT and SCANNER_TOKEN environment variables');
 }
 
 export const pb = new PocketBase(process.env.ENDPOINT, new EnvAuthStore());
@@ -78,18 +79,27 @@ const browserinit = async () => {
 
 async function screenshot(res: null, url: string, scanId: string, browser: Browser) {
     const page = await browser.newPage();
+    page.on('error', msg => {
+        console.log('Error while loading page (listener)');
+        throw new errors.WebhoodScannerPageError('Error while loading page:' + msg);
+    });
+    process.on('unhandledRejection', error => {
+        console.log('Error while loading page (unhandledRejection listener)');
+        throw new errors.WebhoodScannerPageError('Error while loading page (unhandledRejection):' + error);
+    });
+    const memstream = new MemoryStream([]);
+    startTracing(page, memstream)
     try {
         await page.goto(url, { timeout: GOTO_TIMEOUT });
     } catch (e) {
-        console.log('Error while loading page');
-        console.log(e);
-        if(e instanceof TimeoutError) {
-            console.log('Timeout while loading page, trying to continue');
-        } else {
-            throw new errors.WebhoodScannerPageError('Error while loading page:' + e);
-        }
+        console.log('Error while loading page (timeout)', e);
+        /*
+        * Some pages are slow to load and will timeout, continue with the scan in any case
+        * later stages need to ensure that the page is actually loaded and has not otherwise errored
+        * example: https://globalcybersecurityforum.com/ takes more than 10 seconds to load
+        * TODO: enable setting timeout in config or per scan
+        */
     }
-
     // wait until page is fully loaded
     console.debug('Waiting for page to finish loading')
     try {
@@ -97,26 +107,48 @@ async function screenshot(res: null, url: string, scanId: string, browser: Brows
     } catch (e) {
         console.log('Timeout while waiting for page to finish');
     }
+    console.log("Testing if page is closed:", page.isClosed())
+    console.debug("Evaluating page for final url")
     const finalUrl = await page.evaluate(() => document.location.href);
+    if(!finalUrl || finalUrl === 'about:blank' || finalUrl === 'about:blank#blocked' || finalUrl.includes('chrome-error://chromewebdata')) {
+        /*
+        * about:blank is returned when the page is not loaded
+        * about:blank#blocked is returned when the page is blocked
+        * chrome-error://chromewebdata can be returned for various reasons. For example, googl.se returns this for some reason
+        */
+        console.log('Error while getting final url, url might be invalid', finalUrl, scanId);
+        throw new errors.WebhoodScannerPageError('Error while getting final url, url might be invalid. Final URL was: ' + finalUrl);
+    }
+    console.log("Final url:", finalUrl)
+    console.debug("Page evaluated, getting html")
     const html = await page.content();
     const endDateTime = new Date().toISOString();
     const imageId = uuidv4();
     let image;
+    console.debug("Html gotten, getting screenshot")
     try {
         image = await page.screenshot();
     } catch (e) {
-        console.log('Error while saving screenshot');
-        console.log(e);
-        errorMessage( 'Error while saving screenshot', scanId);
-        await browser.close();
-        return;
+        console.log('Error while getting screenshot', scanId, e);
+        throw new errors.WebhoodScannerPageError('Error while getting screenshot:' + e);
     }
+    console.debug("Screenshot gotten, saving to database")
     let htmlId = uuidv4();
     const formData = new FormData();
+    // make sure no tracing is being written, so close page
+    console.debug("Closing page")
+    await page.close()
+    const trace = JSON.stringify(stopTracing(memstream))
     formData.append('html', new File([html], `${htmlId}.html`, {type: 'text/html'}));
+    formData.append('html', new File([trace], `trace-${scanId}.json`, {type: 'application/json'}));
     formData.append('screenshots', new File([image], `${imageId}.png`, {type: 'image/png'}));
-    await updateDocument(scanId, formData);
-    await browser.close();
+    console.debug("Saving to database")
+    try {
+        await updateDocument(scanId, formData);
+    } catch (e) {
+        console.log('Error while saving formData', e);
+        throw new errors.WebhoodScannerBackendError('Error while saving formData:' + e);
+    }
     try {
         const data = {
             final_url: finalUrl,
@@ -125,9 +157,8 @@ async function screenshot(res: null, url: string, scanId: string, browser: Brows
         };
         await updateDocument(scanId, data);
     } catch (e) {
-        console.log('Error while saving document');
-        console.log(e);
-        errorMessage('Error while saving document', scanId);
+        console.log('Error while saving final document', e);
+        throw new errors.WebhoodScannerBackendError('Error while saving final document:' + e);
     }
 }
 
@@ -195,4 +226,11 @@ export {
     screenshot,
     updateDocument,
     errorMessage,
+}
+export function updateScanStatus(scanId: string, status: string) {
+    pb.collection("scans").update(scanId, {
+        status: status
+    }).catch(error => {
+        throw new errors.WebhoodScannerBackendError(error);
+    });
 }
