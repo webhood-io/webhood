@@ -11,12 +11,10 @@ import useSWR, { useSWRConfig } from "swr"
 
 import { ScansResponse } from "@/types/pocketbase-types"
 import { siteConfig } from "@/config/site"
-import { imageLoader, parseUrl } from "@/lib/utils"
+import { parseUrl } from "@/lib/utils"
 import { Icons } from "@/components/icons"
-import { ImageFileComponent } from "@/components/ImageFileComponent"
 import { Layout } from "@/components/layout"
 import { Title } from "@/components/title"
-import Traceviewer from "@/components/TraceViewer"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
@@ -25,18 +23,18 @@ interface ScanImageProps {
 }
 
 function ScanImage({ scanItem }: ScanImageProps) {
-  const fileName = scanItem.screenshots[0]
+  const { token } = useToken()
+  const imageUrl = useFile(scanItem, "screenshots", token)
   return (
     <div>
-      {scanItem && fileName ? (
-        <ImageFileComponent
+      {scanItem && imageUrl ? (
+        <Image
           alt="Screenshot image of the page"
           width={1920 / 2}
           height={1080 / 2}
           placeholder={"blur"}
           blurDataURL={Icons.placeholder}
-          fileName={fileName}
-          document={scanItem}
+          src={imageUrl}
         />
       ) : (
         <div className="mx-auto w-full p-4 shadow">
@@ -133,7 +131,6 @@ export default function ScanPage() {
 
   const host = parseUrl(scanItem?.url).host
   const isError = scanItem?.status === "error"
-  const isTraceDisabled = isError || scanItem?.html.length < 2
   return (
     <Layout>
       <Head>
@@ -171,9 +168,6 @@ export default function ScanPage() {
               <TabsTrigger value="html" disabled={isError}>
                 HTML
               </TabsTrigger>
-              <TabsTrigger value="trace" disabled={isTraceDisabled}>
-                Trace
-              </TabsTrigger>
             </TabsList>
             <TabsContent value={"screenshot"}>
               {scanId && (
@@ -185,9 +179,6 @@ export default function ScanPage() {
             </TabsContent>
             <TabsContent value={"html"}>
               <CodeViewer scanItem={scanItem} key={scanId as string} />
-            </TabsContent>
-            <TabsContent value={"trace"}>
-              <Traceviewer scanItem={scanItem} />
             </TabsContent>
           </Tabs>
         )}

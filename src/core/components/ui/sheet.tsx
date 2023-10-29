@@ -29,10 +29,11 @@ interface SheetPortalProps
 
 const SheetPortal = ({
   position,
+  className,
   children,
   ...props
 }: SheetPortalProps) => (
-  <SheetPrimitive.Portal {...props}>
+  <SheetPrimitive.Portal className={cn(className)} {...props}>
     <div className={portalVariants({ position })}>{children}</div>
   </SheetPrimitive.Portal>
 )

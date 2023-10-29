@@ -36,11 +36,11 @@ export function ChangePasswordForm() {
       setMessage("Passwords do not match", "error")
       return
     }
-    if (password.toString().length < 8) {
+    if (password.length < 8) {
       setMessage("Password must be at least 8 characters", "error")
       return
     }
-    if (password.toString().length > 64) {
+    if (password.length > 64) {
       setMessage("Password must be at most 64 characters", "error")
       return
     }

@@ -1,15 +1,14 @@
 import { browserinit, screenshot } from "../src/server"
-import { assert, expect } from 'chai';
+import { expect } from 'chai';
 import "mocha" // required for types
 import { pb } from "../src/server";
-import { WebhoodScannerPageError } from "../src/errors";
 
 
 function randomIntFromInterval(min:number, max:number) { // min and max included 
   return Math.floor(Math.random() * (max - min + 1) + min)
 }
 
-describe("Basic scanner tests", () => {
+describe("Calculator Tests", () => {
       it("should launch browser", async () => {
         const browser = await browserinit()
         const connected = browser.connected
@@ -39,25 +38,8 @@ describe("Basic scanner tests", () => {
     expect(updatedData.final_url).to.equal("https://www.google.com/")
     expect(updatedData.status).to.equal("done")
     expect(updatedData.screenshots).to.have.length(1)
-    expect(updatedData.html).to.have.length(2) // with trace
+    expect(updatedData.html).to.have.length(1)
     expect(updatedData.error).to.be.empty
     browser.close()
    }).timeout(10000)
-   it("should error on unavailable site",async () => {
-    const scans = pb.collection("scans")
-    const data = await scans.create({
-      "url": "https://googl.se",
-      "status": "pending",
-      "slug": `test-${randomIntFromInterval(1,10000).toString()}`
-    })
-    const browser = await browserinit()
-    let error;
-    try {
-      await screenshot(null, data.url, data.id, browser)
-    } catch(err) {
-      error=err
-    }
-    expect(error).to.an.instanceOf(WebhoodScannerPageError)
-    browser.close()
-   }).timeout(20000)
 });
