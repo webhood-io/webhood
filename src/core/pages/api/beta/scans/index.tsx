@@ -93,7 +93,9 @@ async function apiPostScans(req, res) {
     screenshots: data.screenshots,
     done_at: data.done_at,
   } as ScanApiScanCreateResponse
-  res.status(201).json(returnData)
+  res.status(202).json(returnData)
+  // add location header 
+  res.setHeader("Location", `/api/beta/scans/${data.id}`)
   res.end()
 }
 
