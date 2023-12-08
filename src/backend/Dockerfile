@@ -12,6 +12,7 @@ RUN go mod download
 
 # Copy local code to the container image.
 COPY src/*.go ./
+COPY src/webhood ./webhood
 
 # Build the binary.
 RUN go build -v -o backend
