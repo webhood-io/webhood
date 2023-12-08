@@ -37,6 +37,10 @@ services:
       NO_PROXY: ${NO_PROXY}
     networks:
       - rest
+    # Wait for backend to be ready before starting the scanner as it depends on its API
+    depends_on:
+      backend:
+        condition: service_healthy
     security_opt:
       # Use seccomp to restrict the syscalls that the container can make for Chrome
       # This allows us to run chrome with sandboxing enabled without having to run the whole container as root
@@ -72,6 +76,11 @@ services:
     command:
       - serve
       - --http=0.0.0.0:8090
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/_/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
     networks:
       - frontend
 
