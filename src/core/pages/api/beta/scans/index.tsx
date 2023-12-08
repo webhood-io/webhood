@@ -17,6 +17,7 @@ interface ScanApiScanCreateResponse {
   html: [string]
   screenshots: [string]
   done_at: string
+  final_url: string
 }
 
 export type ScanApiScanResponse = ScanApiScanCreateResponse
@@ -31,7 +32,6 @@ function getToken(authorization: string) {
 
 export const client = (req, res) => {
   const { authorization } = req.headers
-  console.log("auth", authorization, req.headers)
   pb.authStore.save(getToken(authorization), null)
   return pb
 }
@@ -92,10 +92,10 @@ async function apiPostScans(req, res) {
     html: data.html,
     screenshots: data.screenshots,
     done_at: data.done_at,
+    final_url: data.final_url,
   } as ScanApiScanCreateResponse
   res.status(202).json(returnData)
   // add location header 
-  res.setHeader("Location", `/api/beta/scans/${data.id}`)
   res.end()
 }
 

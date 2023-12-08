@@ -32,13 +32,12 @@ async function apiGetScan(req, res) {
     html: data.html,
     screenshots: data.screenshots,
     done_at: data.done_at,
+    final_url: data.final_url,
   } as ScanApiScanResponse
   if(retData.status === "done" || retData.status === "error") {
     res.status(200)
   } else {
     res.status(202)
-    res.setHeader("Retry-After", "5")
-    res.setHeader("Location", `/api/beta/scans/${retData.id}`)
   }
   res.json(retData)
   res.end()

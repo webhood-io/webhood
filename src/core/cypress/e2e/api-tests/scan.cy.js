@@ -23,15 +23,18 @@ describe('get scans', () => {
           }
         }).as('scanPost');
         cy.get('@scanPost').then(scans => {
-            expect(scans.status).to.eq(201);
+            expect(scans.status).to.eq(202);
             expect(scans.body).to.have.property('status', 'pending');
+            // expect location header to /api/beta/scans/{id}
+            expect(scans.headers).to.have.property('Location', `/api/beta/scans/${scans.body.id}`);
             expect(scans.body).to.have.property('url', 'https://www.google.com');
         });
       });
     it('fetches scan items - GET', () => {
         cy.get('@scanRequest').then(scans => {
           console.log(scans.body)
-            expect(scans.status).to.eq(200);
+          // status is 202 - accepted, when scan is in progress
+            expect(scans.status).to.eq(202);
             // expect todoItem[0] to have property 'completed' equal to false
             expect(scans.body[0]).to.have.property('id');
             expect(scans.body[0]).to.have.property('status', 'pending');
