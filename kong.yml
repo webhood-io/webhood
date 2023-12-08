@@ -8,11 +8,6 @@ services:
   - name: webhood-core-v1
     url: http://core:3000
     routes:
-      ## External API
-      - name: webhood-beta-scanner-api
-        strip_path: false
-        paths:
-          - /api/beta/
       ## All other data such as static files
       - name: webhood-beta-all
         paths:
