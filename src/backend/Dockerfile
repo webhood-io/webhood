@@ -7,6 +7,7 @@ WORKDIR /app
 # This allows the container build to reuse cached dependencies.
 # Expecting to copy go.mod and if present go.sum.
 COPY src/go.* ./
+COPY src/webhood ./webhood
 RUN go mod download
 
 # Copy local code to the container image.
