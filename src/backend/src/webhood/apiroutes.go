@@ -159,7 +159,7 @@ func ScansPostRoute(app core.App) echo.Route {
 			query.One(&recordResult)
 
 			c.Response().Header().Set("Location", "/api/beta/scans/"+record.Id)
-			return c.JSON(http.StatusCreated, recordResult)
+			return c.JSON(http.StatusAccepted, recordResult)
 		},
 		Middlewares: WebhoodApiMiddleware(app),
 	}
@@ -183,7 +183,12 @@ func ScansGetByIdRoute(app core.App) echo.Route {
 			if record.Id == "" {
 				return apis.NewNotFoundError("", nil)
 			}
-			return c.JSON(http.StatusOK, record)
+			if record.Status == "pending" || record.Status == "running" {
+				c.Response().Header().Set("Location", "/api/beta/scans/"+record.Id)
+				return c.JSON(http.StatusAccepted, record)
+			} else {
+				return c.JSON(http.StatusOK, record)
+			}
 		},
 		Middlewares: WebhoodApiMiddleware(app),
 	}
