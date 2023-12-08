@@ -1,20 +1,20 @@
 describe('get scans', () => {
   beforeEach(() => {
     cy.request({
-            'url': '/api/beta/scans/',
+            'url': 'localhost:8090/api/beta/scans/',
             'headers': {
               'Authorization': `Token ${Cypress.env('SCANNER_TOKEN')}`
             }
           }).as('scanRequest');
     cy.request({
-            'url': '/api/beta/scans/',
+            'url': 'localhost:8090/api/beta/scans/',
             failOnStatusCode: false
           }).as('unAuthscanRequest');
   });
     it('posts new scan - POST', () => {
         cy.request({
           'method': 'POST',
-          'url': '/api/beta/scans',
+          'url': 'localhost:8090/api/beta/scans',
           'headers': {
             'Authorization': `Token ${Cypress.env('SCANNER_TOKEN')}`
           },

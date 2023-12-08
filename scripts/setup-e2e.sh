@@ -1,4 +1,3 @@
-BACKEND_CMD=("go" "run" "main.go")
 cd src/core
 yarn install --frozen-lockfile
 yarn run dev &
