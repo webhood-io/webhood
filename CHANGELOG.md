@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2023-12-08
+
+### Added
+
+- The (still officially not-yet-released) API was rewritten to use the Pocketbase backend. This decision was due to the fact that during testing of a few upcoming integrations, I found that nextjs is not flexible enough for full-fledged API use case.
+
+### Fixed
+
+- Fix docker-compose.yml file to use the correct environment variables for using your own TLS certificates with kong. [[commit]](https://github.com/webhood-io/webhood/commit/54da0d3849ce517bc9a8d936173551884bb2badd)
+- Docker healthcheck was added to the docker-compose.yml file. Backend not being ready sometimes caused scanner to fail to subscribe to realtime events. [[commit]](https://github.com/webhood-io/webhood/commit/17c7e2123c4d4d6af29a58e5cdd3226236f4d24c)
+- ⚠️ This update includes important fixes to the docker-compose file. It is recommended to update your docker-compose.yml file to reflect the changes in this version. [[commit]](https://github.com/webhood-io/webhood/pull/90/files#diff-e45e45baeda1c1e73482975a664062aa56f20c03dd9d64a827aba57775bed0d3)
+
+### Removed
+
+none
+
 ## [0.3.0] - 2023-10-29
 
 ### Added

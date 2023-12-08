@@ -1,36 +1,39 @@
 describe('get scans', () => {
   beforeEach(() => {
     cy.request({
-            'url': '/api/beta/scans/',
+            'url': 'localhost:8090/api/beta/scans/',
             'headers': {
-              'Authorization': `Token ${Cypress.env('SCANNER_TOKEN')}`
+              'Authorization': `Bearer ${Cypress.env('SCANNER_TOKEN')}`
             }
           }).as('scanRequest');
     cy.request({
-            'url': '/api/beta/scans/',
+            'url': 'localhost:8090/api/beta/scans/',
             failOnStatusCode: false
           }).as('unAuthscanRequest');
   });
     it('posts new scan - POST', () => {
         cy.request({
           'method': 'POST',
-          'url': '/api/beta/scans',
+          'url': 'localhost:8090/api/beta/scans',
           'headers': {
-            'Authorization': `Token ${Cypress.env('SCANNER_TOKEN')}`
+            'Authorization': `Bearer ${Cypress.env('SCANNER_TOKEN')}`
           },
           'body': {
             'url': 'https://www.google.com',
           }
         }).as('scanPost');
         cy.get('@scanPost').then(scans => {
-            expect(scans.status).to.eq(201);
+            expect(scans.status).to.eq(202);
             expect(scans.body).to.have.property('status', 'pending');
+            // expect location header to /api/beta/scans/{id}
+            expect(scans.headers).to.have.property('location', `/api/beta/scans/${scans.body.id}`);
             expect(scans.body).to.have.property('url', 'https://www.google.com');
         });
       });
     it('fetches scan items - GET', () => {
         cy.get('@scanRequest').then(scans => {
           console.log(scans.body)
+          // status is 200, when scan querying multiple scans 
             expect(scans.status).to.eq(200);
             // expect todoItem[0] to have property 'completed' equal to false
             expect(scans.body[0]).to.have.property('id');
