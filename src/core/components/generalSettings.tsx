@@ -12,6 +12,7 @@ import { GenericTooltip } from "@/components/ui/generic-tooltip"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { TypographyLarge } from "@/components/ui/typography/large"
+import { TypographySubtle } from "./ui/typography/subtle"
 
 interface MicrosoftAuthOptions {
   enabled: boolean
@@ -99,7 +100,10 @@ export function GeneralSettings() {
   const { ua, lang } = scanDataSwr?.config || { ua: "", lang: "" }
   return (
     <div className="flex flex-col justify-between gap-6">
+      <div>
       <TypographyLarge>Scanner settings</TypographyLarge>
+      <TypographySubtle>Set settings for scanner. Configure User agent and Language set in the scanner browser.</TypographySubtle>
+      </div>
       <form onSubmit={(e) => handleSubmit(e, scanDataSwr.id)}>
         {scanDataSwr && (
           <div className="flex flex-col gap-4">

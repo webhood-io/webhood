@@ -412,9 +412,15 @@ export function AccountSettings() {
   }
   return (
     <div className="flex flex-col justify-between gap-6">
-      <TypographyLarge>Users</TypographyLarge>
+      <div>
+        <TypographyLarge>Users</TypographyLarge>
+        <TypographySubtle>List of users able to login to this console. Edit user details and roles.</TypographySubtle>
+      </div>
       <UsersTable />
-      <TypographyLarge>API Tokens</TypographyLarge>
+      <div>
+        <TypographyLarge>API Tokens</TypographyLarge>
+        <TypographySubtle>Create API tokens to authenticate to the API. Revoke unneeded tokens.</TypographySubtle>
+      </div>
       {/* Toolbar */}
       <div className="grid grid-cols-6 sm:grid-cols-2 md:grid-cols-4">
         <div className="flex items-center space-x-2">
