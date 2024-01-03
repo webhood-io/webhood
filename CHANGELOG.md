@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+⚠️ This update includes important breaking changes to the docker-compose file. It is necessary to update your [docker-compose.yml](https://github.com/webhood-io/webhood/blob/main/docker-compose.yml) file to reflect the changes in this version.
+
+### Added
+
+- It is now possible to configure multiple scanners to communicate with the main Webhood backend. This is useful for example when you want to run multiple scanners in different locations. [[commit]]()
+
+### Fixed
+
+- Scanner will now output a warning if the authentication fails [[commit]]()
+
+### Changed
+
+- ⚠ Removed use of `migrations` volume in `docker-compose.yml`. This volume is not needed as the migrations directory is updated in the backend image. [[commit]]()
+
+### Removed
+
 ## [0.4.0] - 2023-12-08
 
 ### Added
