@@ -4,7 +4,7 @@ import {
     screenshot,
     errorMessage,
     browserinit,
-    subscribeRealtime
+    subscribeRealtime,
 } from './server';
 import * as errors from "./errors"
 import { updateScanStatus } from './server';

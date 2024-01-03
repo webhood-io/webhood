@@ -30,7 +30,9 @@ func main() {
 		Dir:          "pb_migrations",
 	})
 
-	app.RootCmd.AddCommand(webhood.CreateScannerToken(app))
+	create_token_cmd := webhood.CreateScannerToken(app)
+	create_token_cmd.Flags().StringP("scannerid", "i", "", "scanner id (optional)")
+	app.RootCmd.AddCommand(create_token_cmd)
 	create_user_cmd := webhood.CreateUserCmd(app)
 	create_user_cmd.Flags().StringP("username", "u", "", "username")
 	create_user_cmd.Flags().StringP("password", "p", "", "password")

@@ -24,6 +24,10 @@ if (!process.env.ENDPOINT || !process.env.SCANNER_TOKEN) {
 }
 
 export const pb = new PocketBase(process.env.ENDPOINT, new EnvAuthStore());
+pb.collection("api_tokens").authRefresh().catch(error => {
+    console.error('Error while authenticating', error);
+    throw new errors.WebhoodScannerInvalidConfigError("Could not authenticate to backend, please check your credentials");
+})
 
 const errorMessage = (message: string, scanId: string) => {
     if(scanId) {
@@ -44,7 +48,11 @@ const updateDocument = async (id: string, data: any) => { // todo: fix typ
 }
 
 async function getBrowserInfo() {
-    const data = await pb.collection("scanners").getFirstListItem('');
+    // Get config for current scanner
+    const authModel = await pb.collection("api_tokens").authRefresh({
+        expand: "config"
+    })
+    const data = authModel.record.expand?.config
     if(!data?.config) {
         throw new errors.WebhoodScannerInvalidConfigError('Invalid config');
     }
