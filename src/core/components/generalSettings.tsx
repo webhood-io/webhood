@@ -65,8 +65,8 @@ function SettingsInput({
 
 const scannerOptionsSchema = z.object({
   config: z.object({
-    ua: z.string(),
-    lang: z.string()
+    ua: z.string().optional(),
+    lang: z.string().optional(),
   }),
   name: z.string(),
 })
