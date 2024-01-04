@@ -43,6 +43,7 @@ docker compose run backend create_scanner_token -u scanner2
 ### Changed
 
 - ⚠ Removed use of `migrations` volume in `docker-compose.yml`. This volume is not needed as the migrations directory is updated in the backend image. [[commit]](https://github.com/webhood-io/webhood/commit/35fdf9655468b14a282bbe09a21666088c839800)
+- Minor changes to UI to make it more consistent [[commit]](https://github.com/webhood-io/webhood/commit/6542056cc69c871f31e6d90fc7a2ab616e41541d)
 
 
 ## [0.4.0] - 2023-12-08
