@@ -113,6 +113,7 @@ func CreateScanner(app core.App) *cobra.Command {
 			}
 			configRecord := models.NewRecord(scannersCollection)
 			configRecord.Set("config", "{}")
+			configRecord.Set("name", username)
 
 			saveError := dao.SaveRecord(configRecord)
 			if saveError != nil {

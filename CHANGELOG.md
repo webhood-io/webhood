@@ -9,9 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ⚠️ This update includes important breaking changes to the docker-compose file. It is necessary to update your [docker-compose.yml](https://github.com/webhood-io/webhood/blob/main/docker-compose.yml) file to reflect the changes in this version.
 
+You can run the following command to compare your `docker-compose.yml` file with the latest version:
+
+```bash
+git diff main:docker-compose.yml docker-compose.yml
+```
+
 ### Added
 
 - It is now possible to configure multiple scanners to communicate with the main Webhood backend. This is useful for example when you want to run multiple scanners in different locations. [[commit]]()
+
+```bash
+docker compose run backend create_scanner -u scanner2
+
+docker compose run backend create_scanner_token -u scanner2
+```
 
 ### Fixed
 
