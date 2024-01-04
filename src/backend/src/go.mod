@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/labstack/echo/v5 v5.0.0-20230722203903-ec5b858dab61
-	github.com/pocketbase/pocketbase v0.20.0
+	github.com/pocketbase/pocketbase v0.20.4
 	github.com/webhood-io/backend/webhood v0.0.0-00010101000000-000000000000
 )
 
