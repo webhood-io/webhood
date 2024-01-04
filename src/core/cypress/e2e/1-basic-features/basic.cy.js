@@ -24,11 +24,11 @@ describe('webhood-ui', () => {
   it('can submit new url', () => {
     // contains login input
     // wait for #urlinput to be visible
-    cy.get('#urlinput').should('be.visible')
+    cy.get('[data-cy=url-input]').should('be.visible')
     // get random int
     const randomInt = Math.floor(Math.random() * 1000000).toString()
     const url = 'https://example.com/' + randomInt
-    cy.get('#urlinput').type(url)
+    cy.get('[data-cy=url-input]').type(url)
     // submit form
     cy.get('form').submit()
     // should have url in list of spans
