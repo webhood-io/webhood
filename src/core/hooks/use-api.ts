@@ -47,6 +47,7 @@ function tokensFetcher() {
     .collection("api_tokens")
     .getFullList({
       sort: "-created",
+      filter: `config=null`,
     })
     .then((data) => {
       return data as unknown as ApiTokensResponse[]
