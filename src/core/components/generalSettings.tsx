@@ -220,7 +220,7 @@ export function GeneralSettings() {
           </SelectTrigger>
           <SelectContent>
             {scanDataSwr?.map((scanner) => (
-              <SelectItem value={scanner.id}>{scanner.name}</SelectItem>
+              <SelectItem value={scanner.id}>{scanner.name || scanner.id}</SelectItem>
             ))}
           </SelectContent>
         </Select>

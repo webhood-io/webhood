@@ -173,7 +173,7 @@ export function UrlForm() {
                           {scannerDataSwr &&
                             scannerDataSwr.map((scanner) => (
                               <SelectItem key={scanner.id} value={scanner.id}>
-                                {scanner.name}
+                                {scanner.name || scanner.id}
                               </SelectItem>
                             ))}
                         </SelectContent>
