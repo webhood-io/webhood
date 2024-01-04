@@ -44,7 +44,8 @@ export type ApiTokensRecord = {
 
 export type ScannersRecord<Tconfig = unknown> = {
   config?: null | Tconfig
-}
+  name: string
+} & BaseSystemFields
 
 export enum ScansStatusOptions {
   "pending" = "pending",
@@ -61,6 +62,9 @@ export type ScansRecord = {
   slug?: string
   status?: ScansStatusOptions
   url?: string
+  options?: {
+    scannerId?: string
+  }
 } & BaseSystemFields
 
 export enum UsersRoleOptions {

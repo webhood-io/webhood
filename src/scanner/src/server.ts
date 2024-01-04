@@ -10,6 +10,7 @@ import * as errors from "./errors"
 import MemoryStream from "memorystream"
 // https://github.com/pocketbase/pocketbase/discussions/178
 import EventSource from 'eventsource';
+import { ScansRecord } from './types/pocketbase-types';
 // @ts-ignore
 global.EventSource = EventSource
 
@@ -24,6 +25,10 @@ if (!process.env.ENDPOINT || !process.env.SCANNER_TOKEN) {
 }
 
 export const pb = new PocketBase(process.env.ENDPOINT, new EnvAuthStore());
+pb.collection("api_tokens").authRefresh({expand: "config"}).catch(error => {
+    console.error('Error while authenticating', error);
+    throw new errors.WebhoodScannerInvalidConfigError("Could not authenticate to backend, please check your credentials");
+})
 
 const errorMessage = (message: string, scanId: string) => {
     if(scanId) {
@@ -44,7 +49,11 @@ const updateDocument = async (id: string, data: any) => { // todo: fix typ
 }
 
 async function getBrowserInfo() {
-    const data = await pb.collection("scanners").getFirstListItem('');
+    // Get config for current scanner
+    const authModel = await pb.collection("api_tokens").authRefresh({
+        expand: "config"
+    })
+    const data = authModel.record.expand?.config
     if(!data?.config) {
         throw new errors.WebhoodScannerInvalidConfigError('Invalid config');
     }
@@ -166,7 +175,7 @@ async function checkForNewScans() {
     // check for new scans that need to be processed
     // if there are any, process them
     const data = await pb.collection("scans").getList(1,1,
-        {filter: 'status="pending"'}
+        {filter: 'status="pending" && (options.scannerId=null||options.scannerId="' + pb.authStore.model?.config + '")'}
     ).catch(error => {
         console.log('Error while fetching new scans');
         throw new errors.WebhoodScannerBackendError(error);
@@ -174,7 +183,7 @@ async function checkForNewScans() {
     if(!data?.items) {
         throw new errors.WebhoodScannerBackendError('Invalid response while fetching new scans');
     }
-    return data.items;
+    return data.items as ScansRecord[];
 }
 async function checkForOldScans() {
     // timestamp in format Y-m-d H:i:s.uZ, for example 2021-08-31 12:00:00.000Z

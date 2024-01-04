@@ -44,6 +44,7 @@ export type ApiTokensRecord = {
 
 export type ScannersRecord<Tconfig = unknown> = {
 	config?: null | Tconfig
+	name: string
 }
 
 export enum ScansStatusOptions {
@@ -60,8 +61,11 @@ export type ScansRecord = {
 	screenshots?: string[]
 	slug?: string
 	status?: ScansStatusOptions
-	url?: string
-}
+	url: string
+	options? : {
+		scannerId?: string
+	}
+} & BaseSystemFields
 
 export enum UsersRoleOptions {
 	"admin" = "admin",

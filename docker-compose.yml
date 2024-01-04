@@ -72,7 +72,6 @@ services:
       - TMPDIR=/pb/pb_data/storage/xeb56gcfepjsjb4/
     volumes:
       - data:/pb/pb_data
-      - migrations:/pb/pb_migrations
     command:
       - serve
       - --http=0.0.0.0:8090
@@ -86,7 +85,6 @@ services:
 
 volumes:
   data:
-  migrations:
 
 networks:
   db:

@@ -10,7 +10,8 @@ import { StatusMessage, StatusMessageProps } from "@/components/statusMessage"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { TypographyH3 } from "@/components/ui/typography/h3"
+import { Separator } from "@/components/ui/separator"
+import { TypographyLarge } from "@/components/ui/typography/large"
 import { TypographySubtle } from "@/components/ui/typography/subtle"
 
 export function ChangePasswordForm() {
@@ -141,9 +142,9 @@ export default function DashboardPage() {
             View and manage your account settings.
           </p>
         </div>
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col">
-            <TypographyH3>Account</TypographyH3>
+        <div className="flex flex-col gap-6">
+          <div>
+            <TypographyLarge>Account</TypographyLarge>
             <TypographySubtle>View your account information.</TypographySubtle>
           </div>
           <div className="flex flex-col gap-2">
@@ -173,10 +174,11 @@ export default function DashboardPage() {
               <Input id="role" type="text" value={user?.role || ""} disabled />
             </div>
           </div>
+          <Separator />
           {/* Change password */}
-          <div className="flex flex-col">
-            <TypographyH3>Change password</TypographyH3>
-            <TypographySubtle>Change your password.</TypographySubtle>
+          <div>
+            <TypographyLarge>Change password</TypographyLarge>
+            <TypographySubtle>View your account information.</TypographySubtle>
           </div>
           <ChangePasswordForm />
         </div>

@@ -30,7 +30,11 @@ func main() {
 		Dir:          "pb_migrations",
 	})
 
-	app.RootCmd.AddCommand(webhood.CreateScannerToken(app))
+	create_token_cmd := webhood.CreateScannerToken(app)
+	create_token_cmd.Flags().StringP("scannerid", "i", "", "scanner id (optional)")
+	create_token_cmd.Flags().StringP("username", "u", "", "scanner name (optional)")
+	app.RootCmd.AddCommand(create_token_cmd)
+
 	create_user_cmd := webhood.CreateUserCmd(app)
 	create_user_cmd.Flags().StringP("username", "u", "", "username")
 	create_user_cmd.Flags().StringP("password", "p", "", "password")
@@ -38,6 +42,11 @@ func main() {
 	create_user_cmd.MarkFlagRequired("username")
 	create_user_cmd.MarkFlagRequired("password")
 	app.RootCmd.AddCommand(create_user_cmd)
+
+	create_scanner_cmd := webhood.CreateScanner(app)
+	create_scanner_cmd.Flags().StringP("username", "u", "", "friendly name")
+	create_scanner_cmd.MarkFlagRequired("username")
+	app.RootCmd.AddCommand(create_scanner_cmd)
 
 	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
 		e.Router.AddRoute(echo.Route{

@@ -4,6 +4,7 @@ yarn run dev &
 cd ../backend
 cp -r migrations src/pb_migrations
 cd src
+go version
 go run main.go migrate
 go run main.go create_user -u admin -p password123 -e test@example.com
 SCANNER_TOKEN=$(go run main.go create_scanner_token 2>&1|grep SCANNER_TOKEN|cut -d '=' -f2) 

@@ -1,0 +1,41 @@
+{
+    "page": 1,
+    "perPage": 500,
+    "totalItems": -1,
+    "totalPages": -1,
+    "items": [
+        {
+            "collectionId": "4mw0oi15o9akrgh",
+            "collectionName": "scanners",
+            "config": {
+                "lang": "",
+                "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"
+            },
+            "created": "2023-09-24 10:07:26.067Z",
+            "id": "0lk9lksaydebgvx",
+            "name": "scanner1",
+            "updated": "2024-01-04 08:30:04.456Z"
+        },
+        {
+            "collectionId": "4mw0oi15o9akrgh",
+            "collectionName": "scanners",
+            "config": {
+                "lang": "fi-FI",
+                "ua": ""
+            },
+            "created": "2024-01-03 08:32:39.693Z",
+            "id": "xednszzs3tqj5bf",
+            "name": "scanner2",
+            "updated": "2024-01-04 08:34:58.047Z"
+        },
+        {
+            "collectionId": "4mw0oi15o9akrgh",
+            "collectionName": "scanners",
+            "config": {},
+            "created": "2024-01-03 10:06:44.735Z",
+            "id": "nixwylyzfz4mqb4",
+            "name": "scanner3",
+            "updated": "2024-01-03 11:42:44.377Z"
+        }
+    ]
+}
