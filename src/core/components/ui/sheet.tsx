@@ -27,11 +27,7 @@ interface SheetPortalProps
   extends SheetPrimitive.DialogPortalProps,
     VariantProps<typeof portalVariants> {}
 
-const SheetPortal = ({
-  position,
-  children,
-  ...props
-}: SheetPortalProps) => (
+const SheetPortal = ({ position, children, ...props }: SheetPortalProps) => (
   <SheetPrimitive.Portal {...props}>
     <div className={portalVariants({ position })}>{children}</div>
   </SheetPrimitive.Portal>

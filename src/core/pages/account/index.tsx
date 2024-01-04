@@ -10,10 +10,9 @@ import { StatusMessage, StatusMessageProps } from "@/components/statusMessage"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { TypographyH3 } from "@/components/ui/typography/h3"
-import { TypographySubtle } from "@/components/ui/typography/subtle"
-import { TypographyLarge } from "@/components/ui/typography/large"
 import { Separator } from "@/components/ui/separator"
+import { TypographyLarge } from "@/components/ui/typography/large"
+import { TypographySubtle } from "@/components/ui/typography/subtle"
 
 export function ChangePasswordForm() {
   const [passwordMessage, setPasswordMessage] =
