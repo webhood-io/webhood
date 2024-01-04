@@ -1,8 +1,11 @@
 import * as React from "react"
-import { scannerFetcher } from "@/hooks/use-api"
-import useSWR from "swr"
+import { scannerFetcher, scannersFetcher } from "@/hooks/use-api"
+import useSWR, {useSWRConfig} from "swr"
 import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
 
+import { ScannersRecord } from "@/types/pocketbase-types"
 import { pb } from "@/lib/pocketbase"
 import { ScannerLangTip, ScannerUaTip } from "@/lib/tips"
 import { Icons } from "@/components/icons"
@@ -11,23 +14,24 @@ import { IconButton } from "@/components/ui/button-icon"
 import { GenericTooltip } from "@/components/ui/generic-tooltip"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
 import { TypographyLarge } from "@/components/ui/typography/large"
 import { TypographySubtle } from "./ui/typography/subtle"
-
-interface MicrosoftAuthOptions {
-  enabled: boolean
-  clientId: string
-  secret: string
-  azureTenantId?: string
-  redirectUri?: string
-}
-
-interface GoogleAuthOptions {
-  enabled: boolean
-  clientId: string
-  secret: string
-  redirectUri?: string
-}
 
 function SettingsInput({
   label,
@@ -60,33 +64,129 @@ function SettingsInput({
 }
 
 const scannerOptionsSchema = z.object({
-  ua: z.string(),
-  lang: z.string(),
+  config: z.object({
+    ua: z.string(),
+    lang: z.string()
+  }),
+  name: z.string(),
 })
+
+function ScannerSettingsForm({
+  scanner,
+  onSubmit,
+  statusMessage
+  }: {
+    scanner: ScannersRecord
+    onSubmit: (data: any) => void
+    statusMessage: StatusMessageProps
+  }) {
+  const form = useForm<z.infer<typeof scannerOptionsSchema>>({
+    resolver: zodResolver(scannerOptionsSchema),
+    defaultValues: {
+      config: scanner.config,
+      name: scanner.name,
+    },
+  })
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <div className="flex flex-col gap-2">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <SettingsInput
+                  {...field}
+                  label="Name"
+                  name="name"
+                  placeholder="Friendly name for this scanner"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="config.ua"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <SettingsInput
+                  {...field}
+                  label="User Agent"
+                  name="config.ua"
+                  placeholder="User agent"
+                  tooltip={ScannerUaTip}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />   
+        <FormField
+          control={form.control}
+          name="config.lang"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <SettingsInput
+                  {...field}
+                  label="Language"
+                  name="config.lang"
+                  placeholder="Language"
+                  tooltip={ScannerLangTip}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+          />
+        </div>
+
+        <div className={"mt-2 flex flex-row gap-2"}>
+          <IconButton icon={<Icons.save className={"h-full"} />} type="submit">
+            Save
+          </IconButton>
+          <StatusMessage statusMessage={statusMessage} />
+        </div>
+      </form>
+    </Form>
+  )
+}
 
 export function GeneralSettings() {
   const [statusMessage, setStatusMessage] =
     React.useState<StatusMessageProps>(undefined)
+  const [selectedScanner, setSelectedScanner] = React.useState<
+    ScannersRecord | undefined
+  >(undefined)
   const {
     data: scanDataSwr,
     error: scanErrorSwr,
     isLoading: isSwrLoading,
-  } = useSWR("/api/scanners", scannerFetcher)
+  } = useSWR("/api/scanners", scannersFetcher)
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>, id: string) => {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-    const data = {
-      config: scannerOptionsSchema.parse(Object.fromEntries(formData)),
+  const {mutate} = useSWRConfig()
+
+  React.useEffect(() => {
+    if (scanDataSwr && selectedScanner === undefined) {
+      setSelectedScanner(scanDataSwr[0])
     }
+  }, [scanDataSwr])
+
+  const handleSubmit = (data: ScannersRecord) => {
     const record = pb
       .collection("scanners")
-      .update(scanDataSwr.id, data)
+      .update(selectedScanner.id, data)
       .then((res) => {
         setStatusMessage({
           status: "success",
           message: "Settings saved",
         })
+        mutate("/api/scanners")
       })
       .catch((err) => {
         console.log(err)
@@ -97,50 +197,35 @@ export function GeneralSettings() {
       })
   }
   // @ts-ignore TODO: fix this
-  const { ua, lang } = scanDataSwr?.config || { ua: "", lang: "" }
+  const { ua, lang } = selectedScanner?.config || { ua: "", lang: "" }
+  if (!selectedScanner) return <div>Loading...</div>
   return (
     <div className="flex flex-col justify-between gap-6">
-      <div>
-      <TypographyLarge>Scanner settings</TypographyLarge>
-      <TypographySubtle>Set settings for scanner. Configure User agent and Language set in the scanner browser.</TypographySubtle>
+      <div className="flex flex-row justify-between gap-2">
+        <div>
+          <TypographyLarge>Scanner settings</TypographyLarge>
+          <TypographySubtle>
+            Set settings for scanner. Configure User agent and Language set in
+            the scanner browser.
+          </TypographySubtle>
+        </div>
+        <Select
+          defaultValue={selectedScanner.id}
+          onValueChange={(value) =>
+            setSelectedScanner(scanDataSwr.find((e) => e.id === value))
+          }
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Select a scanner" />
+          </SelectTrigger>
+          <SelectContent>
+            {scanDataSwr?.map((scanner) => (
+              <SelectItem value={scanner.id}>{scanner.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
-      <form onSubmit={(e) => handleSubmit(e, scanDataSwr.id)}>
-        {scanDataSwr && (
-          <div className="flex flex-col gap-4">
-            <SettingsInput
-              label="Id"
-              name="id"
-              placeholder="Id"
-              disabled
-              value={scanDataSwr?.id}
-            />
-            <SettingsInput
-              label="User Agent"
-              name="ua"
-              placeholder="User agent"
-              defaultValue={ua}
-              tooltip={ScannerUaTip}
-            />
-            <SettingsInput
-              label="Language"
-              name="lang"
-              placeholder="Language"
-              defaultValue={lang}
-              tooltip={ScannerLangTip}
-            />
-            <div className={"flex flex-row gap-2"}>
-              <IconButton
-                isLoading={isSwrLoading}
-                icon={<Icons.save className={"h-full"} />}
-                type="submit"
-              >
-                Save
-              </IconButton>
-              <StatusMessage statusMessage={statusMessage} />
-            </div>
-          </div>
-        )}
-      </form>
+      <ScannerSettingsForm scanner={selectedScanner} onSubmit={handleSubmit} key={selectedScanner.id} statusMessage={statusMessage} />
     </div>
   )
 }

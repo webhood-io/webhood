@@ -28,6 +28,7 @@ var fields = []string{
 	"screenshots",
 	"done_at",
 	"final_url",
+	"options",
 }
 
 func RequireCustomRoleAuth(roleName string) echo.MiddlewareFunc {
@@ -66,6 +67,7 @@ type scanRecord struct {
 		    screenshots: data.screenshots,
 		    done_at: data.done_at,
 		    final_url: data.final_url,
+			options: data.options,
 	*/
 	Id          string                  `db:"id" json:"id"`
 	Slug        string                  `db:"slug" json:"slug"`
@@ -78,6 +80,7 @@ type scanRecord struct {
 	Screenshots types.JsonArray[string] `db:"screenshots" json:"screenshots"`
 	DoneAt      string                  `db:"done_at" json:"done_at"`
 	FinalUrl    string                  `db:"final_url" json:"final_url"`
+	Options     types.JsonMap           `db:"options" json:"options"`
 }
 
 func ScansGetRoute(app core.App) echo.Route {

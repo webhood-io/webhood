@@ -33,6 +33,15 @@ function scannerFetcher() {
     }) as Promise<ScannersResponse>
 }
 
+function scannersFetcher() {
+  return pb
+    .collection("scanners")
+    .getFullList()
+    .then((data) => {
+      return data as unknown as ScannersResponse[]
+    }) as Promise<ScannersResponse[]>
+}
+
 function tokensFetcher() {
   return pb
     .collection("api_tokens")
@@ -186,6 +195,7 @@ export {
   scansSearchFetcher,
   scanSingleFetcher,
   scannerFetcher,
+  scannersFetcher,
   usersFetcher,
   tokensFetcher,
   tokenSingleFetcher,

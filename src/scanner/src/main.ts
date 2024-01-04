@@ -5,6 +5,7 @@ import {
     errorMessage,
     browserinit,
     subscribeRealtime,
+    pb,
 } from './server';
 import * as errors from "./errors"
 import { updateScanStatus } from './server';
@@ -15,6 +16,11 @@ subscribeRealtime()
 setInterval(async function() {
     const scans = await checkForNewScans();
     const scan = scans[0];
+
+    if(scan?.options && scan.options.scannerId && scan.options.scannerId !== pb.authStore.model?.config) {
+        console.log('Scan is not for this scanner, skipping', scan.id, "scannerId", scan.options.scannerId, "scannerConfigId", pb.authStore.model?.config);
+        return
+    }
     if(scan) {
         const browser = await browserinit();
         const scanId = scan.id;
