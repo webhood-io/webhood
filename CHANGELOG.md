@@ -5,7 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
 ## [Unreleased]
+
+### Added
+
+### Fixed
+
+### Changed
+
+### Removed
+
+## [0.5.0] - 2024-01-04
 
 ⚠️ This update includes important breaking changes to the docker-compose file. It is necessary to update your [docker-compose.yml](https://github.com/webhood-io/webhood/blob/main/docker-compose.yml) file to reflect the changes in this version.
 
@@ -17,7 +28,7 @@ git diff main:docker-compose.yml docker-compose.yml
 
 ### Added
 
-- It is now possible to configure multiple scanners to communicate with the main Webhood backend. This is useful for example when you want to run multiple scanners in different locations. [[commit]]()
+- It is now possible to configure multiple scanners to communicate with the main Webhood backend. This is useful for example when you want to run multiple scanners in different locations.
 
 ```bash
 docker compose run backend create_scanner -u scanner2
@@ -27,13 +38,12 @@ docker compose run backend create_scanner_token -u scanner2
 
 ### Fixed
 
-- Scanner will now output a warning if the authentication fails [[commit]]()
+- Scanner will now output a warning if the authentication fails [[commit]](https://github.com/webhood-io/webhood/commit/97bbbe8402ebef321a5e3788ed3e91b80bbc68b3#diff-021b9439f0d6e98c111e7ca7ad1b6237f831bd0e2f16c05c9d2040492b869baa)
 
 ### Changed
 
-- ⚠ Removed use of `migrations` volume in `docker-compose.yml`. This volume is not needed as the migrations directory is updated in the backend image. [[commit]]()
+- ⚠ Removed use of `migrations` volume in `docker-compose.yml`. This volume is not needed as the migrations directory is updated in the backend image. [[commit]](https://github.com/webhood-io/webhood/commit/35fdf9655468b14a282bbe09a21666088c839800)
 
-### Removed
 
 ## [0.4.0] - 2023-12-08
 
