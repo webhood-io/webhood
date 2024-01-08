@@ -40,7 +40,8 @@ WORKDIR /usr/src/app
 # Copy the built files from build
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json /app/yarn.lock* ./
-COPY ./chrome.json ./profiles/chrome.json
+RUN mkdir -p /var/lib/kubelet/seccomp/profiles
+COPY ./chrome.json /var/lib/kubelet/seccomp/profiles/chrome.json
 
 RUN yarn install --production
 
