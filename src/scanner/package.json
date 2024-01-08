@@ -16,7 +16,7 @@
     "eventsource": "^2.0.2",
     "memorystream": "^0.3.1",
     "pocketbase": "^0.20.0",
-    "puppeteer": "^21.0.0",
+    "puppeteer": "^21.7.0",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
