@@ -105,6 +105,12 @@ func CreateScanner(app core.App) *cobra.Command {
 				println("Error fetching collection: " + error.Error())
 				return
 			}
+			// Check if scanner already exists
+			scannerAlreadyExists, _ := dao.FindAuthRecordByUsername("api_tokens", username)
+			if scannerAlreadyExists != nil {
+				println("Scanner already exists with username: " + username)
+				return
+			}
 			// Create Scanner config
 			scannersCollection, error := dao.FindCollectionByNameOrId("scanners")
 			if error != nil {
