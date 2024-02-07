@@ -132,6 +132,7 @@ func CreateScanner(app core.App) *cobra.Command {
 			apiTokenRecord.Set("username", username)
 			apiTokenRecord.Set("role", "scanner")
 			apiTokenRecord.Set("config", configRecord.Id)
+			apiTokenRecord.RefreshTokenKey() // tokenKey is unique for some reason, so we need to refresh it to make it unique (i.e. not null which is not unique)
 
 			saveError = dao.SaveRecord(apiTokenRecord)
 			if saveError != nil {
