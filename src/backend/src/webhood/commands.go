@@ -105,6 +105,12 @@ func CreateScanner(app core.App) *cobra.Command {
 				println("Error fetching collection: " + error.Error())
 				return
 			}
+			// Check if scanner already exists
+			scannerAlreadyExists, _ := dao.FindAuthRecordByUsername("api_tokens", username)
+			if scannerAlreadyExists != nil {
+				println("Scanner already exists with username: " + username)
+				return
+			}
 			// Create Scanner config
 			scannersCollection, error := dao.FindCollectionByNameOrId("scanners")
 			if error != nil {
@@ -126,6 +132,7 @@ func CreateScanner(app core.App) *cobra.Command {
 			apiTokenRecord.Set("username", username)
 			apiTokenRecord.Set("role", "scanner")
 			apiTokenRecord.Set("config", configRecord.Id)
+			apiTokenRecord.RefreshTokenKey() // tokenKey is unique for some reason, so we need to refresh it to make it unique (i.e. not null which is not unique)
 
 			saveError = dao.SaveRecord(apiTokenRecord)
 			if saveError != nil {

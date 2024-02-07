@@ -16,6 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+## [0.5.1] - 2024-02-07
+
+### Fixed
+
+- Fixed an issue preventing new scanners from being created in the backend. [[commit]](https://github.com/webhood-io/webhood/commit/7cf6d53f39ab3af3948abca7f73e12cb64030388)
+
 ## [0.5.0] - 2024-01-04
 
 ⚠️ This update includes important breaking changes to the docker-compose file. It is necessary to update your [docker-compose.yml](https://github.com/webhood-io/webhood/blob/main/docker-compose.yml) file to reflect the changes in this version.
