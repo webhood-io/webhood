@@ -16,7 +16,9 @@
 [![E2E tests](https://github.com/webhood-io/webhood/actions/workflows/cypress-e2e.dev.yml/badge.svg)](https://github.com/webhood-io/webhood/actions/workflows/cypress-e2e.dev.yml)
 [![Component tests](https://github.com/webhood-io/webhood/actions/workflows/cyress-core.dev.yml/badge.svg)](https://github.com/webhood-io/webhood/actions/workflows/cyress-core.dev.yml)
 
+## Demo
 
+https://github.com/webhood-io/webhood/assets/28872014/66de2fd6-2327-4903-bab4-d92c2bc5e1a5
 
 ## Documentation
 
