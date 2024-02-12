@@ -26,15 +26,15 @@ For full documentation, visit [webhood.io/docs](https://webhood.io/docs)
 
 ## Community & Support
 
-- [Community Forum](https://github.com/webhood-io/discussions). Best for: help with building, discussion about Webhood and best practices.
+- [Community Forum](https://github.com/orgs/webhood-io/discussions). Best for: help with building, discussion about Webhood and best practices.
 - [GitHub Issues](https://github.com/webhood-io/webhood/issues). Best for: bugs and errors you encounter using Webhood.
-- [Email](https://webhood.io/docs/support). Best for: problems with the app, security issues, and sensitive information that you do not want to share publicly.
+- [Email](mailto:contact@webhood.io). Best for: problems with the app, security issues, and sensitive information that you do not want to share publicly.
 
 ## Status
 
 - [x] Alpha: We are testing Webhood internally and with a closed set of customers
 - [x] Public Alpha: Anyone can set up own deployment. Do expect bugs and missing features as well as breaking changes.
-- [ ] Public Beta: Stable enough for most use-cases
+- [x] Public Beta: Stable enough for most use-cases
 - [ ] Public: General Availability
 
 Watch "releases" of this repo to get notified of major updates.
