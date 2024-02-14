@@ -12,11 +12,12 @@
   "author": "Markus Lehtonen",
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
+    "async-mutex": "^0.4.1",
     "dotenv": "^16.0.3",
     "eventsource": "^2.0.2",
     "memorystream": "^0.3.1",
     "pocketbase": "^0.20.0",
-    "puppeteer": "^21.0.0",
+    "puppeteer": "^22.0.0",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
