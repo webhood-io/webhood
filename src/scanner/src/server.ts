@@ -26,6 +26,7 @@ if (!process.env.ENDPOINT || !process.env.SCANNER_TOKEN) {
 }
 
 export const pb = new PocketBase(process.env.ENDPOINT, new EnvAuthStore());
+pb.autoCancellation(false);
 
 export async function refreshConfig() {
   return await pb
