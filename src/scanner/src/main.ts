@@ -36,11 +36,37 @@ function subscribeRealtime() {
         error
       );
     });
+  pb.collection("scanners")
+    .subscribe(pb.authStore.model?.config, async function (e) {
+      if (e.action === "update") {
+        console.log("Config updated");
+        await refreshConfig();
+        const simultaneousScans = e.record?.config.simultaneousScans;
+        if (simultaneousScans) {
+          try {
+            console.log("Setting semaphore value to", simultaneousScans);
+            semaphore.setValue(simultaneousScans);
+          } catch (e) {
+            console.log("Error while setting semaphore value", e);
+          }
+        }
+      }
+    })
+    .then(() => {
+      console.log("Subscribed to changes in scanners collection");
+    })
+    .catch((error) => {
+      console.error(
+        "Error while subscribing to changes in scanners collection. Realtime updates will not work",
+        error
+      );
+    });
 }
 
 async function setup() {
   const data = await refreshConfig();
   const scannerConfig = data.record.expand?.config.config;
+  subscribeRealtime();
   const simultaneousScans = scannerConfig?.simultaneousScans;
   if (simultaneousScans) {
     try {
@@ -53,8 +79,6 @@ async function setup() {
 }
 
 setup();
-
-subscribeRealtime();
 
 export async function startScanning({ scan }: { scan: ScansRecord }) {
   if (
