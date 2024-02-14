@@ -3,5 +3,7 @@ const ScannerUaTip =
   "(e.g. Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
 const ScannerLangTip =
   "Set language of the browser" + " (e.g. en-US, zh-CN, ja-JP, etc.)"
+const SimultaneousScansTooltip =
+  "Maximum number of scans that can be run at the same time"
 
-export { ScannerUaTip, ScannerLangTip }
+export { ScannerUaTip, ScannerLangTip, SimultaneousScansTooltip }

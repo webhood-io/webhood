@@ -5,7 +5,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-
 ## [Unreleased]
 
 ### Added
@@ -15,6 +14,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 ### Removed
+
+## [0.6.0] - 2024-02-14
+
+### Added
+
+- Ability to configure and run multiple scans simultaneously. [[commit]](https://github.com/webhood-io/webhood/commit/5689726bb8793ea22001e40f5f704116abbc75e0)
+
+### Fixed
+
+- Fixed unnecessary delay in starting a scan. Scans now start immediately after the scan is created. [[commit]](https://github.com/webhood-io/webhood/commit/5689726bb8793ea22001e40f5f704116abbc75e0)
+
+- Fixed [favicon](src/core/public/favicon.svg) not being correctly displayed in browser tab. [[commit]](https://github.com/webhood-io/webhood/commit/5a840abcf5ee98f655290c1ca16962ad11e603c4)
 
 ## [0.5.1] - 2024-02-07
 

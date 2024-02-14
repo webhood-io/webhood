@@ -7,33 +7,10 @@
    viewBox="0 0 512 512"
    version="1.1"
    id="svg5"
-   inkscape:version="1.2.2 (b0a8486, 2022-12-01)"
-   sodipodi:docname="icon_512_512.svg"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
-  <sodipodi:namedview
-     id="namedview7"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:showpageshadow="2"
-     inkscape:pageopacity="0.0"
-     inkscape:pagecheckerboard="0"
-     inkscape:deskcolor="#d1d1d1"
-     inkscape:document-units="px"
-     showgrid="false"
-     inkscape:zoom="0.4609375"
-     inkscape:cx="-65.084746"
-     inkscape:cy="257.08475"
-     inkscape:window-width="1440"
-     inkscape:window-height="763"
-     inkscape:window-x="0"
-     inkscape:window-y="25"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="layer1" />
-         <style>
+  <style
+     id="style25">
         path {
             fill: #fff;
         }
@@ -53,23 +30,40 @@
     </style>
   <defs
      id="defs2" />
-    <defs>
-        <linearGradient id="0" x1="0.09" y1="0.21" x2="0.91" y2="0.79">
-            <stop offset="0%" stop-color="#ff5757"/>
-            <stop offset="33.33%" stop-color="#f40059"/>
-            <stop offset="100%" stop-color="#9e005d"/>
-        </linearGradient>
-    </defs>
+  <defs
+     id="defs35">
+    <linearGradient
+       id="0"
+       x1="0.09"
+       y1="0.21"
+       x2="0.91"
+       y2="0.79">
+      <stop
+         offset="0%"
+         stop-color="#ff5757"
+         id="stop28" />
+      <stop
+         offset="33.33%"
+         stop-color="#f40059"
+         id="stop30" />
+      <stop
+         offset="100%"
+         stop-color="#9e005d"
+         id="stop32" />
+    </linearGradient>
+  </defs>
   <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
      id="layer1">
-      <rect fill="url(#0)" height="100%" width="100%"/>
-      <path
+    <rect
+       fill="url(#0)"
+       height="100%"
+       width="100%"
+       id="rect37" />
+    <path
        id="rect4439"
        clip-path="none"
-       style="display:inline;stroke:none;stroke-width:47.6676;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:20.9021"
-       d="M 6,6 V 205.99998 H 55.98424 V 55.99999 H 205.98423 V 6 Z m 299.99996,0 v 49.99999 h 149.99998 v 149.99999 h 49.98425 V 6 Z M 6,305.99996 V 506 H 205.98423 V 456.00001 H 55.98424 V 305.99996 Z m 449.99994,0 V 456.00001 H 305.99996 V 506 H 505.98419 V 305.99996 Z" />
+       style="display:inline;stroke:none;stroke-width:36.6094;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:20.9021"
+       d="m 64,64 v 153.59998 h 38.38912 V 102.39999 H 217.59274 V 64 Z m 230.40726,0 v 38.39999 H 409.61089 V 217.59998 H 448 V 64 Z M 64,294.39996 V 448 H 217.59274 V 409.60001 H 102.38912 V 294.39996 Z m 345.61089,0 V 409.60001 H 294.40726 V 448 H 448 V 294.39996 Z" />
     <g
        id="g8411"
        transform="matrix(7.7969062,0,0,7.7969062,131.2495,131.2495)">

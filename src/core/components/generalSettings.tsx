@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form"
 
 import { ScannersRecord } from "@/types/pocketbase-types"
 import { pb } from "@/lib/pocketbase"
-import { ScannerLangTip, ScannerUaTip } from "@/lib/tips"
+import { ScannerLangTip, ScannerUaTip, SimultaneousScansTooltip } from "@/lib/tips"
 import { Icons } from "@/components/icons"
 import { StatusMessage, StatusMessageProps } from "@/components/statusMessage"
 import { IconButton } from "@/components/ui/button-icon"
@@ -24,14 +24,12 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form"
 import { TypographyLarge } from "@/components/ui/typography/large"
-import { TypographySubtle } from "./ui/typography/subtle"
+import { TypographySubtle } from "@/components/ui/typography/subtle"
 
 function SettingsInput({
   label,
@@ -67,6 +65,7 @@ const scannerOptionsSchema = z.object({
   config: z.object({
     ua: z.string().optional(),
     lang: z.string().optional(),
+    simultaneousScans: z.string().optional(),
   }),
   name: z.string(),
 })
@@ -138,6 +137,24 @@ function ScannerSettingsForm({
                   name="config.lang"
                   placeholder="Language"
                   tooltip={ScannerLangTip}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+          />
+        <FormField
+          control={form.control}
+          name="config.simultaneousScans"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <SettingsInput
+                  {...field}
+                  label="Simultaneous Scans"
+                  name="config.simultaneousScans"
+                  tooltip={SimultaneousScansTooltip}
+                  type="number"
                 />
               </FormControl>
               <FormMessage />
