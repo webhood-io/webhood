@@ -22,6 +22,7 @@ function subscribeRealtime() {
       if (e.action === "create") {
         console.log("New scan created");
         await semaphore.runExclusive(async (value) => {
+          updateScanStatus(e.record.id, "queued");
           console.log("Semaphore value", value);
           await startScanning({ scan: e.record as ScansRecord });
         });
@@ -132,9 +133,14 @@ export async function startScanning({ scan }: { scan: ScansRecord }) {
 // Check for new scans every 10 seconds
 // this acts as a fallback in case realtime updates are not working for some reason
 setInterval(async function () {
-  const scans = await checkForNewScans();
-  const scan = scans[0];
-  if (scan) startScanning({ scan });
+  await semaphore.runExclusive(async (value) => {
+    console.log("Semaphore value", value);
+    const scans = await checkForNewScans(value);
+    scans.forEach(async (scan) => {
+      updateScanStatus(scan.id, "queued");
+      await startScanning({ scan });
+    });
+  });
 }, 10000);
 
 // Check for old scans every 15 seconds

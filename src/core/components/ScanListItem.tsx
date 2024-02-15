@@ -26,7 +26,7 @@ export function ScanListItem({ document }: { document: ScansRecord }) {
     document.screenshots.length > 0 &&
     document.screenshots[0]
   switch (document.status) {
-    case "pending":
+    case "pending" || "queued":
       img = (
         <Image
           src={ScanLoading}
@@ -149,6 +149,7 @@ export function ScanListItemComponent({
           {/* Status */}
           <div className="flex-rows flex items-center gap-0.5 text-slate-500">
             {document.status === "pending" && <Icons.clock className="h-4" />}
+            {document.status === "queued" && <Icons.clock className="h-4" />}
             {document.status === "running" && <Icons.loader className="h-4" />}
             {document.status === "error" && <Icons.error className="h-4" />}
             {document.status === "done" && <Icons.done className="h-4" />}

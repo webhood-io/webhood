@@ -233,12 +233,12 @@ async function screenshot(
   }
 }
 
-async function checkForNewScans() {
+async function checkForNewScans(count: number) {
   // check for new scans that need to be processed
   // if there are any, process them
   const data = await pb
     .collection("scans")
-    .getList(1, 1, {
+    .getList(1, count || 1, {
       filter:
         'status="pending" && (options.scannerId=null||options.scannerId="' +
         pb.authStore.model?.config +

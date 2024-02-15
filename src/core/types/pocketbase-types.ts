@@ -51,6 +51,7 @@ export enum ScansStatusOptions {
   "pending" = "pending",
   "running" = "running",
   "error" = "error",
+  "queued" = "queued",
   "done" = "done",
 }
 export type ScansRecord = {
