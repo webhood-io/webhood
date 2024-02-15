@@ -20,9 +20,14 @@ function subscribeRealtime() {
   pb.collection("scans")
     .subscribe("*", async function (e) {
       if (e.action === "create") {
-        console.log("New scan created");
+        console.log("New scan created", semaphore.getValue());
+        if (semaphore.isLocked()) {
+          // if semaphore is locked, skip the scan. The scan will be picked up by the setInterval
+          console.log("Semaphore is locked, skipping");
+          return;
+        }
         await semaphore.runExclusive(async (value) => {
-          updateScanStatus(e.record.id, "queued");
+          await updateScanStatus(e.record.id, "queued");
           console.log("Semaphore value", value);
           await startScanning({ scan: e.record as ScansRecord });
         });
@@ -133,11 +138,11 @@ export async function startScanning({ scan }: { scan: ScansRecord }) {
 // Check for new scans every 10 seconds
 // this acts as a fallback in case realtime updates are not working for some reason
 setInterval(async function () {
-  await semaphore.runExclusive(async (value) => {
-    console.log("Semaphore value", value);
-    const scans = await checkForNewScans(value);
-    scans.forEach(async (scan) => {
-      updateScanStatus(scan.id, "queued");
+  const scans = await checkForNewScans(100);
+  scans.forEach(async (scan) => {
+    await updateScanStatus(scan.id, "queued");
+    await semaphore.runExclusive(async (value) => {
+      console.log("Semaphore value", value);
       await startScanning({ scan });
     });
   });

@@ -233,7 +233,7 @@ async function screenshot(
   }
 }
 
-async function checkForNewScans(count: number) {
+async function checkForNewScans(count?: number) {
   // check for new scans that need to be processed
   // if there are any, process them
   const data = await pb
@@ -293,8 +293,9 @@ export {
   updateDocument,
   errorMessage,
 };
-export function updateScanStatus(scanId: string, status: string) {
-  pb.collection("scans")
+export async function updateScanStatus(scanId: string, status: string) {
+  return pb
+    .collection("scans")
     .update(scanId, {
       status: status,
     })
