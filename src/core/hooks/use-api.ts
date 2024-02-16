@@ -74,10 +74,10 @@ function latestScansFetcher() {
     }) as Promise<ScansResponse[]>
 }
 
-function scansSearchFetcher({ search, limit, range }) {
+function scansSearchFetcher({ search, limit, page }) {
   return pb
     .collection("scans")
-    .getList((range.end + 1) / limit, limit, {
+    .getList(page, limit, {
       filter: `url ~ "${search}"`,
       sort: "-created",
     })
