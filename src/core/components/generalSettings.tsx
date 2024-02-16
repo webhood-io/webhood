@@ -153,6 +153,7 @@ function ScannerSettingsForm({
                   {...field}
                   label="Simultaneous Scans"
                   name="config.simultaneousScans"
+                  placeholder="Defaults to 1 when not set"
                   tooltip={SimultaneousScansTooltip}
                   type="number"
                 />
@@ -229,7 +230,7 @@ export function GeneralSettings() {
         <Select
           defaultValue={selectedScanner.id}
           onValueChange={(value) =>
-            setSelectedScanner(scanDataSwr.find((e) => e.id === value))
+            setSelectedScanner(scanDataSwr?.find((e) => e.id === value))
           }
         >
           <SelectTrigger className="w-[180px]">
