@@ -5,6 +5,9 @@ updates:
     directory: "/src/scanner/" # Location of package manifests
     schedule:
       interval: "weekly"
+    allow:
+      - dependency-type: "production"
+
 
   - package-ecosystem: "docker" 
     directory: "/src/scanner/"
@@ -16,6 +19,9 @@ updates:
     directory: "/src/core/" 
     schedule:
       interval: "weekly"
+    allow:
+      - dependency-type: "production"
+
 
   - package-ecosystem: "docker" 
     directory: "/src/core/" 
