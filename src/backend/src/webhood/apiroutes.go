@@ -34,6 +34,12 @@ var fields = []string{
 func RequireCustomRoleAuth(roleName string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+			// Allow admin to pass
+			admin, _ := c.Get("admin").(*models.Admin)
+			if admin != nil {
+				return next(c)
+			}
+			// Else check for the role
 			record, _ := c.Get("authRecord").(*models.Record)
 			if record == nil {
 				return apis.NewUnauthorizedError("The request requires valid authorization token to be set.", nil)
