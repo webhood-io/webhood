@@ -243,6 +243,7 @@ async function checkForNewScans(count?: number) {
         'status="pending" && (options.scannerId=null||options.scannerId="' +
         pb.authStore.model?.config +
         '")',
+      sort: "created",
     })
     .catch((error) => {
       console.log("Error while fetching new scans");
