@@ -51,7 +51,10 @@ function subscribeRealtime() {
         if (simultaneousScans) {
           try {
             console.log("Setting semaphore value to", simultaneousScans);
-            semaphore.setValue(simultaneousScans);
+            semaphore.setValue(
+              // if setting is updated mid-scan, the semamphore value should be updated taking into account the number of running scans
+              Number(simultaneousScans) - semaphore.getValue()
+            );
           } catch (e) {
             console.log("Error while setting semaphore value", e);
           }
