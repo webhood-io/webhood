@@ -216,6 +216,9 @@ export function GeneralSettings() {
   }
   // @ts-ignore TODO: fix this
   const { ua, lang } = selectedScanner?.config || { ua: "", lang: "" }
+  if((!scanDataSwr || scanDataSwr.length===0) && !isSwrLoading) return <div>
+    No scanners found. Add a scanner and start scanning.
+  </div>
   if (!selectedScanner) return <div>Loading...</div>
   return (
     <div className="flex flex-col justify-between gap-6">
