@@ -94,6 +94,15 @@ function scanSingleFetcher({ slug }) {
     }) as Promise<ScansResponse>
 }
 
+function scanStatsFetcher() {
+  return pb
+    .collection("scanstats")
+    .getFullList()
+    .then((data) => {
+      return data
+    })
+}
+
 export enum AccountErrors {
   NOT_LOGGED_IN = "Not logged in",
   INVALID_LOGON = "INVALID_LOGON",
@@ -197,6 +206,7 @@ export {
   scanSingleFetcher,
   scannerFetcher,
   scannersFetcher,
+  scanStatsFetcher,
   usersFetcher,
   tokensFetcher,
   tokenSingleFetcher,
