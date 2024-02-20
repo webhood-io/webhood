@@ -138,7 +138,7 @@ export async function startScanning({ scan }: { scan: ScansRecord }) {
 // Check for new scans every 10 seconds
 // this acts as a fallback in case realtime updates are not working for some reason
 setInterval(async function () {
-  const scans = await checkForNewScans(100);
+  const scans = await checkForNewScans(semaphore.getValue() * 2);
   scans.forEach(async (scan) => {
     await updateScanStatus(scan.id, "queued");
     await semaphore.runExclusive(async (value) => {
