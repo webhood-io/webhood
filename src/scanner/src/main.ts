@@ -50,11 +50,10 @@ function subscribeRealtime() {
         const simultaneousScans = e.record?.config.simultaneousScans;
         if (simultaneousScans) {
           try {
-            console.log("Setting semaphore value to", simultaneousScans);
-            semaphore.setValue(
-              // if setting is updated mid-scan, the semamphore value should be updated taking into account the number of running scans
-              Number(simultaneousScans) - semaphore.getValue()
-            );
+            // if setting is updated mid-scan, the semamphore value should be updated taking into account the number of running scans
+            const newValue = Number(simultaneousScans) - semaphore.getValue();
+            console.log("Setting semaphore value to", newValue);
+            semaphore.setValue(newValue);
           } catch (e) {
             console.log("Error while setting semaphore value", e);
           }
