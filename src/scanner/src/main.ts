@@ -118,7 +118,8 @@ function scansAvailableMem(): number {
     available = os.freemem() / 1024 / 1024; // in MB
   }
   const neededPerScan = 100; // in MB
-  const availableScans = Math.floor(available / neededPerScan);
+  const baseSize = 100; // in MB
+  const availableScans = Math.floor(available / (neededPerScan + baseSize));
   return availableScans;
 }
 
