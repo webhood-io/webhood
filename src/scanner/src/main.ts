@@ -104,9 +104,13 @@ async function memoryConsumption() {
   );
   console.log(
     "OS memory usage",
-    os.freemem() / os.totalmem(),
+    (os.totalmem() - os.freemem()) / os.totalmem(),
     "free memory in mb",
-    os.freemem() / 1024 / 1024
+    os.freemem() / 1024 / 1024,
+    "total memory in mb",
+    os.totalmem() / 1024 / 1024,
+    "constrained memory in mb",
+    process.constrainedMemory()
   );
 }
 
