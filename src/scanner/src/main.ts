@@ -93,15 +93,7 @@ function subscribeRealtime() {
 }
 
 async function memoryConsumption() {
-  const memoryUsage = process.memoryUsage();
-  console.log(
-    "Memory usage",
-    memoryUsage.heapUsed / memoryUsage.heapTotal,
-    "heapUsed",
-    memoryUsage.heapUsed,
-    "heapTotal",
-    memoryUsage.heapTotal
-  );
+  const constrainedMemory = process.constrainedMemory();
   console.log(
     "OS memory usage",
     (os.totalmem() - os.freemem()) / os.totalmem(),
@@ -110,12 +102,18 @@ async function memoryConsumption() {
     "total memory in mb",
     os.totalmem() / 1024 / 1024,
     "constrained memory in mb",
-    process.constrainedMemory()
+    constrainedMemory ? constrainedMemory / 1024 / 1024 : "not set"
   );
 }
 
 function scansAvailableMem(): number {
-  const available = os.freemem() / 1024 / 1024; // in MB
+  let available;
+  const constrainedMemory = process.constrainedMemory();
+  if (constrainedMemory) {
+    available = constrainedMemory / 1024 / 1024; // in MB
+  } else {
+    available = os.freemem() / 1024 / 1024; // in MB
+  }
   const neededPerScan = 100; // in MB
   const availableScans = Math.floor(available / neededPerScan);
   return availableScans;
