@@ -102,7 +102,12 @@ async function memoryConsumption() {
     "heapTotal",
     memoryUsage.heapTotal
   );
-  console.log("OS memory usage", os.freemem() / os.totalmem());
+  console.log(
+    "OS memory usage",
+    os.freemem() / os.totalmem(),
+    "free memory in mb",
+    os.freemem() / 1024 / 1024
+  );
 }
 
 function scansAvailableMem(): number {
@@ -186,6 +191,14 @@ export async function startScanning({
 async function intelligentCheckForNewScans() {
   const availableScans = scansAvailableMem();
   const maxSimultaneousScans = Math.min(maxScansCount(), availableScans);
+  console.log(
+    "Estimate can run",
+    availableScans,
+    "scans",
+    "out of",
+    maxSimultaneousScans,
+    "maxSimultaneousScans"
+  );
   if (availableScans < maxSimultaneousScans) {
     console.log(
       "Not enough memory for set number of scans, limiting. Available scans",
