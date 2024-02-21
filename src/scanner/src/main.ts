@@ -136,17 +136,17 @@ export async function startScanning({
   if (scan) {
     const scanId = scan.id;
     console.log("New scan found", scanId, "for url", scan.url);
+    // update status here to prevent multiple same scans from running at the same time
     try {
-      updateScanStatus(scanId, "running");
+      await updateScanStatus(scanId, "running");
     } catch (e) {
       console.log("Error while updating status", e);
     }
     const url = scan.url;
-    // update status here to prevent multiple same scans from running at the same time
     try {
       await screenshot(null, url, scanId, browser);
     } catch (e) {
-      console.log("error while screenhost", e);
+      console.log("error while screenhost. ScanID:", scanId, e);
       if (e instanceof errors.WebhoodScannerPageError) {
         errorMessage(e.message, scanId);
       } else if (e instanceof errors.WebhoodScannerTimeoutError) {
@@ -169,15 +169,19 @@ export async function startScanning({
 setInterval(async function () {
   const { scanrecords: scans } = await checkForNewScans(maxScansCount());
   if (scans.length === 0) return;
-  const browser = await browserinit();
-  await Promise.all(
-    scans.map(async (scan) => {
-      await updateScanStatus(scan.id, "queued");
-      await startScanning({ scan, browser });
-    })
-  );
-  console.log("Scans done");
-  if (browser) browser.close();
+  try {
+    const browser = await browserinit();
+    await Promise.all(
+      scans.map(async (scan) => {
+        await updateScanStatus(scan.id, "queued");
+        await startScanning({ scan, browser });
+      })
+    );
+    console.log("Scans done");
+    if (browser) browser.close();
+  } catch (error) {
+    console.log("Error while starting scanning", error);
+  }
 }, 10000);
 
 // Check for old scans every 15 seconds

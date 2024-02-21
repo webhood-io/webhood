@@ -63,7 +63,6 @@ const updateDocument = async (id: string, data: any) => {
       })
       .catch((error) => {
         reject(error);
-        throw new errors.WebhoodScannerBackendError(error);
       });
   });
   return promise;
