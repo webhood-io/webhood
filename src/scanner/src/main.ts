@@ -77,6 +77,7 @@ function subscribeRealtime() {
             // remember that semaphore value can be less than 0. The semaphore will be released and value should raise back to more than 0
             console.log("Setting semaphore value to", newValue);
             semaphore.setValue(newValue);
+            process.setMaxListeners(simultaneousScans + 1);
           } catch (e) {
             console.log("Error while setting semaphore value", e);
           }
@@ -103,6 +104,7 @@ async function setup() {
     try {
       console.log("Setting semaphore value to", simultaneousScans);
       semaphore.setValue(simultaneousScans);
+      process.setMaxListeners(simultaneousScans + 1);
     } catch (e) {
       console.log("Error while setting semaphore value", e);
     }
@@ -184,6 +186,9 @@ setInterval(async function () {
   }
 }, 10000);
 
+process.on("unhandledRejection", (error) => {
+  console.log("(unhandledRejection listener)", error);
+});
 // Check for old scans every 15 seconds
 setInterval(async function () {
   await checkForOldScans();

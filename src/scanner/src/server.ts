@@ -122,12 +122,6 @@ async function screenshot(
     console.log("Error while loading page (listener)");
     throw new errors.WebhoodScannerPageError("Error while loading page:" + msg);
   });
-  process.on("unhandledRejection", (error) => {
-    console.log("Error while loading page (unhandledRejection listener)");
-    throw new errors.WebhoodScannerPageError(
-      "Error while loading page (unhandledRejection):" + error
-    );
-  });
   const memstream = new MemoryStream([]);
   startTracing(page, memstream);
   try {
