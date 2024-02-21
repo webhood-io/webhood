@@ -36,13 +36,13 @@ function subscribeRealtime() {
           console.log("Semaphore is locked, skipping");
           return;
         }
-        const browser = await browserinit();
         await semaphore.runExclusive(async (value) => {
+          const browser = await browserinit();
           await updateScanStatus(e.record.id, "queued");
           console.log("Semaphore value", value);
           await startScanning({ scan: e.record as ScansRecord, browser });
+          if (browser) browser.close();
         });
-        if (browser) browser.close();
       }
     })
     .then(() => {

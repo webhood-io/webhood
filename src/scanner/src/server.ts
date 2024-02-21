@@ -261,6 +261,13 @@ async function checkForNewScans(count: number) {
     "currently running scans",
     currentlyRunningScans
   );
+  if (availableScans <= 0) {
+    console.log("No available scans, skipping");
+    return {
+      scanrecords: [],
+      stats: stats as ScanStatsRecord[],
+    };
+  }
   const data = await pb
     .collection("scans")
     .getList(1, availableScans || 1, {
