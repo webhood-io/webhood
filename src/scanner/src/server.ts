@@ -11,6 +11,7 @@ import MemoryStream from "memorystream";
 // https://github.com/pocketbase/pocketbase/discussions/178
 import EventSource from "eventsource";
 import { ScansRecord } from "./types/pocketbase-types";
+import { ScanStatsRecord } from "./types/extended";
 // @ts-ignore
 global.EventSource = EventSource;
 
@@ -233,12 +234,36 @@ async function screenshot(
   }
 }
 
-async function checkForNewScans(count?: number) {
+const onGoingScans = (stats: ScanStatsRecord[]) => {
+  const runningScans = stats.filter((scan) => scan.status === "running")[0];
+  const pendingScans = stats.filter((scan) => scan.status === "queued")[0];
+  const runningScansCount = runningScans?.count_items || 0;
+  const pendingScansCount = pendingScans?.count_items || 0;
+  return runningScansCount + pendingScansCount;
+};
+
+async function checkForNewScans(count: number) {
   // check for new scans that need to be processed
   // if there are any, process them
+  const stats = await pb
+    .collection("scanstats")
+    .getFullList()
+    .catch((error) => {
+      console.log("Error while fetching scanner stats");
+      throw new errors.WebhoodScannerBackendError(error);
+    });
+
+  const currentlyRunningScans = onGoingScans(stats as ScanStatsRecord[]);
+  const availableScans = count - currentlyRunningScans;
+  console.log(
+    "Available scans",
+    availableScans,
+    "currently running scans",
+    currentlyRunningScans
+  );
   const data = await pb
     .collection("scans")
-    .getList(1, count || 1, {
+    .getList(1, availableScans || 1, {
       filter:
         'status="pending" && (options.scannerId=null||options.scannerId="' +
         pb.authStore.model?.config +
@@ -254,7 +279,11 @@ async function checkForNewScans(count?: number) {
       "Invalid response while fetching new scans"
     );
   }
-  return data.items as ScansRecord[];
+
+  return {
+    scanrecords: data.items as ScansRecord[],
+    stats: stats as ScanStatsRecord[],
+  };
 }
 async function checkForOldScans() {
   // timestamp in format Y-m-d H:i:s.uZ, for example 2021-08-31 12:00:00.000Z
@@ -270,7 +299,7 @@ async function checkForOldScans() {
   const records = await pb
     .collection("scans")
     .getFullList({
-      filter: `status="running" && created<"${fiveMinutesAgo}"`,
+      filter: `(status="running" && updated<"${fiveMinutesAgo}") || (status="queued" && updated<"${fiveMinutesAgo}")`,
       $cancelKey: "oldScans",
     })
     .catch((error) => {

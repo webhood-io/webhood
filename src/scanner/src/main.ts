@@ -12,9 +12,19 @@ import * as errors from "./errors";
 import { Semaphore } from "async-mutex";
 import { updateScanStatus } from "./server";
 import { ScansRecord } from "./types/pocketbase-types";
+import { Browser } from "puppeteer";
 
 const initialValue = 1;
 const semaphore = new Semaphore(initialValue);
+
+const maxScansCount = (): number => {
+  const simultaneousScans =
+    pb.authStore.model?.expand?.config.config?.simultaneousScans;
+  if (isNaN(Number(simultaneousScans))) {
+    return 1;
+  }
+  return Number(simultaneousScans);
+};
 
 function subscribeRealtime() {
   pb.collection("scans")
@@ -26,11 +36,13 @@ function subscribeRealtime() {
           console.log("Semaphore is locked, skipping");
           return;
         }
+        const browser = await browserinit();
         await semaphore.runExclusive(async (value) => {
           await updateScanStatus(e.record.id, "queued");
           console.log("Semaphore value", value);
-          await startScanning({ scan: e.record as ScansRecord });
+          await startScanning({ scan: e.record as ScansRecord, browser });
         });
+        if (browser) browser.close();
       }
     })
     .then(() => {
@@ -99,7 +111,13 @@ async function setup() {
 
 setup();
 
-export async function startScanning({ scan }: { scan: ScansRecord }) {
+export async function startScanning({
+  scan,
+  browser,
+}: {
+  scan: ScansRecord;
+  browser: Browser;
+}) {
   if (
     scan?.options &&
     scan.options.scannerId &&
@@ -123,7 +141,6 @@ export async function startScanning({ scan }: { scan: ScansRecord }) {
     } catch (e) {
       console.log("Error while updating status", e);
     }
-    const browser = await browserinit();
     const url = scan.url;
     // update status here to prevent multiple same scans from running at the same time
     try {
@@ -143,7 +160,6 @@ export async function startScanning({ scan }: { scan: ScansRecord }) {
       }
     } finally {
       console.log("Closing browser");
-      browser.close();
     }
   }
 }
@@ -151,14 +167,17 @@ export async function startScanning({ scan }: { scan: ScansRecord }) {
 // Check for new scans every 10 seconds
 // this acts as a fallback in case realtime updates are not working for some reason
 setInterval(async function () {
-  const scans = await checkForNewScans(semaphore.getValue() * 2);
-  scans.forEach(async (scan) => {
-    await updateScanStatus(scan.id, "queued");
-    await semaphore.runExclusive(async (value) => {
-      console.log("Semaphore value", value);
-      await startScanning({ scan });
-    });
-  });
+  const { scanrecords: scans } = await checkForNewScans(maxScansCount());
+  if (scans.length === 0) return;
+  const browser = await browserinit();
+  await Promise.all(
+    scans.map(async (scan) => {
+      await updateScanStatus(scan.id, "queued");
+      await startScanning({ scan, browser });
+    })
+  );
+  console.log("Scans done");
+  if (browser) browser.close();
 }, 10000);
 
 // Check for old scans every 15 seconds
