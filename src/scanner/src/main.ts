@@ -45,13 +45,24 @@ function subscribeRealtime() {
   pb.collection("scanners")
     .subscribe(pb.authStore.model?.config, async function (e) {
       if (e.action === "update") {
-        console.log("Config updated");
+        let currentlyRunningScans =
+          Number(pb.authStore.model?.expand?.config.config?.simultaneousScans) -
+          semaphore.getValue();
+        if (isNaN(currentlyRunningScans)) {
+          // prevent NaN. It may be that the config is not set when the scanner is starting
+          currentlyRunningScans = 0;
+        }
+        console.log(
+          "Config updated. Currently running scans:",
+          currentlyRunningScans
+        );
         await refreshConfig();
         const simultaneousScans = e.record?.config.simultaneousScans;
         if (simultaneousScans) {
           try {
             // if setting is updated mid-scan, the semamphore value should be updated taking into account the number of running scans
-            const newValue = Number(simultaneousScans) - semaphore.getValue();
+            const newValue = Number(simultaneousScans) - currentlyRunningScans;
+            // remember that semaphore value can be less than 0. The semaphore will be released and value should raise back to more than 0
             console.log("Setting semaphore value to", newValue);
             semaphore.setValue(newValue);
           } catch (e) {
