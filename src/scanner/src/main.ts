@@ -13,6 +13,7 @@ import { Semaphore } from "async-mutex";
 import { updateScanStatus } from "./server";
 import { ScansRecord } from "./types/pocketbase-types";
 import { Browser } from "puppeteer";
+import * as os from "os";
 
 const initialValue = 1;
 const semaphore = new Semaphore(initialValue);
@@ -37,11 +38,7 @@ function subscribeRealtime() {
           return;
         }
         await semaphore.runExclusive(async (value) => {
-          const browser = await browserinit();
-          await updateScanStatus(e.record.id, "queued");
-          console.log("Semaphore value", value);
-          await startScanning({ scan: e.record as ScansRecord, browser });
-          if (browser) browser.close();
+          await intelligentCheckForNewScans();
         });
       }
     })
@@ -75,9 +72,9 @@ function subscribeRealtime() {
             // if setting is updated mid-scan, the semamphore value should be updated taking into account the number of running scans
             const newValue = Number(simultaneousScans) - currentlyRunningScans;
             // remember that semaphore value can be less than 0. The semaphore will be released and value should raise back to more than 0
-            console.log("Setting semaphore value to", newValue);
-            semaphore.setValue(newValue);
-            process.setMaxListeners(simultaneousScans + 1);
+            // console.log("Setting semaphore value to", newValue);
+            // semaphore.setValue(newValue);
+            process.setMaxListeners(newValue + 1);
           } catch (e) {
             console.log("Error while setting semaphore value", e);
           }
@@ -95,6 +92,26 @@ function subscribeRealtime() {
     });
 }
 
+async function memoryConsumption() {
+  const memoryUsage = process.memoryUsage();
+  console.log(
+    "Memory usage",
+    memoryUsage.heapUsed / memoryUsage.heapTotal,
+    "heapUsed",
+    memoryUsage.heapUsed,
+    "heapTotal",
+    memoryUsage.heapTotal
+  );
+  console.log("OS memory usage", os.freemem() / os.totalmem());
+}
+
+function scansAvailableMem(): number {
+  const available = os.freemem() / 1024 / 1024; // in MB
+  const neededPerScan = 100; // in MB
+  const availableScans = Math.floor(available / neededPerScan);
+  return availableScans;
+}
+
 async function setup() {
   const data = await refreshConfig();
   const scannerConfig = data.record.expand?.config.config;
@@ -103,8 +120,8 @@ async function setup() {
   if (simultaneousScans) {
     try {
       console.log("Setting semaphore value to", simultaneousScans);
-      semaphore.setValue(simultaneousScans);
-      process.setMaxListeners(simultaneousScans + 1);
+      // semaphore.setValue(simultaneousScans);
+      process.setMaxListeners(Number(simultaneousScans) + 1);
     } catch (e) {
       console.log("Error while setting semaphore value", e);
     }
@@ -166,10 +183,19 @@ export async function startScanning({
   }
 }
 
-// Check for new scans every 10 seconds
-// this acts as a fallback in case realtime updates are not working for some reason
-setInterval(async function () {
-  const { scanrecords: scans } = await checkForNewScans(maxScansCount());
+async function intelligentCheckForNewScans() {
+  const availableScans = scansAvailableMem();
+  const maxSimultaneousScans = Math.min(maxScansCount(), availableScans);
+  if (availableScans < maxSimultaneousScans) {
+    console.log(
+      "Not enough memory for set number of scans, limiting. Available scans",
+      availableScans,
+      "maxSimultaneousScans",
+      maxSimultaneousScans
+    );
+  }
+  const { scanrecords: scans } = await checkForNewScans(maxSimultaneousScans);
+  memoryConsumption();
   if (scans.length === 0) return;
   try {
     const browser = await browserinit();
@@ -184,6 +210,12 @@ setInterval(async function () {
   } catch (error) {
     console.log("Error while starting scanning", error);
   }
+}
+
+// Check for new scans every 10 seconds
+// this acts as a fallback in case realtime updates are not working for some reason
+setInterval(async function () {
+  await intelligentCheckForNewScans();
 }, 10000);
 
 process.on("unhandledRejection", (error) => {
