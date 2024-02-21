@@ -94,6 +94,7 @@ function subscribeRealtime() {
 
 async function memoryConsumption() {
   const constrainedMemory = process.constrainedMemory();
+  const currentMemory = process.memoryUsage().rss / 1024 / 1024; // in MB
   console.log(
     "OS memory usage",
     (os.totalmem() - os.freemem()) / os.totalmem(),
@@ -102,7 +103,9 @@ async function memoryConsumption() {
     "total memory in mb",
     os.totalmem() / 1024 / 1024,
     "constrained memory in mb",
-    constrainedMemory ? constrainedMemory / 1024 / 1024 : "not set"
+    constrainedMemory ? constrainedMemory / 1024 / 1024 : "not set",
+    "current rss memory in mb",
+    currentMemory
   );
 }
 
