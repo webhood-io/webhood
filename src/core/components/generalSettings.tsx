@@ -153,6 +153,7 @@ function ScannerSettingsForm({
                   {...field}
                   label="Simultaneous Scans"
                   name="config.simultaneousScans"
+                  placeholder="Defaults to 1 when not set"
                   tooltip={SimultaneousScansTooltip}
                   type="number"
                 />
@@ -215,6 +216,9 @@ export function GeneralSettings() {
   }
   // @ts-ignore TODO: fix this
   const { ua, lang } = selectedScanner?.config || { ua: "", lang: "" }
+  if((!scanDataSwr || scanDataSwr.length===0) && !isSwrLoading) return <div>
+    No scanners found. Add a scanner and start scanning.
+  </div>
   if (!selectedScanner) return <div>Loading...</div>
   return (
     <div className="flex flex-col justify-between gap-6">
@@ -229,7 +233,7 @@ export function GeneralSettings() {
         <Select
           defaultValue={selectedScanner.id}
           onValueChange={(value) =>
-            setSelectedScanner(scanDataSwr.find((e) => e.id === value))
+            setSelectedScanner(scanDataSwr?.find((e) => e.id === value))
           }
         >
           <SelectTrigger className="w-[180px]">

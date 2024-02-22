@@ -24,6 +24,9 @@ import {
 } from "@/components/ui/select"
 import { TypographyH3 } from "@/components/ui/typography/h3"
 import { TypographySubtle } from "@/components/ui/typography/subtle"
+import { useLocalStorage } from 'usehooks-ts'
+import { cn } from "@/lib/utils"
+import { useRouter } from "next/router"
 
 function LimitSelector({
   limit,
@@ -63,27 +66,56 @@ interface Range {
   end: number
 }
 
+function getRangeNumber(value: string): number|null {
+  if(!value) return null
+  const parsed = parseInt(value)
+  if (isNaN(parsed) || parsed < 0) return null
+  return parsed
+}
+
 export default function DashboardPage() {
-  const [limit, setLimit] = useState<number>(10)
+  const router = useRouter()
+  const { page } = router.query
+  const [limit, setLimit] = useLocalStorage("searchLimit", 10)
   const [search, setSearch] = useState<string>("")
-  const [range, setRange] = useState<Range>({ start: 0, end: limit - 1 })
-  const { data, error } = useSWR({ search, limit, range }, scansSearchFetcher)
+  // const [range, setRange] = useState<Range>({ start: 0, end: limit - 1 })
+  const { data, error } = useSWR({ search, limit, page }, scansSearchFetcher)
 
   const isLoading = !data && !error
 
+  const pageNumber = getRangeNumber(page as string) || 1
   useEffect(() => {
-    setRange({ start: 0, end: limit - 1 })
-  }, [limit, search])
+    if (pageNumber < 1) {
+      router.push("/search?page=1")
+    }
+  }, [pageNumber])
 
   const onSearch = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const form = e.currentTarget
     const formData = new FormData(form)
     const search = formData.get("search-query")
-    setSearch(search.toString())
+    if (!search) setSearch("")
+    else setSearch(search.toString())
   }
   const onReset = () => {
     setSearch("")
+  }
+  const incrementPage = () => {
+    router.push(`/search?page=${pageNumber + 1}`)
+  }
+  const decrementPage = () => {
+    router.push(`/search?page=${pageNumber - 1}`)
+  }
+  const onLimitChange = (newLimit: number) => {
+    setLimit(newLimit)
+    router.push(`/search?page=${1}`)
+  }
+  const data_length = ():number => {
+    if (data) {
+      return data.length
+    }
+    return 0
   }
 
   return (
@@ -117,7 +149,7 @@ export default function DashboardPage() {
                       autoFocus
                     />
                     <Button
-                      className="-ml-11"
+                      className={cn("-ml-11", search ? "block" : "hidden")}
                       size="sm"
                       variant="ghost"
                       type="reset"
@@ -142,32 +174,26 @@ export default function DashboardPage() {
                 <TypographyH3>Results</TypographyH3>
                 <div className={"flex flex-row items-end justify-between"}>
                   <div className="flex flex-row items-center gap-2">
-                    <LimitSelector limit={limit} setLimit={setLimit} />
+                    <LimitSelector limit={limit} setLimit={onLimitChange} />
                     <TypographySubtle>in one page</TypographySubtle>
                   </div>
                   <div className="flex items-center justify-center gap-2 p-1">
                     <IconButton
                       icon={<Icons.left className={"h-full"} />}
                       variant="outline"
-                      disabled={range.start === 0}
-                      onClick={() =>
-                        setRange({
-                          start: range.start - limit,
-                          end: range.end - limit,
-                        })
-                      }
+                      disabled={pageNumber === 1}
+                      onClick={decrementPage}
                     />
-                    {range.start + 1} - {range.start + data?.length}
+                    {
+                    (pageNumber)
+                    ?pageNumber*limit-limit+1 + " - " + (pageNumber*limit-limit+data_length())
+                    : ""
+                    }
                     <IconButton
                       icon={<Icons.right className={"h-full"} />}
                       variant="outline"
-                      disabled={data?.length < limit}
-                      onClick={() =>
-                        setRange({
-                          start: range.start + limit,
-                          end: range.end + limit,
-                        })
-                      }
+                      disabled={data_length()< limit}
+                      onClick={incrementPage}
                     />
                   </div>
                 </div>

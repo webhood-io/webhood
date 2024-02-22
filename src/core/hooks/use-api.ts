@@ -74,10 +74,10 @@ function latestScansFetcher() {
     }) as Promise<ScansResponse[]>
 }
 
-function scansSearchFetcher({ search, limit, range }) {
+function scansSearchFetcher({ search, limit, page }) {
   return pb
     .collection("scans")
-    .getList((range.end + 1) / limit, limit, {
+    .getList(page, limit, {
       filter: `url ~ "${search}"`,
       sort: "-created",
     })
@@ -92,6 +92,15 @@ function scanSingleFetcher({ slug }) {
     .then((data) => {
       return data as unknown as ScansResponse
     }) as Promise<ScansResponse>
+}
+
+function scanStatsFetcher() {
+  return pb
+    .collection("scanstats")
+    .getFullList()
+    .then((data) => {
+      return data
+    })
 }
 
 export enum AccountErrors {
@@ -197,6 +206,7 @@ export {
   scanSingleFetcher,
   scannerFetcher,
   scannersFetcher,
+  scanStatsFetcher,
   usersFetcher,
   tokensFetcher,
   tokenSingleFetcher,

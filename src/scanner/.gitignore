@@ -1,4 +1,5 @@
 build
+.local/
 .model.json
 # Logs
 logs
