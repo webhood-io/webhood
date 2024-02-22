@@ -15,6 +15,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+## [v0.7.0] - 2024-02-22
+
+### Added
+
+- Added scanner stats table in the UI [[commit]](https://github.com/webhood-io/webhood/commit/4ef9cce4f19a46cb318d65915afa269c1f410d1f)
+
+- Added proper logging in scanner using [pino](https://github.com/pinojs/pino). The logging level is set by environment variable `LOG_LEVEL="fatal" | "error" | "warn" | "info" | "debug" | "trace"`. [[commit]](https://github.com/webhood-io/webhood/commit/e7c1fbd137f3750f7aa8b44c54d96322f63b0cb1)
+
+- Added support scanning sites with fonts in Traditional and Simplified Chinese, Japanese and Korean
+
+
+### Fixed
+
+- Scanning logic has been overhauled to fix a bugs. The new logic works as follows:
+  - Scans are run in order (oldest first)
+  - Max simultaneous scans -setting is correctly enforced. 
+  - New scans are picked up by the scanner every 10 seconds
+  - When the user starts a new scan, it is run immediately if there are no other "immediate" scans running. Subsequent "immediate" will be picked up by the scanner 
+
+### Changed
+
+-  Scanner will intelligently limit the number of simultaneous scans when the memory is [hard-constrained](https://nodejs.org/api/process.html#processconstrainedmemory) which is sometimes done in container environments. If the memory is not constrained, the scanner will output a warning if it thinks the `simultaneous scans` -setting is too high. This is done because it is easy to clog a host by setting the limit too high. As a base rule, you should have 150MB of memory available per simultaneous scan.
+
 ## [0.6.0] - 2024-02-14
 
 ### Added
