@@ -8,6 +8,9 @@ WORKDIR /app
 # Copy everything for build
 ADD . ./
 
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
+ENV PUPPETEER_SKIP_DOWNLOAD true
+
 # Install NPM dependencies for build
 RUN yarn install
 
@@ -19,6 +22,7 @@ FROM base as final
 
 # We don't need the standalone Chromium
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
+ENV PUPPETEER_SKIP_DOWNLOAD true
 
 # Install Google Chrome Stable and fonts
 # Note: this installs the necessary libs to make the browser work with Puppeteer.
