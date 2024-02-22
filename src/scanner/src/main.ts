@@ -14,6 +14,7 @@ import { updateScanStatus } from "./server";
 import { ScansRecord } from "./types/pocketbase-types";
 import { Browser } from "puppeteer";
 import * as os from "os";
+import { logger } from "./logging";
 
 const initialValue = 1;
 const semaphore = new Semaphore(initialValue);
@@ -31,10 +32,10 @@ function subscribeRealtime() {
   pb.collection("scans")
     .subscribe("*", async function (e) {
       if (e.action === "create") {
-        console.log("New scan created", semaphore.getValue());
+        logger.debug({ type: "realtimeNewScanCreated", scanId: e.record.id });
         if (semaphore.isLocked()) {
           // if semaphore is locked, skip the scan. The scan will be picked up by the setInterval
-          console.log("Semaphore is locked, skipping");
+          logger.debug({ type: "semaphoreLockedSkipping" });
           return;
         }
         await semaphore.runExclusive(async (value) => {
@@ -43,9 +44,10 @@ function subscribeRealtime() {
       }
     })
     .then(() => {
-      console.log("Subscribed to changes in scans collection");
+      logger.info({ type: "realtimeSubscribeSuccess", collection: "scans" });
     })
     .catch((error) => {
+      logger.error({ type: "realtimeSubscribeError", collection: "scans" });
       console.error(
         "Error while subscribing to changes in scans collection. Realtime updates will not work",
         error
@@ -54,27 +56,13 @@ function subscribeRealtime() {
   pb.collection("scanners")
     .subscribe(pb.authStore.model?.config, async function (e) {
       if (e.action === "update") {
-        let currentlyRunningScans =
-          Number(pb.authStore.model?.expand?.config.config?.simultaneousScans) -
-          semaphore.getValue();
-        if (isNaN(currentlyRunningScans)) {
-          // prevent NaN. It may be that the config is not set when the scanner is starting
-          currentlyRunningScans = 0;
-        }
-        console.log(
-          "Config updated. Currently running scans:",
-          currentlyRunningScans
-        );
+        logger.debug({ type: "configUpdated" });
         await refreshConfig();
         const simultaneousScans = e.record?.config.simultaneousScans;
         if (simultaneousScans) {
           try {
-            // if setting is updated mid-scan, the semamphore value should be updated taking into account the number of running scans
-            const newValue = Number(simultaneousScans) - currentlyRunningScans;
-            // remember that semaphore value can be less than 0. The semaphore will be released and value should raise back to more than 0
-            // console.log("Setting semaphore value to", newValue);
-            // semaphore.setValue(newValue);
-            process.setMaxListeners(newValue + 1);
+            logger.debug({ type: "setMaxListenersChanged", simultaneousScans });
+            process.setMaxListeners(simultaneousScans + 1);
           } catch (e) {
             console.log("Error while setting semaphore value", e);
           }
@@ -82,9 +70,10 @@ function subscribeRealtime() {
       }
     })
     .then(() => {
-      console.log("Subscribed to changes in scanners collection");
+      logger.info({ type: "realtimeSubscribeSuccess", collection: "scanners" });
     })
     .catch((error) => {
+      logger.error({ type: "realtimeSubscribeError", collection: "scanners" });
       console.error(
         "Error while subscribing to changes in scanners collection. Realtime updates will not work",
         error
@@ -109,7 +98,12 @@ async function memoryConsumption() {
   );
 }
 
-function scansAvailableMem(): number {
+type AvailableMemory = {
+  availableScans: number;
+  isMemoryConstrained: boolean;
+};
+
+function scansAvailableMem(): AvailableMemory {
   let available;
   const constrainedMemory = process.constrainedMemory();
   if (constrainedMemory) {
@@ -120,7 +114,16 @@ function scansAvailableMem(): number {
   const neededPerScan = 150; // in MB
   const baseSize = 100; // in MB
   const availableScans = Math.floor(available / (neededPerScan + baseSize));
-  return availableScans;
+  logger.debug({
+    type: "memoryCheck",
+    availableMemory: available,
+    isMemoryConstrained: constrainedMemory !== undefined,
+    availableScansCalculated: availableScans,
+  });
+  return {
+    availableScans,
+    isMemoryConstrained: constrainedMemory !== undefined,
+  };
 }
 
 async function setup() {
@@ -130,10 +133,10 @@ async function setup() {
   const simultaneousScans = scannerConfig?.simultaneousScans;
   if (simultaneousScans) {
     try {
-      console.log("Setting semaphore value to", simultaneousScans);
-      // semaphore.setValue(simultaneousScans);
+      logger.debug({ type: "setMaxListeners", simultaneousScans });
       process.setMaxListeners(Number(simultaneousScans) + 1);
     } catch (e) {
+      logger.warn({ type: "errorSetMaxListeners" });
       console.log("Error while setting semaphore value", e);
     }
   }
@@ -153,29 +156,36 @@ export async function startScanning({
     scan.options.scannerId &&
     scan.options.scannerId !== pb.authStore.model?.config
   ) {
-    console.log(
-      "Scan is not for this scanner, skipping",
-      scan.id,
-      "scannerId",
-      scan.options.scannerId,
-      "scannerConfigId",
-      pb.authStore.model?.config
-    );
+    logger.info({
+      type: "notForThisScanner",
+      scanId: scan.id,
+      scannerOptionId: scan.options.scannerId,
+      thisScannerConfigId: pb.authStore.model?.config,
+    });
     return;
   }
   if (scan) {
     const scanId = scan.id;
-    console.log("New scan found", scanId, "for url", scan.url);
+    logger.info({ type: "newScan", scanId, url: scan.url });
     // update status here to prevent multiple same scans from running at the same time
     try {
       await updateScanStatus(scanId, "running");
     } catch (e) {
+      logger.error({
+        type: "scanStatusUpdateError",
+        scanId,
+        scanStatus: "running",
+      });
       console.log("Error while updating status", e);
     }
     const url = scan.url;
     try {
       await screenshot(null, url, scanId, browser);
     } catch (e) {
+      logger.info({
+        type: "scanErrored",
+        scanId,
+      });
       console.log("error while screenhost. ScanID:", scanId, e);
       if (e instanceof errors.WebhoodScannerPageError) {
         errorMessage(e.message, scanId);
@@ -189,32 +199,39 @@ export async function startScanning({
         errorMessage("Unknown error occurred during scan", scanId);
       }
     } finally {
-      console.log("Closing browser");
+      logger.debug({ type: "scanFinished", scanId });
     }
   }
 }
 
 async function intelligentCheckForNewScans() {
-  const availableScans = scansAvailableMem();
-  const maxSimultaneousScans = Math.min(maxScansCount(), availableScans);
-  console.log(
-    "Estimate can run",
+  const { availableScans, isMemoryConstrained } = scansAvailableMem();
+  const maxCountSetting = maxScansCount();
+  const maxSimultaneousScans = isMemoryConstrained
+    ? Math.min(maxCountSetting, availableScans)
+    : maxCountSetting;
+  logger.debug({
+    type: "scannerMemoryCheck",
     availableScans,
-    "scans",
-    "out of",
+    maxCountSetting,
     maxSimultaneousScans,
-    "maxSimultaneousScans"
-  );
-  if (availableScans < maxSimultaneousScans) {
-    console.log(
-      "Not enough memory for set number of scans, limiting. Available scans",
-      availableScans,
-      "maxSimultaneousScans",
-      maxSimultaneousScans
-    );
+  });
+  if (availableScans < maxCountSetting) {
+    if (isMemoryConstrained)
+      logger.error({
+        type: "outOfMemoryForScanError",
+        availableScans,
+        maxSimultaneousScans,
+      });
+    else
+      logger.warn({
+        type: "outOfMemoryForScanWarn",
+        availableScans,
+        maxSimultaneousScans,
+        isMemoryConstrained,
+      });
   }
   const { scanrecords: scans } = await checkForNewScans(maxSimultaneousScans);
-  memoryConsumption();
   if (scans.length === 0) return;
   try {
     const browser = await browserinit();
@@ -224,10 +241,13 @@ async function intelligentCheckForNewScans() {
         await startScanning({ scan, browser });
       })
     );
-    console.log("Scans done");
+    logger.debug({ type: "scanPromisesFinished" });
     if (browser) browser.close();
   } catch (error) {
-    console.log("Error while starting scanning", error);
+    logger.error({
+      type: "errorTryIntelligentScans",
+      error: error,
+    });
   }
 }
 

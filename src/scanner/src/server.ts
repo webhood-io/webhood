@@ -12,6 +12,7 @@ import MemoryStream from "memorystream";
 import EventSource from "eventsource";
 import { ScansRecord } from "./types/pocketbase-types";
 import { ScanStatsRecord } from "./types/extended";
+import { logger } from "./logging";
 // @ts-ignore
 global.EventSource = EventSource;
 
@@ -119,7 +120,7 @@ async function screenshot(
 ) {
   const page = await browser.newPage();
   page.on("error", (msg) => {
-    console.log("Error while loading page (listener)");
+    logger.error({ type: "pageLoadingErrorListener", scanId });
     throw new errors.WebhoodScannerPageError("Error while loading page:" + msg);
   });
   const memstream = new MemoryStream([]);
@@ -127,7 +128,7 @@ async function screenshot(
   try {
     await page.goto(url, { timeout: GOTO_TIMEOUT });
   } catch (e) {
-    console.log("Error while loading page (timeout)", e);
+    logger.info({ type: "pageLoadingTimeout", scanId });
     /*
      * Some pages are slow to load and will timeout, continue with the scan in any case
      * later stages need to ensure that the page is actually loaded and has not otherwise errored
@@ -136,17 +137,21 @@ async function screenshot(
      */
   }
   // wait until page is fully loaded
-  console.debug("Waiting for page to finish loading");
+  logger.debug({ type: "waitForDocumentloaded", scanId });
   try {
     await page.waitForNavigation({
       waitUntil: "domcontentloaded",
       timeout: 2000,
     });
   } catch (e) {
-    console.log("Timeout while waiting for page to finish");
+    logger.info({ type: "documentLoadedTimeout", scanId });
   }
-  console.log("Testing if page is closed:", page.isClosed());
-  console.debug("Evaluating page for final url");
+  logger.debug({
+    type: "pageIsClosed",
+    isClosed: page.isClosed(),
+    scanId,
+    next: "finalUrl",
+  });
   const finalUrl = await page.evaluate(() => document.location.href);
   if (
     !finalUrl ||
@@ -159,36 +164,32 @@ async function screenshot(
      * about:blank#blocked is returned when the page is blocked
      * chrome-error://chromewebdata can be returned for various reasons. For example, googl.se returns this for some reason
      */
-    console.log(
-      "Error while getting final url, url might be invalid",
-      finalUrl,
-      scanId
-    );
+    logger.info({ type: "urlInvalid", finalUrl, scanId });
     throw new errors.WebhoodScannerPageError(
       "Error while getting final url, url might be invalid. Final URL was: " +
         finalUrl
     );
   }
-  console.log("Final url:", finalUrl);
-  console.debug("Page evaluated, getting html");
+  console.debug({ type: "evaluatedDone", finalUrl, next: "html" });
   const html = await page.content();
   const endDateTime = new Date().toISOString();
   const imageId = uuidv4();
   let image;
-  console.debug("Html gotten, getting screenshot");
+  logger.debug({ type: "htmlGetSuccess", next: "screenshot" });
   try {
     image = await page.screenshot();
   } catch (e) {
+    logger.error({ type: "screenshotError", scanId });
     console.log("Error while getting screenshot", scanId, e);
     throw new errors.WebhoodScannerPageError(
       "Error while getting screenshot:" + e
     );
   }
-  console.debug("Screenshot gotten, saving to database");
+  logger.debug({ type: "screenshotSuccess", scanId, next: "saveToDb" });
   let htmlId = uuidv4();
   const formData = new FormData();
   // make sure no tracing is being written, so close page
-  console.debug("Closing page");
+  logger.debug({ type: "pageClose", scanId });
   await page.close();
   const trace = JSON.stringify(stopTracing(memstream));
   formData.append(
@@ -203,15 +204,21 @@ async function screenshot(
     "screenshots",
     new File([image], `${imageId}.png`, { type: "image/png" })
   );
-  console.debug("Saving to database");
+  logger.debug({ type: "dbSaveFormData", scanId });
   try {
     await updateDocument(scanId, formData);
   } catch (e) {
+    logger.error({ type: "dbSaveFormDataError", scanId });
     console.log("Error while saving formData", e);
     throw new errors.WebhoodScannerBackendError(
       "Error while saving formData:" + e
     );
   }
+  logger.debug({
+    type: "dbSaveFormDataSuccess",
+    scanId,
+    next: "saveScanMetadata",
+  });
   try {
     const data = {
       final_url: finalUrl,
@@ -220,11 +227,15 @@ async function screenshot(
     };
     await updateDocument(scanId, data);
   } catch (e) {
+    logger.error({ type: "saveScanMetadataError", scanId });
     console.log("Error while saving final document", e);
     throw new errors.WebhoodScannerBackendError(
       "Error while saving final document:" + e
     );
   }
+  logger.debug({
+    type: "saveScanMetadataSuccess",
+  });
 }
 
 const onGoingScans = (stats: ScanStatsRecord[]) => {
@@ -235,27 +246,27 @@ const onGoingScans = (stats: ScanStatsRecord[]) => {
   return runningScansCount + pendingScansCount;
 };
 
-async function checkForNewScans(count: number) {
+async function checkForNewScans(maxScans: number) {
   // check for new scans that need to be processed
   // if there are any, process them
   const stats = await pb
     .collection("scanstats")
     .getFullList()
     .catch((error) => {
+      logger.error({ type: "errorFetchingScanstats" });
       console.log("Error while fetching scanner stats");
       throw new errors.WebhoodScannerBackendError(error);
     });
 
   const currentlyRunningScans = onGoingScans(stats as ScanStatsRecord[]);
-  const availableScans = count - currentlyRunningScans;
-  console.log(
-    "Available scans",
+  const availableScans = maxScans - currentlyRunningScans;
+  logger.debug({
+    type: "availableScansCheck",
     availableScans,
-    "currently running scans",
-    currentlyRunningScans
-  );
+    currentlyRunningScans,
+  });
   if (availableScans <= 0) {
-    console.log("No available scans, skipping");
+    logger.debug({ type: "scansNotAvailableSkip" });
     return {
       scanrecords: [],
       stats: stats as ScanStatsRecord[],
@@ -271,7 +282,7 @@ async function checkForNewScans(count: number) {
       sort: "created",
     })
     .catch((error) => {
-      console.log("Error while fetching new scans");
+      logger.error({ type: "errorFetchingNewScans" });
       throw new errors.WebhoodScannerBackendError(error);
     });
   if (!data?.items) {
@@ -279,7 +290,6 @@ async function checkForNewScans(count: number) {
       "Invalid response while fetching new scans"
     );
   }
-
   return {
     scanrecords: data.items as ScansRecord[],
     stats: stats as ScanStatsRecord[],
@@ -303,13 +313,13 @@ async function checkForOldScans() {
       $cancelKey: "oldScans",
     })
     .catch((error) => {
-      console.log("Error while fetching old scans");
+      logger.error({ type: "errorFetchingOldScans" });
       throw new errors.WebhoodScannerBackendError(error);
     });
   if (records && records.length >= 0) {
     // update all old scans to error
     for (let i = 0; i < records.length; i++) {
-      console.log("Scan timed out", records[i].id);
+      logger.info({ type: "scanTimedOut", scanId: records[i].id });
       errorMessage("Scan timed out", records[i].id);
     }
   }
