@@ -62,7 +62,7 @@ function subscribeRealtime() {
         if (simultaneousScans) {
           try {
             logger.debug({ type: "setMaxListenersChanged", simultaneousScans });
-            process.setMaxListeners(simultaneousScans + 1);
+            process.setMaxListeners(Number(simultaneousScans) + 1);
           } catch (e) {
             console.log("Error while setting semaphore value", e);
           }
