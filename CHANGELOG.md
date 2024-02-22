@@ -34,6 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - New scans are picked up by the scanner every 10 seconds
   - When the user starts a new scan, it is run immediately if there are no other "immediate" scans running. Subsequent "immediate" will be picked up by the scanner 
 
+- Fixed an issue causing the scanner to crash when the page HTML was more than 5MB in size. Added proper error handling for this case and increased the max HTML size to 20MB. [[commit]](https://github.com/webhood-io/webhood/commit/7891884772036e3870e0af190f16800288f75e53)
+
 ### Changed
 
 -  Scanner will intelligently limit the number of simultaneous scans when the memory is [hard-constrained](https://nodejs.org/api/process.html#processconstrainedmemory) which is sometimes done in container environments. If the memory is not constrained, the scanner will output a warning if it thinks the `simultaneous scans` -setting is too high. This is done because it is easy to clog a host by setting the limit too high. As a base rule, you should have 150MB of memory available per simultaneous scan.
