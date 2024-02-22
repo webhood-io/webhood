@@ -82,7 +82,7 @@ export async function getBrowserInfo() {
 }
 
 const browserinit = async () => {
-  console.log("Starting browser");
+  logger.debug({ type: "browserStarting" });
   const pathToExtension = join(
     process.cwd(),
     "fihnjjcciajhdojfnbdddfaoknhalnja"
@@ -128,7 +128,7 @@ async function screenshot(
   try {
     await page.goto(url, { timeout: GOTO_TIMEOUT });
   } catch (e) {
-    logger.info({ type: "pageLoadingTimeout", scanId });
+    logger.debug({ type: "pageLoadingTimeout", scanId });
     /*
      * Some pages are slow to load and will timeout, continue with the scan in any case
      * later stages need to ensure that the page is actually loaded and has not otherwise errored
@@ -144,7 +144,7 @@ async function screenshot(
       timeout: 2000,
     });
   } catch (e) {
-    logger.info({ type: "documentLoadedTimeout", scanId });
+    logger.debug({ type: "documentLoadedTimeout", scanId });
   }
   logger.debug({
     type: "pageIsClosed",
@@ -170,7 +170,7 @@ async function screenshot(
         finalUrl
     );
   }
-  console.debug({ type: "evaluatedDone", finalUrl, next: "html" });
+  logger.debug({ type: "evaluatedDone", finalUrl, next: "html" });
   const html = await page.content();
   const endDateTime = new Date().toISOString();
   const imageId = uuidv4();
@@ -254,7 +254,6 @@ async function checkForNewScans(maxScans: number) {
     .getFullList()
     .catch((error) => {
       logger.error({ type: "errorFetchingScanstats" });
-      console.log("Error while fetching scanner stats");
       throw new errors.WebhoodScannerBackendError(error);
     });
 
