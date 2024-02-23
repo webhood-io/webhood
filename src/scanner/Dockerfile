@@ -1,7 +1,7 @@
 # Filename: Dockerfile
-FROM node:21-bookworm-slim AS base
+FROM node:21-bullseye-slim AS base
 
-FROM node:21-bookworm-slim AS builder
+FROM node:21-bullseye-slim AS builder
 WORKDIR /app
 
 
