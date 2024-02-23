@@ -15,6 +15,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+## [v0.7.1] - 2024-02-23
+
+### Fixed
+
+- Fixed broken scanner image which was caused by updating the base image to a newer version of Debian (Bookworm). The seccomp profile was not compatible with the new version. The issue was fixed by reverting back to Debian-Bullseye [[commit]](https://github.com/webhood-io/webhood/commit/d9dffb37a33140d2abd80c100f9fc915ddfa758c)
+
+### Added
+
+- Added optional `SCANNER_LOG_LEVEL` to the  [environment variables](.env.example). This variable can be used to set the logging level of the scanner. The default value is `info`. The possible values are `fatal` | `error` | `warn` | `info` | `debug` | `trace`. [[commit]](https://github.com/webhood-io/webhood/commit/5d0a964b4cecdf1f972324f67dd452f6389a3aea)
+
+
 ## [v0.7.0] - 2024-02-22
 
 ### Added
