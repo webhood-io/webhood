@@ -35,6 +35,7 @@ services:
       HTTP_PROXY: ${HTTP_PROXY}
       HTTPS_PROXY: ${HTTPS_PROXY}
       NO_PROXY: ${NO_PROXY}
+      LOG_LEVEL: ${SCANNER_LOG_LEVEL:-info}
     networks:
       - rest
     # Wait for backend to be ready before starting the scanner as it depends on its API
