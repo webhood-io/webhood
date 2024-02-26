@@ -208,6 +208,33 @@ function isRestrictedPrivateIp(): boolean {
   return process.env.SCANNER_NO_PRIVATE_IPS === "true";
 }
 
+export async function filterScans(
+  scans: ScansRecord[]
+): Promise<ScansRecord[]> {
+  let filteredScans: ScansRecord[] = [];
+  await Promise.all(
+    scans.map(async (scan) => {
+      if (isRestrictedPrivateIp()) {
+        try {
+          await resolvesPublicIp(scan.url);
+          filteredScans.push(scan);
+        } catch (e) {
+          logger.info({
+            type: "errorResolvingPublicIp",
+            scanId: scan.id,
+            error: e,
+          });
+          errorMessage(
+            "Not a public IP or could not resolve hostname while SCANNER_NO_PRIVATE_IPS set to true",
+            scan.id
+          );
+        }
+      }
+    })
+  );
+  return filteredScans;
+}
+
 async function intelligentCheckForNewScans() {
   const { availableScans, isMemoryConstrained } = scansAvailableMem();
   const maxCountSetting = maxScansCount();
@@ -241,24 +268,7 @@ async function intelligentCheckForNewScans() {
   if (!isRestrictedPrivateIp()) {
     filteredScans = scans;
   } else {
-    scans.forEach(async (scan) => {
-      if (isRestrictedPrivateIp()) {
-        try {
-          await resolvesPublicIp(scan.url);
-          filteredScans.push(scan);
-        } catch (e) {
-          logger.info({
-            type: "errorResolvingPublicIp",
-            scanId: scan.id,
-            error: e,
-          });
-          errorMessage(
-            "Not a public IP or could not resolve hostname while SCANNER_NO_PRIVATE_IPS set to true",
-            scan.id
-          );
-        }
-      }
-    });
+    filteredScans = await filterScans(scans);
   }
   if (filteredScans.length === 0) return;
   try {
