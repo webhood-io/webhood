@@ -3,7 +3,7 @@
 import { Browser, launch, TimeoutError } from "puppeteer";
 import { join } from "path";
 import { v4 as uuidv4 } from "uuid";
-import { chromePath, startTracing, stopTracing } from "./utils";
+import { chromePath, startTracing, stopTracing } from "./utils/puppeteerUtils";
 import { EnvAuthStore } from "./memoryAuthStore";
 import PocketBase from "pocketbase";
 import * as errors from "./errors";

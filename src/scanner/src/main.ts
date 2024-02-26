@@ -5,7 +5,6 @@ import {
   errorMessage,
   browserinit,
   pb,
-  getBrowserInfo,
   refreshConfig,
 } from "./server";
 import * as errors from "./errors";
@@ -15,6 +14,7 @@ import { ScansRecord } from "./types/pocketbase-types";
 import { Browser } from "puppeteer";
 import * as os from "os";
 import { logger } from "./logging";
+import { resolvesPublicIp } from "./utils/dnsUtils";
 
 const initialValue = 1;
 const semaphore = new Semaphore(initialValue);
@@ -204,6 +204,10 @@ export async function startScanning({
   }
 }
 
+function isRestrictedPrivateIp(): boolean {
+  return process.env.SCANNER_NO_PRIVATE_IPS === "true";
+}
+
 async function intelligentCheckForNewScans() {
   const { availableScans, isMemoryConstrained } = scansAvailableMem();
   const maxCountSetting = maxScansCount();
@@ -233,10 +237,34 @@ async function intelligentCheckForNewScans() {
   }
   const { scanrecords: scans } = await checkForNewScans(maxSimultaneousScans);
   if (scans.length === 0) return;
+  let filteredScans: ScansRecord[] = [];
+  if (!isRestrictedPrivateIp()) {
+    filteredScans = scans;
+  } else {
+    scans.forEach(async (scan) => {
+      if (isRestrictedPrivateIp()) {
+        try {
+          await resolvesPublicIp(scan.url);
+          filteredScans.push(scan);
+        } catch (e) {
+          logger.info({
+            type: "errorResolvingPublicIp",
+            scanId: scan.id,
+            error: e,
+          });
+          errorMessage(
+            "Not a public IP or could not resolve hostname while SCANNER_NO_PRIVATE_IPS set to true",
+            scan.id
+          );
+        }
+      }
+    });
+  }
+  if (filteredScans.length === 0) return;
   try {
     const browser = await browserinit();
     await Promise.all(
-      scans.map(async (scan) => {
+      filteredScans.map(async (scan) => {
         await updateScanStatus(scan.id, "queued");
         await startScanning({ scan, browser });
       })
