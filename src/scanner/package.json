@@ -13,7 +13,7 @@
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
     "async-mutex": "^0.4.1",
-    "dotenv": "^16.0.3",
+    "dotenv": "^16.4.5",
     "eventsource": "^2.0.2",
     "memorystream": "^0.3.1",
     "pino": "^8.19.0",
