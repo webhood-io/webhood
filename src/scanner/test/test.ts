@@ -28,10 +28,8 @@ describe("Basic scanner tests", () => {
     expect(finalUrl).to.equal("https://www.google.com/");
     await browser.close();
   }).timeout(10000);
-
   it("should filter local site", async () => {
     //todo
-    process.env.SCANNER_NO_PRIVATE_IPS = "true";
     const scansModel = pb.collection("scans");
     const localScan = await scansModel.create({
       url: "https://localhost",
@@ -44,10 +42,14 @@ describe("Basic scanner tests", () => {
       slug: `test-${randomIntFromInterval(1, 10000).toString()}`,
     });
     const scans = [localScan, publicScan] as ScansRecord[];
+    process.env.SCANNER_NO_PRIVATE_IPS = "true";
     const filtered = await filterScans(scans);
+    process.env.SCANNER_NO_PRIVATE_IPS = "false";
+    const notFiltered = await filterScans(scans);
     expect(scans).to.have.length(2);
     expect(filtered).to.have.length(1);
     expect(filtered[0].url).to.equal("https://google.com");
+    expect(notFiltered).to.have.length(2);
   });
   it("should run screenshot", async () => {
     const scans = pb.collection("scans");

@@ -212,23 +212,22 @@ export async function filterScans(
   scans: ScansRecord[]
 ): Promise<ScansRecord[]> {
   let filteredScans: ScansRecord[] = [];
+  if (!isRestrictedPrivateIp()) return scans;
   await Promise.all(
     scans.map(async (scan) => {
-      if (isRestrictedPrivateIp()) {
-        try {
-          await resolvesPublicIp(scan.url);
-          filteredScans.push(scan);
-        } catch (e) {
-          logger.info({
-            type: "errorResolvingPublicIp",
-            scanId: scan.id,
-            error: e,
-          });
-          errorMessage(
-            "Not a public IP or could not resolve hostname while SCANNER_NO_PRIVATE_IPS set to true",
-            scan.id
-          );
-        }
+      try {
+        await resolvesPublicIp(scan.url);
+        filteredScans.push(scan);
+      } catch (e) {
+        logger.info({
+          type: "errorResolvingPublicIp",
+          scanId: scan.id,
+          error: e,
+        });
+        errorMessage(
+          "Not a public IP or could not resolve hostname while SCANNER_NO_PRIVATE_IPS set to true",
+          scan.id
+        );
       }
     })
   );
@@ -264,12 +263,7 @@ async function intelligentCheckForNewScans() {
   }
   const { scanrecords: scans } = await checkForNewScans(maxSimultaneousScans);
   if (scans.length === 0) return;
-  let filteredScans: ScansRecord[] = [];
-  if (!isRestrictedPrivateIp()) {
-    filteredScans = scans;
-  } else {
-    filteredScans = await filterScans(scans);
-  }
+  const filteredScans = await filterScans(scans);
   if (filteredScans.length === 0) return;
   try {
     const browser = await browserinit();
