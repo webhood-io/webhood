@@ -1,45 +1,37 @@
-version: "3.8"
-
 services:
   scanner:
     container_name: webhood-scanner
-    image: ghcr.io/webhood-io/webhood/scanner:dev
-    build: src/scanner
+    image: ghcr.io/webhood-io/webhood/scanner:latest
     restart: always
     environment:
       ENDPOINT: http://backend:8090
-      API_KEY: ${SCANNER_TOKEN}
-      HTTP_PROXY: ${HTTP_PROXY}
-      HTTPS_PROXY: ${HTTPS_PROXY}
-      NO_PROXY: ${NO_PROXY}
+      SCANNER_TOKEN: ${SCANNER_TOKEN}
     networks:
       - rest
-      - db
     security_opt:
+      # Use seccomp to restrict the syscalls that the container can make for Chrome
+      # This allows us to run chrome with sandboxing enabled without having to run the whole container as root
       - seccomp=./files/chrome.json
 
   core:
     container_name: webhood-core
-    image: ghcr.io/webhood-io/webhood/core:dev
-    build: src/core
+    image: ghcr.io/webhood-io/webhood/core:latest
     restart: always
+    ports:
+      - "3000:3000"
     environment:
-      API_URL: ${EXTERNAL_URL:?error}
-      SELF_REGISTER: ${SELF_REGISTER:-false}
-      HOSTNAME: 0.0.0.0
+      API_URL: ${EXTERNAL_URL}
+      SELF_REGISTER: "false"
+      HOSTNAME: 0.0.0.0 # bind to all interfaces. This is needed for nextjs to work. Note that this by itself does not expose the docker directly.
       # Ignore TLS errors for self-signed certificates between the UI and the internal admin API
       # Note that this does not affect the TLS connection between the UI and the browser
       NODE_TLS_REJECT_UNAUTHORIZED: 0
-    ports:
-      - 3000:3000
     networks:
-      - rest
       - frontend
 
   backend:
     container_name: webhood-backend
-    image: ghcr.io/webhood-io/webhood/backend:dev
-    build: src/backend
+    image: ghcr.io/webhood-io/webhood/backend:latest
     restart: always
     environment:
       # https://github.com/pocketbase/pocketbase/releases/tag/v0.17.3
@@ -47,18 +39,22 @@ services:
       - TMPDIR=/pb/pb_data/storage/xeb56gcfepjsjb4/
     volumes:
       - data:/pb/pb_data
-      - migrations:/pb/pb_migrations
+    ports:
+      - "8000:8090"
     command:
       - serve
       - --http=0.0.0.0:8090
-    ports:
-      - 8090:8090
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/_/"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
     networks:
       - frontend
-      - db
+      - rest
+
 volumes:
   data:
-  migrations:
 
 networks:
   db:
