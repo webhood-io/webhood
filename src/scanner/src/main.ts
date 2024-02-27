@@ -14,14 +14,26 @@ import { ScansRecord } from "./types/pocketbase-types";
 import { Browser } from "puppeteer";
 import * as os from "os";
 import { logger } from "./logging";
-import { resolvesPublicIp } from "./utils/dnsUtils";
+import { filterScans } from "./utils/other";
+
+/*
+ * Main file for the scanner
+ * This file is responsible for starting the scanner and checking for new scans
+ * It also sets up the realtime subscriptions for the scanner
+ * It also sets up the semaphore for limiting the number of simultaneous scans
+ * It also sets up the setInterval for checking for new scans
+ * It also sets up the setInterval for checking for old scans
+ *
+ * Do not import any other file in this file
+ *
+ */
 
 const initialValue = 1;
 const semaphore = new Semaphore(initialValue);
 
 const maxScansCount = (): number => {
   const simultaneousScans =
-    pb.authStore.model?.expand?.config.config?.simultaneousScans;
+    pb.authStore.model?.and?.config.config?.simultaneousScans;
   if (isNaN(Number(simultaneousScans))) {
     return 1;
   }
@@ -144,7 +156,7 @@ async function setup() {
 
 setup();
 
-export async function startScanning({
+async function startScanning({
   scan,
   browser,
 }: {
@@ -202,36 +214,6 @@ export async function startScanning({
       logger.debug({ type: "scanFinished", scanId });
     }
   }
-}
-
-function isRestrictedPrivateIp(): boolean {
-  return process.env.SCANNER_NO_PRIVATE_IPS === "true";
-}
-
-export async function filterScans(
-  scans: ScansRecord[]
-): Promise<ScansRecord[]> {
-  let filteredScans: ScansRecord[] = [];
-  if (!isRestrictedPrivateIp()) return scans;
-  await Promise.all(
-    scans.map(async (scan) => {
-      try {
-        await resolvesPublicIp(scan.url);
-        filteredScans.push(scan);
-      } catch (e) {
-        logger.info({
-          type: "errorResolvingPublicIp",
-          scanId: scan.id,
-          error: e,
-        });
-        errorMessage(
-          "Not a public IP or could not resolve hostname while SCANNER_NO_PRIVATE_IPS set to true",
-          scan.id
-        );
-      }
-    })
-  );
-  return filteredScans;
 }
 
 async function intelligentCheckForNewScans() {
@@ -292,6 +274,7 @@ setInterval(async function () {
 process.on("unhandledRejection", (error) => {
   console.log("(unhandledRejection listener)", error);
 });
+
 // Check for old scans every 15 seconds
 setInterval(async function () {
   await checkForOldScans();
