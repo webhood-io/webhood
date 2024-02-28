@@ -33,7 +33,7 @@ const semaphore = new Semaphore(initialValue);
 
 const maxScansCount = (): number => {
   const simultaneousScans =
-    pb.authStore.model?.and?.config.config?.simultaneousScans;
+    pb.authStore.model?.expand?.config.config?.simultaneousScans;
   if (isNaN(Number(simultaneousScans))) {
     return 1;
   }
