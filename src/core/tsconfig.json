@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": false,
@@ -15,11 +19,31 @@
     "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
-    }
+      "@/*": [
+        "./*"
+      ]
+    },
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "strictNullChecks": false
   },
-  "types": ["node", "jest", "@testing-library/jest-dom"],
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "jest.setup.ts", "__test__/ChangePasswordForm.test.js", "cypress/e2e/api-tests/scan.cy.js"],
+  "types": [
+    "node",
+    "jest",
+    "@testing-library/jest-dom"
+  ],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "jest.setup.ts",
+    "__test__/ChangePasswordForm.test.js",
+    "cypress/e2e/api-tests/scan.cy.js",
+    ".next/types/**/*.ts"
+  ],
   "exclude": [
     // https://stackoverflow.com/questions/58999086/cypress-causing-type-errors-in-jest-assertions/72663546#72663546
     "./cypress.config.ts",

@@ -18,7 +18,7 @@
     "ip": "^2.0.1",
     "memorystream": "^0.3.1",
     "pino": "^8.19.0",
-    "pocketbase": "^0.20.0",
+    "pocketbase": "^0.21.0",
     "puppeteer": "^22.0.0",
     "uuid": "^9.0.1"
   },
