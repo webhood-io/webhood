@@ -9,9 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added option to limit scans of URLs that resolve to private IP addresses. This is useful when you want to prevent scanning of internal sites. [[commit]](https://github.com/webhood-io/webhood/commit/de52fe8188adc24c62911f17ad51ceaec584f33e)
+
 ### Fixed
 
 ### Changed
+
+- Added warning to the main scanning UI when there are no scanners configured. [[commit]]()
 
 ### Removed
 

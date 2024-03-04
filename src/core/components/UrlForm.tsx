@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/select"
 import { Toggle } from "@/components/ui/toggle"
 import { Button } from "./ui/button"
+import { AlertCircle } from "lucide-react"
 
 const urlFormSchema = z.object({
   url: z.string(),
@@ -68,6 +69,9 @@ export function UrlForm() {
     error: scannerErrorSwr,
     isLoading: isSwrLoading,
   } = useSWR("/api/scanners", scannersFetcher)
+
+  // TODO: handle other errors as well
+  const isOptionsError = scannerDataSwr && scannerDataSwr.length === 0
 
   // datetime now in unix timestamp
   const postUrl = async (rawUrl: string) => {
@@ -147,7 +151,7 @@ export function UrlForm() {
             </IconButton>
             <CollapsibleTrigger asChild>
               <Toggle type="button" className="mx-2" data-cy="options-open">
-                Options
+                Options {isOptionsError && <AlertCircle className="h-4 stroke-red-500" />}
               </Toggle>
             </CollapsibleTrigger>
             <CollapsibleContent className="mt-2">
@@ -157,6 +161,11 @@ export function UrlForm() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Scanner</FormLabel>
+                    {isOptionsError && (
+                      <FormDescription>
+                        <StatusMessage statusMessage={{message: "No scanners available.", status: "error"}} />
+                      </FormDescription>
+                    )}
                     <FormControl>
                       <Select
                         onValueChange={field.onChange}
@@ -167,8 +176,8 @@ export function UrlForm() {
                             <SelectValue placeholder="Select scanner to run the scan" />
                           </SelectTrigger>
                         <SelectContent>
-                          <SelectItem key={"default"} value={""}>
-                            {"default"}
+                          <SelectItem key={"any"} value={""}>
+                            {"any"}
                           </SelectItem>
                           {scannerDataSwr &&
                             scannerDataSwr.map((scanner) => (
