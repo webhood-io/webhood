@@ -10,6 +10,7 @@ import { FileTokenProvider } from "@/lib/FileTokenProvider"
 // import { client } from "@/lib/supabase"
 import { Icons } from "@/components/icons"
 import { Toaster } from "@/components/ui/toaster"
+import { TooltipProvider } from "@/components/ui/tooltip"
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -30,8 +31,10 @@ export default function App({ Component, pageProps }: AppProps) {
 			}`}</style>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <FileTokenProvider>
+          <TooltipProvider delayDuration={0}>
           <Component {...pageProps} />
           <Toaster />
+          </TooltipProvider>
         </FileTokenProvider>
       </ThemeProvider>
     </>
