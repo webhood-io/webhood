@@ -22,6 +22,7 @@ echo "SELF_REGISTER: \t $SELF_REGISTER"
 # if API_URL is not set, we will use the default value "/"
 if [ -z "$API_URL" ]; then
   API_URL="/"
+fi
 find /app/.next \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s#http://API_URL_VALUE#$API_URL#g"
 find /app/.next \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s#SELF_REGISTER_VALUE#$SELF_REGISTER#g"
 
