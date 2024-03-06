@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Added warning to the main scanning UI when there are no scanners configured. [[commit]]()
+- `EXTERNAL_URL` environment variable is now optional. The variable can be set to point to the external URL of the backend. This is useful when the backend is located in another port/host than the UI. This variable will default to `/` [[commit]]()
 
 ### Removed
 
