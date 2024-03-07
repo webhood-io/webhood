@@ -51,7 +51,7 @@ import { TypographyLarge } from "@/components/ui/typography/large"
 import { TypographySubtle } from "@/components/ui/typography/subtle"
 import { UserEditSheet } from "./UserEditSheet"
 
-const ADMIN_API_URL_PATH = process.env.NEXT_PUBLIC_API_URL + "/api"
+const ADMIN_API_URL_PATH = (process.env.NEXT_PUBLIC_API_URL)  ?  process.env.NEXT_PUBLIC_API_URL + "/api" : "/api"
 
 export const newUser = {
   username: "",
