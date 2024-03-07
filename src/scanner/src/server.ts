@@ -3,7 +3,7 @@
 import { Browser, launch, TimeoutError } from "puppeteer";
 import { join } from "path";
 import { v4 as uuidv4 } from "uuid";
-import { chromePath, startTracing, stopTracing } from "./utils";
+import { chromePath, startTracing, stopTracing } from "./utils/puppeteerUtils";
 import { EnvAuthStore } from "./memoryAuthStore";
 import PocketBase from "pocketbase";
 import * as errors from "./errors";
@@ -271,13 +271,14 @@ async function checkForNewScans(maxScans: number) {
       stats: stats as ScanStatsRecord[],
     };
   }
+  const filter =
+    'status="pending" && (options.scannerId=null||options.scannerId=""||options.scannerId="' +
+    pb.authStore.model?.config +
+    '")';
   const data = await pb
     .collection("scans")
     .getList(1, availableScans || 1, {
-      filter:
-        'status="pending" && (options.scannerId=null||options.scannerId="' +
-        pb.authStore.model?.config +
-        '")',
+      filter,
       sort: "created",
     })
     .catch((error) => {

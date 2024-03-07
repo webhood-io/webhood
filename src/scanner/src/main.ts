@@ -5,7 +5,6 @@ import {
   errorMessage,
   browserinit,
   pb,
-  getBrowserInfo,
   refreshConfig,
 } from "./server";
 import * as errors from "./errors";
@@ -15,6 +14,19 @@ import { ScansRecord } from "./types/pocketbase-types";
 import { Browser } from "puppeteer";
 import * as os from "os";
 import { logger } from "./logging";
+import { filterScans } from "./utils/other";
+
+/*
+ * Main file for the scanner
+ * This file is responsible for starting the scanner and checking for new scans
+ * It also sets up the realtime subscriptions for the scanner
+ * It also sets up the semaphore for limiting the number of simultaneous scans
+ * It also sets up the setInterval for checking for new scans
+ * It also sets up the setInterval for checking for old scans
+ *
+ * Do not import any other file in this file
+ *
+ */
 
 const initialValue = 1;
 const semaphore = new Semaphore(initialValue);
@@ -144,7 +156,7 @@ async function setup() {
 
 setup();
 
-export async function startScanning({
+async function startScanning({
   scan,
   browser,
 }: {
@@ -233,10 +245,12 @@ async function intelligentCheckForNewScans() {
   }
   const { scanrecords: scans } = await checkForNewScans(maxSimultaneousScans);
   if (scans.length === 0) return;
+  const filteredScans = await filterScans(scans);
+  if (filteredScans.length === 0) return;
   try {
     const browser = await browserinit();
     await Promise.all(
-      scans.map(async (scan) => {
+      filteredScans.map(async (scan) => {
         await updateScanStatus(scan.id, "queued");
         await startScanning({ scan, browser });
       })
@@ -260,6 +274,7 @@ setInterval(async function () {
 process.on("unhandledRejection", (error) => {
   console.log("(unhandledRejection listener)", error);
 });
+
 // Check for old scans every 15 seconds
 setInterval(async function () {
   await checkForOldScans();

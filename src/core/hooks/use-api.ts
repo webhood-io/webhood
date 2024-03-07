@@ -7,7 +7,6 @@ import {
   UsersResponse,
 } from "@/types/pocketbase-types"
 import { pb } from "@/lib/pocketbase"
-import { urlWithParams } from "@/lib/utils"
 
 function accountFetcher() {
   return pb.authStore.model
@@ -184,8 +183,8 @@ function useAccount() {
 
 function useApiv2() {
   async function request(url: string, options) {
-    const fetchUrl = urlWithParams(url, options)
-    const res = await fetch(fetchUrl, {
+    console.log("url", url)
+    const res = await fetch(url, {
       ...options,
       headers: {
         Accept: "application/json",

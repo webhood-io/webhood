@@ -8,12 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-
 ### Fixed
+### Changed
+### Removed
+
+## [v0.8.0] - 2024-03-07
+
+### Added
+
+- Added option to limit scans of URLs that resolve to private IP addresses (`SCANNER_NO_PRIVATE_IPS`). This is useful when you want to prevent scanning of internal sites. [[commit]](https://github.com/webhood-io/webhood/commit/de52fe8188adc24c62911f17ad51ceaec584f33e)
 
 ### Changed
 
-### Removed
+- Added warning to the main scanning UI when there are no scanners configured. [[commit]](https://github.com/webhood-io/webhood/pull/145/commits/9265c592f4377031ebd57300e49bfb72fb0ed14f)
+- `EXTERNAL_URL` environment variable is now optional. The variable can be set to point to the external URL of the backend. This variable is only useful when the backend is located in another port/host than the UI. This variable will default to `/` [[commit]](https://github.com/webhood-io/webhood/pull/145/commits/f2dc91c7516eebef31def4b3f6a1c1357c3b2af9)
 
 ## [v0.7.1] - 2024-02-23
 
