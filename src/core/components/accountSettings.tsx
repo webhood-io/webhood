@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react"
 import { tokensFetcher, useApiv2, usersFetcher } from "@/hooks/use-api"
 import useSWR, { mutate, useSWRConfig } from "swr"
 
-import { AuthSystemFields, UsersResponse } from "@/types/pocketbase-types"
 import { ApiTokenResponse } from "@/types/token"
 import { pb } from "@/lib/pocketbase"
 import { dateToLocaleString } from "@/lib/utils"
@@ -18,7 +17,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { Button } from "@/components/ui/button"
 import { IconButton } from "@/components/ui/button-icon"
 import { CopyButton } from "@/components/ui/copy-button"
 import { Input } from "@/components/ui/input"
@@ -35,7 +33,6 @@ import {
   Sheet,
   SheetContent,
   SheetDescription,
-  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -161,6 +158,7 @@ function ApiTokenEditSheet({
     const formData = new FormData(e.currentTarget)
     const body = Object.fromEntries(formData.entries())
     const { id, role } = await createApiUser(body.role)
+    console.log(ADMIN_API_URL_PATH, id, role)
     await request2(`${ADMIN_API_URL_PATH}/token/${id}`, {
       method: "POST",
       body: JSON.stringify({ id, role }),

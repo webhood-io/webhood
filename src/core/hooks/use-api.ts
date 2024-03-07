@@ -183,6 +183,7 @@ function useAccount() {
 
 function useApiv2() {
   async function request(url: string, options) {
+    console.log("url", url)
     const res = await fetch(url, {
       ...options,
       headers: {
