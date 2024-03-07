@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "format:write": "prettier --write \"**/*.{ts,tsx,mdx}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,mdx}\"",
-    "test:component": "cypress run --component"
+    "test:component": "cypress run --component",
+    "test:open": "cypress open"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.1",
