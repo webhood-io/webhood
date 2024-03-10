@@ -168,7 +168,7 @@ export default function ScanPage() {
                 Screenshot
               </TabsTrigger>
               <TabsTrigger value="details">Details</TabsTrigger>
-              <TabsTrigger value="html" disabled={isError}>
+              <TabsTrigger value="html" disabled={isLoading || isError}>
                 HTML
               </TabsTrigger>
               <TabsTrigger value="trace" disabled={isTraceDisabled}>

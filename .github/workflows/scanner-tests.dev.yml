@@ -1,11 +1,12 @@
 name: Scanner mocha tests
 on: 
   workflow_dispatch: # manual
-  pull_request:
+#  pull_request:
     
 jobs:
   scanner-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v3

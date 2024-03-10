@@ -12,6 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 ### Removed
 
+## [v0.8.1] - 2024-03-10
+
+### Changed
+- Backend healthcheck lowered to 10 seconds from 30 seconds. This is to shorten the time to initially start the whole deployment as the container starts in mere seconds and previously the first check was only run after 30 seconds. [[commit]](https://github.com/webhood-io/webhood/commit/ea8a10c22c271be4dfaa434ee434f42957456582)
+
+### Fixed
+- Inline comments in example `.env.example` broke the deployment. The comments were moved to a newline. [[commit]](https://github.com/webhood-io/webhood/commit/7bfab4a90109e0a45ef5045b89de313523fd27b5)
+- HTML -tab now grays out as it shuld when the scan is not yet complete or it did not finish successfully. [[commit]](https://github.com/webhood-io/webhood/commit/febb4373b04e4a281c9da0495192fd439b444ca6
+
+
 ## [v0.8.0] - 2024-03-07
 
 ### Added

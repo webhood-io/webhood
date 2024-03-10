@@ -325,15 +325,7 @@ async function checkForOldScans() {
   }
 }
 
-export {
-  checkForNewScans,
-  checkForOldScans,
-  browserinit,
-  screenshot,
-  updateDocument,
-  errorMessage,
-};
-export async function updateScanStatus(scanId: string, status: string) {
+async function updateScanStatus(scanId: string, status: string) {
   return pb
     .collection("scans")
     .update(scanId, {
@@ -343,3 +335,13 @@ export async function updateScanStatus(scanId: string, status: string) {
       throw new errors.WebhoodScannerBackendError(error);
     });
 }
+
+export {
+  checkForNewScans,
+  checkForOldScans,
+  browserinit,
+  screenshot,
+  updateDocument,
+  errorMessage,
+  updateScanStatus,
+};

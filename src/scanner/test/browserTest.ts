@@ -3,8 +3,6 @@ import { assert, expect } from "chai";
 import "mocha"; // required for types
 import { pb } from "../src/server";
 import { WebhoodScannerPageError } from "../src/errors";
-import { filterScans } from "../src/utils/other";
-import { ScansRecord } from "../src/types/pocketbase-types";
 import { randomSlug } from "./utils";
 
 describe("Basic scanner tests", () => {
@@ -39,7 +37,7 @@ describe("Basic scanner tests", () => {
     expect(updatedData.screenshots).to.have.length(1);
     expect(updatedData.html).to.have.length(2); // with trace
     expect(updatedData.error).to.be.empty;
-    browser.close();
+    await browser.close();
   }).timeout(10000);
   it("should error on unavailable site", async () => {
     const scans = pb.collection("scans");
@@ -56,6 +54,6 @@ describe("Basic scanner tests", () => {
       error = err;
     }
     expect(error).to.an.instanceOf(WebhoodScannerPageError);
-    browser.close();
+    await browser.close();
   }).timeout(20000);
 });
