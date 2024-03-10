@@ -79,7 +79,7 @@ services:
       - --http=0.0.0.0:8090
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8090/_/"]
-      interval: 30s
+      interval: 10s
       timeout: 10s
       retries: 5
     networks:
