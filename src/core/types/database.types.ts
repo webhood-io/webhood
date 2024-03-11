@@ -75,6 +75,7 @@ export interface Database {
           status: string
           updated_at: string | null
           url: string
+          scandata: Json | null
         }
         Insert: {
           created_at?: string | null
@@ -87,6 +88,7 @@ export interface Database {
           status: string
           updated_at?: string | null
           url: string
+          scandata?: Json | null
         }
         Update: {
           created_at?: string | null
@@ -99,6 +101,7 @@ export interface Database {
           status?: string
           updated_at?: string | null
           url?: string
+          scandata?: Json | null
         }
       }
     }

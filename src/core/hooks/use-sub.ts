@@ -9,6 +9,7 @@ export function useSubscription(
 ) {
   useEffect(() => {
     // subscribe to changes in scan. on return, cleanup
+    if (!selector) return
     const prom = pb.collection(collection).subscribe(selector, async () => {
       update()
     })

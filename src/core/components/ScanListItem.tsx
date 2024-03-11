@@ -1,8 +1,5 @@
-"use client"
-
 import Image from "next/image"
 import Link from "next/link"
-import { useFile, useToken } from "@/hooks/use-file"
 import ScanLoading from "@/public/scan-in-progress.png"
 import X from "@/public/x.png"
 

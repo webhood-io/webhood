@@ -1,7 +1,6 @@
+"use client"
 import { ReactNode, useEffect, useState } from "react"
 import Head from "next/head"
-import Image from "next/image"
-import { useRouter } from "next/router"
 import { scanSingleFetcher } from "@/hooks/use-api"
 import { useFile, useToken } from "@/hooks/use-file"
 import { useSubscription } from "@/hooks/use-sub"
@@ -11,7 +10,7 @@ import useSWR, { useSWRConfig } from "swr"
 
 import { ScansResponse } from "@/types/pocketbase-types"
 import { siteConfig } from "@/config/site"
-import { imageLoader, parseUrl } from "@/lib/utils"
+import { parseUrl } from "@/lib/utils"
 import { Icons } from "@/components/icons"
 import { ImageFileComponent } from "@/components/ImageFileComponent"
 import { Layout } from "@/components/layout"
@@ -19,6 +18,8 @@ import { Title } from "@/components/title"
 import Traceviewer from "@/components/TraceViewer"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { DataTable } from "./data-table"
+import { columns } from "./columns"
 
 interface ScanImageProps {
   scanItem: ScansResponse
@@ -73,6 +74,16 @@ const ScanDetailItem = ({
   )
 }
 function ScanDetails({ scanItem }: { scanItem: ScansResponse }) {
+  const valsGen = (item) => {
+    const val = scanItem.scandata[item]
+    return Object.keys(val).map((key) => {
+    return { key: `${item}.${key}`, value: val[key] }
+  })};
+  const data = [
+    ...valsGen("request"),
+    ...valsGen("response"),
+    ...valsGen("document"),
+  ]
   return (
     <div className="flex flex-col gap-2 truncate">
       <h4 className="text-md font-medium dark:text-gray-300">Scan results</h4>
@@ -88,6 +99,9 @@ function ScanDetails({ scanItem }: { scanItem: ScansResponse }) {
         label={"Error message"}
         value={scanItem?.error || <i>none</i>}
       />
+      <Separator />
+      <h4 className="text-md font-medium dark:text-gray-300">Scan details</h4>
+      <DataTable columns={columns} data={data} />
     </div>
   )
 }
@@ -123,22 +137,16 @@ function CodeViewer({ scanItem }: ScanImageProps) {
   )
 }
 
-export default function ScanPage() {
-  const router = useRouter()
-  const scanId = router.query.scanid as string
+export default function ScanPage({ params }: { params: { id: string } }) {
+  const scanId = params.id
   const { data: scanItem, error } = useSWR({ slug: scanId }, scanSingleFetcher)
   const { mutate } = useSWRConfig()
   useSubscription("scans", scanItem?.id, () => mutate({ slug: scanId }))
   const isLoading = !scanItem && !error
 
-  const host = parseUrl(scanItem?.url).host
   const isError = scanItem?.status === "error"
   const isTraceDisabled = isError || scanItem?.html.length < 2
   return (
-    <Layout>
-      <Head>
-        <title>{host ? `${host} - ${siteConfig.name}` : siteConfig.name}</title>
-      </Head>
       <div className="container grid auto-rows-max gap-6 pb-8 pt-6 md:py-10">
         <div className={"truncate"}>
           {" "}
@@ -192,6 +200,5 @@ export default function ScanPage() {
           </Tabs>
         )}
       </div>
-    </Layout>
   )
 }

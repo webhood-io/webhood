@@ -3,7 +3,6 @@ import { MainNav } from "@/components/main-nav"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { LogoutButton } from "./LogoutButton"
 import ScanStatus from "./ScanStatus"
-import { TypographyH4 } from "./ui/typography/h4"
 
 export function SiteHeader() {
   return (

@@ -1,9 +1,23 @@
 // Filename: server.js
 
-import { Browser, launch, TimeoutError } from "puppeteer";
+import {
+  Browser,
+  HTTPRequest,
+  HTTPResponse,
+  launch,
+  Page,
+  TimeoutError,
+} from "puppeteer";
 import { join } from "path";
 import { v4 as uuidv4 } from "uuid";
-import { chromePath, startTracing, stopTracing } from "./utils/puppeteerUtils";
+import {
+  chromePath,
+  getNow,
+  parsedRequest,
+  parsedResponse,
+  startTracing,
+  stopTracing,
+} from "./utils/puppeteerUtils";
 import { EnvAuthStore } from "./memoryAuthStore";
 import PocketBase from "pocketbase";
 import * as errors from "./errors";
@@ -11,7 +25,11 @@ import MemoryStream from "memorystream";
 // https://github.com/pocketbase/pocketbase/discussions/178
 import EventSource from "eventsource";
 import { ScansRecord } from "./types/pocketbase-types";
-import { ScanStatsRecord } from "./types/extended";
+import {
+  ScanData,
+  ScanStatsRecord,
+  WebhoodScandataDocument,
+} from "./types/extended";
 import { logger } from "./logging";
 // @ts-ignore
 global.EventSource = EventSource;
@@ -112,6 +130,23 @@ const browserinit = async () => {
   return browser;
 };
 
+async function constructFromEvaluatePage(
+  scanData: ScanData,
+  page: Page
+): Promise<WebhoodScandataDocument> {
+  return await page.evaluate(() => {
+    return {
+      title: document.title,
+      url: document.location.href,
+      origin: document.location.origin,
+      protocol: document.location.protocol,
+      links: Array.from(document.querySelectorAll("a"))
+        .map((a) => a.href)
+        .filter((a) => a),
+    };
+  });
+}
+
 async function screenshot(
   res: null,
   url: string,
@@ -124,9 +159,11 @@ async function screenshot(
     throw new errors.WebhoodScannerPageError("Error while loading page:" + msg);
   });
   const memstream = new MemoryStream([]);
+  let scanData = {} as ScanData;
   startTracing(page, memstream);
+  let pageRes: HTTPResponse | null = null;
   try {
-    await page.goto(url, { timeout: GOTO_TIMEOUT });
+    pageRes = await page.goto(url, { timeout: GOTO_TIMEOUT });
   } catch (e) {
     logger.debug({ type: "pageLoadingTimeout", scanId });
     /*
@@ -153,6 +190,14 @@ async function screenshot(
     next: "finalUrl",
   });
   const finalUrl = await page.evaluate(() => document.location.href);
+  logger.debug({ type: "evaluateScanData", scanId });
+
+  // construct scan data
+  scanData.document = await constructFromEvaluatePage(scanData, page);
+  scanData.version = "1.0";
+  scanData.request = parsedRequest(getNow(), pageRes?.request());
+  scanData.response = parsedResponse(getNow(), pageRes);
+
   if (
     !finalUrl ||
     finalUrl === "about:blank" ||
@@ -222,6 +267,7 @@ async function screenshot(
   try {
     const data = {
       final_url: finalUrl,
+      scandata: scanData,
       done_at: endDateTime,
       status: "done",
     };

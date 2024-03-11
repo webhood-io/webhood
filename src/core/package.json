@@ -45,6 +45,7 @@
     "@radix-ui/react-toggle": "^1.0.2",
     "@radix-ui/react-toggle-group": "^1.0.3",
     "@radix-ui/react-tooltip": "^1.0.5",
+    "@tanstack/react-table": "^8.13.2",
     "@types/jsonwebtoken": "^9.0.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",

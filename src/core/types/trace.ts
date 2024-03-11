@@ -32,3 +32,51 @@ export type Traces = {
   version: "0.1"
   traces: TraceWrap[]
 }
+
+export type WebhoodScandataResponse = {
+  type: "response"
+  url: string
+  ts: number
+  status?: number
+  statusText?: string
+  headers?: Record<string, string>
+  timing: any | null
+  remoteAddress: {
+    port?: number
+    ip?: string
+  }
+  securityDetails?: {
+    issuer?: string
+    protocol?: string
+    subjectAlternativeNames?: string[]
+    subjectName?: string
+    validFrom?: number
+    validTo?: number
+  } | null
+}
+
+export type WebhoodScandataRequest = {
+  type: "request"
+  url: string
+  headers: Record<string, string>
+  method: string
+  resourceType: string
+  postData?: string
+  redirectChain: string[]
+  ts: number
+}
+
+export type WebhoodScandataDocument = {
+  title: string
+  url: string
+  origin: string
+  protocol: string
+  links: string[]
+}
+
+export type ScanData = {
+  version: "1.0" // additions = increment minor, breaking changes / removals / changes = increment major
+  document: WebhoodScandataDocument
+  request: WebhoodScandataRequest | null
+  response: WebhoodScandataResponse | null
+}
