@@ -77,6 +77,7 @@ function ScanDetails({ scanItem }: { scanItem: ScansResponse }) {
       return { key: `${item}.${key}`, value: val[key] }
     })
   }
+    if(!scanItem.scandata) return <p>No details available</p>
   const data = [
     ...valsGen("request"),
     ...valsGen("response"),
@@ -174,12 +175,12 @@ export default function ScanPage({id}: {id: string}) {
         </div>
       )}
       {scanItem && (
-        <Tabs defaultValue={isError ? "details" : "screenshot"}>
+        <Tabs defaultValue={isError ? "meta" : "screenshot"}>
           <TabsList>
             <TabsTrigger value="screenshot" disabled={isError}>
               Screenshot
             </TabsTrigger>
-            <TabsTrigger value="details">Details</TabsTrigger>
+            <TabsTrigger value="details" disabled={isError}>Details</TabsTrigger>
             <TabsTrigger value="html" disabled={isLoading || isError}>
               HTML
             </TabsTrigger>
