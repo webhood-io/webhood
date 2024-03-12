@@ -1,9 +1,6 @@
-
 import {ScanListItem, ScanListItemComponent} from './ScanListItem';
 import X from "../public/x.png"
 import Image from "next/image"
-import { pb } from "@/lib/pocketbase"
-import * as UseFile from "@/hooks/use-file"
 
 const testDocumentPending = {
     title: "Test",

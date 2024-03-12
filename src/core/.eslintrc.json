@@ -4,6 +4,7 @@
   "extends": [
     "next/core-web-vitals",
     "prettier",
+    "next/babel",
     "plugin:tailwindcss/recommended"
   ],
   "plugins": ["tailwindcss"],

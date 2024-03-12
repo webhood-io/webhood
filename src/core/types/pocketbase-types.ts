@@ -2,6 +2,9 @@
  * This file was @generated using pocketbase-typegen
  */
 
+import { Json } from "./database.types"
+import { ScanData } from "./trace"
+
 export enum Collections {
   ApiTokens = "api_tokens",
   Scanners = "scanners",
@@ -66,6 +69,7 @@ export type ScansRecord = {
   options?: {
     scannerId?: string
   }
+  scandata?: ScanData
 } & BaseSystemFields
 
 export enum UsersRoleOptions {
