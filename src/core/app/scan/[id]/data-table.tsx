@@ -1,15 +1,22 @@
 "use client"
 
+import { useEffect, useMemo, useState } from "react"
+import { useToast } from "@/hooks/use-toast"
 import {
+  Column,
   ColumnDef,
-  Row,
-  RowPinningState,
   flexRender,
   getCoreRowModel,
-  useReactTable,
+  getFacetedUniqueValues,
+  getFilteredRowModel,
+  RowPinningState,
   Table as TableType,
+  useReactTable,
 } from "@tanstack/react-table"
+import { X } from "lucide-react"
 
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
   Table,
   TableBody,
@@ -18,56 +25,135 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { useState } from "react"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
 }
 
-function PinnedRow({ row, table }: { row: Row<any>; table: TableType<any> }) {
-    return (
-      <tr
-        style={{
-          backgroundColor: 'lightblue',
-          position: 'sticky',
-          top:
-            row.getIsPinned() === 'top'
-              ? `${row.getPinnedIndex() * 26 + 48}px`
-              : undefined,
-          bottom:
-            row.getIsPinned() === 'bottom'
-              ? `${
-                  (table.getBottomRows().length - 1 - row.getPinnedIndex()) * 26
-                }px`
-              : undefined,
-        }}
-      >
-        {row.getVisibleCells().map(cell => {
-          return (
-            <td key={cell.id}>
-              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-            </td>
-          )
-        })}
-      </tr>
-    )
-  }
+function Filter({
+  column,
+  table,
+}: {
+  column: Column<any, unknown>
+  table: TableType<any>
+}) {
+  const firstValue = table
+    .getPreFilteredRowModel()
+    .flatRows[0]?.getValue(column.id)
 
+  const columnFilterValue = column.getFilterValue() as string | undefined
+
+  const sortedUniqueValues = useMemo(
+    () =>
+      typeof firstValue === "number"
+        ? []
+        : Array.from(column.getFacetedUniqueValues().keys()).sort(),
+    [column.getFacetedUniqueValues()]
+  )
+  console.log(
+    Array.from(column.getFacetedUniqueValues().keys()).sort(),
+    column.getFacetedUniqueValues()
+  )
+  return (
+    <div className="flex flex-row items-center gap-1">
+      <datalist id={column.id + "list"}>
+        {sortedUniqueValues.slice(0, 5000).map((value: any) => (
+          <option value={value} key={value} />
+        ))}
+      </datalist>
+      <DebouncedInput
+        list={column.id + "list"}
+        placeholder={`filter ${column.id}`}
+        type="text"
+        value={columnFilterValue || ""}
+        onChange={column.setFilterValue}
+      />
+      <Button
+        size="sm"
+        title="Clear filter"
+        variant="ghost"
+        onClick={() => column.setFilterValue("")}
+      >
+        <X size={15} />
+      </Button>
+    </div>
+  )
+}
+
+// A debounced input react component
+function DebouncedInput({
+  value: initialValue,
+  onChange,
+  debounce = 500,
+  ...props
+}: {
+  value: string | number
+  onChange: (value: string | number) => void
+  debounce?: number
+} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange">) {
+  const [value, setValue] = useState(initialValue)
+
+  useEffect(() => {
+    setValue(initialValue)
+  }, [initialValue])
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      onChange(value)
+    }, debounce)
+
+    return () => clearTimeout(timeout)
+  }, [value])
+
+  return (
+    <Input
+      {...props}
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+    />
+  )
+}
 
 export function DataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
+  const [rowPinning, setRowPinning] = useState<RowPinningState>({
+    top: [],
+  })
+  const savedPin = localStorage.getItem("rowPinning")
+  const { toast } = useToast()
+  console.log(rowPinning)
   const table = useReactTable({
     data,
     columns,
+    state: {
+      rowPinning,
+    },
+    onRowPinningChange: (newRowPinning) => {
+      setRowPinning(newRowPinning)
+    },
+    getFilteredRowModel: getFilteredRowModel(),
     getCoreRowModel: getCoreRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
   })
-  const [rowPinning, setRowPinning] = useState<RowPinningState>({
-    top: [],
-    bottom: [],
-  })
+  useEffect(() => {
+    if (table && savedPin) {
+      console.log(savedPin)
+      table
+        .getCenterRows()
+        .filter((row) => savedPin.includes(row.original["key"]))
+        .forEach((row) => row.pin("top", false, false))
+    }
+  }, [table])
+
+  useEffect(() => {
+    localStorage.setItem(
+      "rowPinning",
+      JSON.stringify(table.getTopRows().map((r) => r.original["key"]))
+    )
+  }, [rowPinning])
 
   return (
     <div className="rounded-md border">
@@ -78,12 +164,16 @@ export function DataTable<TData, TValue>({
               {headerGroup.headers.map((header) => {
                 return (
                   <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
+                    <div>
+                      {header.column.getCanFilter() ? (
+                        <Filter column={header.column} table={table} />
+                      ) : header.isPlaceholder ? null : (
+                        flexRender(
                           header.column.columnDef.header,
                           header.getContext()
-                        )}
+                        )
+                      )}
+                    </div>
                   </TableHead>
                 )
               })}
@@ -91,18 +181,18 @@ export function DataTable<TData, TValue>({
           ))}
         </TableHeader>
         <TableBody>
-        {table.getTopRows().map(row => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && "selected"}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
+          {table.getTopRows().map((row) => (
+            <TableRow
+              key={row.id}
+              data-state={row.getIsSelected() && "selected"}
+            >
+              {row.getVisibleCells().map((cell) => (
+                <TableCell key={cell.id}>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
           {table.getRowModel().rows?.length ? (
             table.getCenterRows().map((row) => (
               <TableRow
