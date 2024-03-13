@@ -31,6 +31,9 @@ import {
   WebhoodScandataDocument,
 } from "./types/extended";
 import { logger } from "./logging";
+import puppeteer from "puppeteer-extra";
+import StealthPlugin from "puppeteer-extra-plugin-stealth";
+
 // @ts-ignore
 global.EventSource = EventSource;
 
@@ -106,7 +109,7 @@ const browserinit = async () => {
     "fihnjjcciajhdojfnbdddfaoknhalnja"
   );
   const { ua, lang } = await getBrowserInfo();
-  const browser = await launch({
+  const browser = await puppeteer.use(StealthPlugin()).launch({
     executablePath: chromePath,
     args: [
       "--disable-gpu",
