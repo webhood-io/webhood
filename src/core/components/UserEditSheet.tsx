@@ -258,7 +258,7 @@ export function UserEditSheet({
               {statusMessage && statusMessage.details &&
               <div className="max-w-[400px]">
               <p className="text-sm text-right">Error details</p>
-              <div className="text-sm bg-slate-200 rounded p-4">{JSON.stringify(statusMessage.details)}</div>
+              <div className="text-sm bg-slate-200 dark:text-slate-800 rounded p-4">{JSON.stringify(statusMessage.details)}</div>
               </div>
               }
               </div>
