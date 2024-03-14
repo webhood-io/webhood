@@ -56,7 +56,7 @@ export function UrlForm() {
     resolver: zodResolver(urlFormSchema),
     defaultValues: {
       options: {
-        scannerId: "",
+        scannerId: "any",
       },
       url: "",
     },
@@ -87,12 +87,13 @@ export function UrlForm() {
       setInputError({ status: "error", message: "Invalid URL" })
       return
     }
+    const scannerId = form.getValues("options.scannerId")
     const data = {
       url: url,
       slug: slug,
       status: "pending",
       options: {
-        scannerId: form.getValues("options.scannerId"),
+        scannerId: scannerId === "any" ? undefined : scannerId,
       },
     } as ScansRecord
 
@@ -181,8 +182,8 @@ export function UrlForm() {
                           <SelectValue placeholder="Select scanner to run the scan" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem key={"any"} value={""}>
-                            {"any"}
+                          <SelectItem key={"any"} value={"any"}>
+                            {"any (default)"}
                           </SelectItem>
                           {scannerDataSwr &&
                             scannerDataSwr.map((scanner) => (
