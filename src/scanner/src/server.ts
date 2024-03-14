@@ -109,6 +109,7 @@ const browserinit = async () => {
     "fihnjjcciajhdojfnbdddfaoknhalnja"
   );
   const { ua, lang, useStealth } = await getBrowserInfo();
+  logger.debug({ type: "useConfig", ua, lang, useStealth });
   const pp = puppeteer;
   if (useStealth) pp.use(StealthPlugin());
   let args = [
