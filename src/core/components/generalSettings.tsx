@@ -1,5 +1,5 @@
 import * as React from "react"
-import { scannerFetcher, scannersFetcher } from "@/hooks/use-api"
+import { scannersFetcher } from "@/hooks/use-api"
 import useSWR, {useSWRConfig} from "swr"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form"
 
 import { ScannersRecord } from "@/types/pocketbase-types"
 import { pb } from "@/lib/pocketbase"
-import { ScannerLangTip, ScannerUaTip, SimultaneousScansTooltip, StealthTooltip } from "@/lib/tips"
+import { ScannerLangTip, ScannerUaTip, SimultaneousScansTooltip, StealthTooltip, SkipCookiePromptTooltip } from "@/lib/tips"
 import { Icons } from "@/components/icons"
 import { StatusMessage, StatusMessageProps } from "@/components/statusMessage"
 import { IconButton } from "@/components/ui/button-icon"
@@ -97,6 +97,7 @@ const scannerOptionsSchema = z.object({
     lang: z.string().optional(),
     simultaneousScans: z.string().optional(),
     useStealth: z.boolean().optional(),
+    useSkipCookiePrompt: z.boolean().optional()
   }),
   name: z.string(),
 })
@@ -186,6 +187,24 @@ function ScannerSettingsForm({
                   name="config.useStealth"
                   placeholder="False"
                   tooltip={StealthTooltip}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+          />
+        <FormField
+          control={form.control}
+          name="config.useSkipCookiePrompt"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <CheckboxInput
+                  {...field}
+                  label="Skip cookie prompts"
+                  name="config.useSkipCookiePrompt"
+                  placeholder="False"
+                  tooltip={SkipCookiePromptTooltip}
                 />
               </FormControl>
               <FormMessage />

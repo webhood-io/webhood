@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+- Configure scanner to run in `Stealth mode`. Stealth mode configures the browser to appear as a real user. This is useful when you want to scan sites that block bots. The feature utilizes [puppeteer-extra-plugin-stealth](https://github.com/berstend/puppeteer-extra/tree/master/packages/puppeteer-extra-plugin-stealth).
+
+- Configure scanner to run in `Skip cookie prompts` mode. This mode enables 'I don't care about cookies' extension to bypass prompts to accept cookies. This is useful when you want to scan sites that have cookie prompts that prevent you from seeing what is actually on the site. The feature utilizes [I don't care about cookies](https://chromewebstore.google.com/detail/fihnjjcciajhdojfnbdddfaoknhalnja) browser extension.
+  - ⚠️ ️️️Note: this feature was previously enabled by default, but was not documented. It now must be explicitly enabled by setting `Skip cookie prompts` in Settings --> General in the scanner configuration UI.
+
 ### Fixed
 ### Changed
 ### Removed
