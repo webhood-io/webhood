@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import LoginLogo from "@/public/webhood-logo-icon-text-paths.svg"
+import LoginLogoDark from "@/public/webhood-logo-icon-text-paths-dark.svg"
 import Image from 'next/image'
 
 
@@ -119,7 +120,8 @@ export default function Login() {
     <div className="container h-screen">
       <div className="flex h-full flex-col justify-center">
         <div className="flex flex-col items-center">
-          <Image src={LoginLogo} alt="Webhood Logo" width={300} height={150} />
+          <Image src={LoginLogo} alt="Webhood Logo" width={300} height={150} className="dark:hidden" />
+          <Image src={LoginLogoDark} alt="Webhood Logo Dark" width={300} height={150} className="hidden dark:block" />
           <p className="text-lg text-slate-600 dark:text-slate-400">
             Login with your local account
           </p>

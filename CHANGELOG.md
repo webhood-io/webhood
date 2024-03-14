@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 ### Changed
+
+- Login page now has the Webhood logo in place of "Login" title text.
+
 ### Removed
 
 ## [v0.8.1] - 2024-03-10
