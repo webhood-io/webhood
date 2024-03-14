@@ -1,8 +1,6 @@
 import type { Metadata, ResolvingMetadata } from "next"
-import { scanSingleFetcher } from "@/hooks/use-api"
 
 import { siteConfig } from "@/config/site"
-import { pb } from "@/lib/pocketbase"
 import ScanDetails from "./scandetails"
 
 type Props = {
