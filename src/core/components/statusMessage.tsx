@@ -6,6 +6,7 @@ import { TypographySubtle } from "@/components/ui/typography/subtle"
 export interface StatusMessageProps {
   message: string
   status: "error" | "success"
+  details?: any
 }
 
 export function StatusMessage({
@@ -13,35 +14,17 @@ export function StatusMessage({
 }: {
   statusMessage: StatusMessageProps
 }) {
-  const [status, setStatus] = useState<StatusMessageProps | undefined>(
-    undefined
-  )
-  useEffect(() => {
-    console.log(statusMessage, statusMessage?.status, status)
-    if (!statusMessage) return
-    if (statusMessage.status === "success") {
-      setStatus({
-        message: statusMessage.message || "Success",
-        status: "success",
-      })
-      setTimeout(() => {
-        setStatus(undefined)
-      }, 2000)
-    } else if (statusMessage.status === "error") {
-      setStatus({ message: statusMessage.message || "Error", status: "error" })
-    }
-  }, [statusMessage?.status, statusMessage?.message])
-  if (!status) return null
+  if (!statusMessage) return null
   return (
     <div className="flex items-center gap-2">
-      {status.status === "error" && (
+      {statusMessage.status === "error" && (
         <Icons.warning className="h-5 w-5 text-red-500" />
       )}
-      {status.status === "success" && (
+      {statusMessage.status === "success" && (
         <Icons.check className="h-5 w-5 text-green-500" />
       )}
       <span data-cy="status-message">
-        <TypographySubtle>{status.message}</TypographySubtle>
+        <TypographySubtle>{statusMessage.message}</TypographySubtle>
       </span>
     </div>
   )
