@@ -72,13 +72,13 @@ const ScanDetailItem = ({
 }
 function ScanDetails({ scanItem }: { scanItem: ScansResponse }) {
   const valsGen = (item) => {
-    if(!scanItem.scandata || !scanItem.scandata[item]) return []
+    if (!scanItem.scandata || !scanItem.scandata[item]) return []
     const val = scanItem.scandata[item]
     return Object.keys(val).map((key) => {
       return { key: `${item}.${key}`, value: val[key] }
     })
   }
-    if(!scanItem.scandata) return <p>No details available</p>
+  if (!scanItem.scandata) return <p>No details available</p>
   const data = [
     ...valsGen("request"),
     ...valsGen("response"),
@@ -143,7 +143,7 @@ function CodeViewer({ scanItem }: ScanImageProps) {
   )
 }
 
-export default function ScanPage({id}: {id: string}) {
+export default function ScanPage({ id }: { id: string }) {
   const scanId = id
   const { data: scanItem, error } = useSWR({ slug: scanId }, scanSingleFetcher)
   const { mutate } = useSWRConfig()
@@ -181,7 +181,9 @@ export default function ScanPage({id}: {id: string}) {
             <TabsTrigger value="screenshot" disabled={isError}>
               Screenshot
             </TabsTrigger>
-            <TabsTrigger value="details" disabled={isError}>Details</TabsTrigger>
+            <TabsTrigger value="details" disabled={isError}>
+              Details
+            </TabsTrigger>
             <TabsTrigger value="html" disabled={isLoading || isError}>
               HTML
             </TabsTrigger>

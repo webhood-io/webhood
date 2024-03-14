@@ -1,10 +1,13 @@
 import { FormEvent, useEffect, useState } from "react"
 import Head from "next/head"
+import { useRouter } from "next/router"
 import { scansSearchFetcher } from "@/hooks/use-api"
 import { useToken } from "@/hooks/use-file"
 import useSWR from "swr"
+import { useLocalStorage } from "usehooks-ts"
 
 import { siteConfig } from "@/config/site"
+import { cn } from "@/lib/utils"
 import { Icons } from "@/components/icons"
 import { Layout } from "@/components/layout"
 import { ScanListItem } from "@/components/ScanListItem"
@@ -24,9 +27,6 @@ import {
 } from "@/components/ui/select"
 import { TypographyH3 } from "@/components/ui/typography/h3"
 import { TypographySubtle } from "@/components/ui/typography/subtle"
-import { useLocalStorage } from 'usehooks-ts'
-import { cn } from "@/lib/utils"
-import { useRouter } from "next/router"
 
 function LimitSelector({
   limit,
@@ -66,8 +66,8 @@ interface Range {
   end: number
 }
 
-function getRangeNumber(value: string): number|null {
-  if(!value) return null
+function getRangeNumber(value: string): number | null {
+  if (!value) return null
   const parsed = parseInt(value)
   if (isNaN(parsed) || parsed < 0) return null
   return parsed
@@ -111,7 +111,7 @@ export default function DashboardPage() {
     setLimit(newLimit)
     router.push(`/search?page=${1}`)
   }
-  const data_length = ():number => {
+  const data_length = (): number => {
     if (data) {
       return data.length
     }
@@ -184,15 +184,17 @@ export default function DashboardPage() {
                       disabled={pageNumber === 1}
                       onClick={decrementPage}
                     />
-                    {
-                    (pageNumber)
-                    ?pageNumber*limit-limit+1 + " - " + (pageNumber*limit-limit+data_length())
-                    : ""
-                    }
+                    {pageNumber
+                      ? pageNumber * limit -
+                        limit +
+                        1 +
+                        " - " +
+                        (pageNumber * limit - limit + data_length())
+                      : ""}
                     <IconButton
                       icon={<Icons.right className={"h-full"} />}
                       variant="outline"
-                      disabled={data_length()< limit}
+                      disabled={data_length() < limit}
                       onClick={incrementPage}
                     />
                   </div>

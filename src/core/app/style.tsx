@@ -1,4 +1,5 @@
 "use client"
+
 import { Inter as FontSans } from "next/font/google"
 
 const fontSans = FontSans({
@@ -9,7 +10,7 @@ const fontSans = FontSans({
 
 export default function Styled() {
   return (
-      <style jsx global>{`
+    <style jsx global>{`
 				:root {
 					--font-sans: ${fontSans.style.fontFamily};
 				}

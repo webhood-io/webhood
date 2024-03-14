@@ -17,7 +17,11 @@ function Content(props: {
     >
       <div className="flex flex-row justify-between">
         <div className="max-w-5/6 truncate" title={props.content}>
-          {(props.content === null || props.content === undefined) ? <i>Empty</i> : props.content}
+          {props.content === null || props.content === undefined ? (
+            <i>Empty</i>
+          ) : (
+            props.content
+          )}
         </div>
         <div>
           {props.copied && (
@@ -49,7 +53,9 @@ export function DataItem(props: {
       className="grid grid-cols-5 items-center gap-4"
       data-cy="dataitem-wrapper"
     >
-      <Label className="truncate" title={props.label}>{props.label}</Label>
+      <Label className="truncate" title={props.label}>
+        {props.label}
+      </Label>
       <Content content={props.content} copied={copied} onClick={onClick} />
     </div>
   )
