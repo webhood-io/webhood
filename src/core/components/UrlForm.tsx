@@ -1,6 +1,6 @@
 "use client"
 
-import { FormEvent, useState } from "react"
+import { useState } from "react"
 import { scannersFetcher } from "@/hooks/use-api"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { AlertCircle } from "lucide-react"
@@ -12,7 +12,7 @@ import { ScansRecord } from "@/types/pocketbase-types"
 import { pb } from "@/lib/pocketbase"
 import { generateSlug } from "@/lib/utils"
 import { Icons } from "@/components/icons"
-import { StatusMessage, StatusMessageProps } from "@/components/statusMessage"
+import { StatusMessage, StatusMessageProps, StatusMessageUncontrolled } from "@/components/statusMessage"
 import { IconButton } from "@/components/ui/button-icon"
 import {
   Collapsible,
@@ -29,7 +29,6 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
@@ -38,7 +37,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Toggle } from "@/components/ui/toggle"
-import { Button } from "./ui/button"
 
 const urlFormSchema = z.object({
   url: z.string(),
@@ -165,7 +163,7 @@ export function UrlForm() {
                     <FormLabel>Scanner</FormLabel>
                     {isOptionsError && (
                       <FormDescription>
-                        <StatusMessage
+                        <StatusMessageUncontrolled
                           statusMessage={{
                             message: "No scanners available.",
                             status: "error",
