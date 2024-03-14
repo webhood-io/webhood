@@ -40,7 +40,7 @@ global.EventSource = EventSource;
 const width = 1920;
 const height = 1080;
 
-const GOTO_TIMEOUT = 10000; // 10 seconds
+const GOTO_TIMEOUT = 10_000; // 10 seconds
 
 if (!process.env.ENDPOINT || !process.env.SCANNER_TOKEN) {
   console.error(
@@ -181,10 +181,11 @@ async function screenshot(
   // wait until page is fully loaded
   logger.debug({ type: "waitForDocumentloaded", scanId });
   try {
-    await page.waitForNavigation({
+    const waitResponse = await page.waitForNavigation({
       waitUntil: "domcontentloaded",
       timeout: 2000,
     });
+    if (!pageRes) pageRes = waitResponse;
   } catch (e) {
     logger.debug({ type: "documentLoadedTimeout", scanId });
   }
@@ -196,7 +197,6 @@ async function screenshot(
   });
   const finalUrl = await page.evaluate(() => document.location.href);
   logger.debug({ type: "evaluateScanData", scanId });
-
   // construct scan data
   scanData.document = await constructFromEvaluatePage(page);
   scanData.version = "1.0";

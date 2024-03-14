@@ -72,6 +72,7 @@ const ScanDetailItem = ({
 }
 function ScanDetails({ scanItem }: { scanItem: ScansResponse }) {
   const valsGen = (item) => {
+    if(!scanItem.scandata || !scanItem.scandata[item]) return []
     const val = scanItem.scandata[item]
     return Object.keys(val).map((key) => {
       return { key: `${item}.${key}`, value: val[key] }
