@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed an issue causing 'Settings saved' message to not appear when saving settings in the scanner configuration UI specifically when save was pressed more than once. 
 
+- Added error handling on 'Add user' sheet. Previously, if the user registration failed due to backend error, the user was not notified of the failure.
+
 ### Changed
 
 - Login page now has the Webhood logo in place of "Login" title text.

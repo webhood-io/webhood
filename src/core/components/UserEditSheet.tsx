@@ -1,7 +1,6 @@
-import { on } from "events"
 import React from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { set, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { z } from "zod"
 
 import { UsersResponse } from "@/types/pocketbase-types"
@@ -10,14 +9,12 @@ import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
@@ -35,6 +32,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { TypographySubtle } from "./ui/typography/subtle"
+import { useStatusMessage } from "@/hooks/use-statusmessage"
+import { StatusMessage } from "./statusMessage"
 
 const userCreateSchema = z
   .object({
@@ -83,6 +82,7 @@ export function UserEditSheet({
   onClose: () => void
 }) {
   const schema = getEditSchema(user)
+  const {statusMessage, setStatusMessage} = useStatusMessage()
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -98,8 +98,6 @@ export function UserEditSheet({
   }
 
   const handleSubmit = (data) => {
-    console.log(data)
-
     if (user.id) {
       pb.collection("users")
         .update(user.id, data)
@@ -107,7 +105,7 @@ export function UserEditSheet({
           handleClose()
         })
         .catch((err) => {
-          console.log(err)
+          setStatusMessage({ message: err.message, status: "error", details: err.data })
         })
     } else {
       pb.collection("users")
@@ -116,7 +114,7 @@ export function UserEditSheet({
           handleClose()
         })
         .catch((err) => {
-          console.log(err)
+          setStatusMessage({ message: err.message, status: "error", details: err.data })
         })
     }
   }
@@ -127,11 +125,18 @@ export function UserEditSheet({
         handleClose()
       })
       .catch((err) => {
-        console.log(err)
+          setStatusMessage({ message: err.message, status: "error", details: err.data })
       })
   }
+  const onOpenChange = (open) => {
+    setIsOpen(open)
+    if (!open) { // close
+      form.reset()
+      setStatusMessage(null)
+    }
+  }
   return (
-    <Sheet open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
+    <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetTrigger data-cy="trigger" asChild>
         {children}
       </SheetTrigger>
@@ -233,6 +238,8 @@ export function UserEditSheet({
               />
             </div>
             <SheetFooter>
+              <div className="flex flex-col gap-2">
+              <div className="flex flex-row gap-2">
               {user.id && (
                 <Button
                   variant="destructive"
@@ -246,13 +253,16 @@ export function UserEditSheet({
               <Button type="submit" data-cy="submit-button">
                 Save changes
               </Button>
-              <div></div>
+              <StatusMessage statusMessage={statusMessage} />
+              </div>
+              {statusMessage && statusMessage.details &&
+              <div className="max-w-[400px]">
+              <p className="text-sm text-right">Error details</p>
+              <div className="text-sm bg-slate-200 rounded p-4">{JSON.stringify(statusMessage.details)}</div>
+              </div>
+              }
+              </div>
             </SheetFooter>
-            <div className="my-4 text-right">
-              {/* error && (
-              <div className="text-red-500">{error.message || error}</div>
-            )*/}
-            </div>
           </form>
         </Form>
       </SheetContent>
