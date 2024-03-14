@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Configure scanner to run in `Skip cookie prompts` mode. This mode enables 'I don't care about cookies' extension to bypass prompts to accept cookies. This is useful when you want to scan sites that have cookie prompts that prevent you from seeing what is actually on the site. The feature utilizes [I don't care about cookies](https://chromewebstore.google.com/detail/fihnjjcciajhdojfnbdddfaoknhalnja) browser extension.
   - ⚠️ ️️️Note: this feature was previously enabled by default, but was not documented. It now must be explicitly enabled by setting `Skip cookie prompts` in Settings --> General in the scanner configuration UI.
 
+- Added new "Details" tab in the scan results UI. The tab contains detailed information about the scanned page such as request headers, host IP address and port, links found on the page etc. The table allows you to filter different types of data and pin interesting data to the top of the table. Pinned data is saved to the browser's local storage and will be available on all scan results.
+
 ### Fixed
 
 - Fixed an issue causing 'Settings saved' message to not appear when saving settings in the scanner configuration UI specifically when save was pressed more than once. 
@@ -23,6 +25,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Login page now has the Webhood logo in place of "Login" title text.
+
+- Scan results UI now has icon that displays the scan status. The icon is located in the title of the page.
+
+- In Scan results page, moved metadata about the scan as start and end time to the "Metadata" tab in the scan results UI.
 
 ### Removed
 
