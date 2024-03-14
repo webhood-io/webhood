@@ -106,9 +106,10 @@ const browserinit = async () => {
   logger.debug({ type: "browserStarting" });
   const pathToExtension = join(
     process.cwd(),
+    "extensions",
     "fihnjjcciajhdojfnbdddfaoknhalnja"
   );
-  const { ua, lang, useStealth } = await getBrowserInfo();
+  const { ua, lang, useStealth, useSkipCookiePrompt } = await getBrowserInfo();
   logger.debug({ type: "useConfig", ua, lang, useStealth });
   const pp = puppeteer;
   if (useStealth === true) pp.use(StealthPlugin());
@@ -116,12 +117,13 @@ const browserinit = async () => {
     "--disable-gpu",
     "--start-maximized",
     `--lang=${lang || "en-US"}`,
-    `--disable-extensions-except=${pathToExtension}`,
-    `--load-extension=${pathToExtension}`,
     `--window-size=${width},${height}`, // new option
     "--ignore-certificate-errors",
   ];
-  if (ua) args.push(`--user-agent=${ua}`);
+  if (useSkipCookiePrompt === true) {
+    args.push(`--disable-extensions-except=${pathToExtension}`);
+    args.push(`--load-extension=${pathToExtension}`);
+  }
   const browser = await pp.launch({
     executablePath: chromePath,
     args,
