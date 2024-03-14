@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form"
 
 import { ScannersRecord } from "@/types/pocketbase-types"
 import { pb } from "@/lib/pocketbase"
-import { ScannerLangTip, ScannerUaTip, SimultaneousScansTooltip } from "@/lib/tips"
+import { ScannerLangTip, ScannerUaTip, SimultaneousScansTooltip, StealthTooltip } from "@/lib/tips"
 import { Icons } from "@/components/icons"
 import { StatusMessage, StatusMessageProps } from "@/components/statusMessage"
 import { IconButton } from "@/components/ui/button-icon"
@@ -60,12 +60,43 @@ function SettingsInput({
     </div>
   )
 }
+function CheckboxInput({
+  label,
+  name,
+  tooltip,
+  ...props
+}: {
+  label: string
+  name: string
+  tooltip?: string
+  [key: string]: any
+}) {
+  return (
+    <div className="grid grid-cols-5 items-center py-2">
+      <Label>
+        <div className={"mr-2 flex items-center justify-between gap-1"}>
+          {label}
+          {tooltip && <GenericTooltip>{tooltip}</GenericTooltip>}
+        </div>
+      </Label>
+      <Input
+        type="checkbox"
+        name={name}
+        className={"peer h-5 w-5 shrink-0 rounded-sm border border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-50 dark:focus:ring-slate-400 dark:focus:ring-offset-slate-900"}
+        checked={props.value}
+        id={name.toLowerCase()}
+        {...props}
+      />
+    </div>
+  )
+}
 
 const scannerOptionsSchema = z.object({
   config: z.object({
     ua: z.string().optional(),
     lang: z.string().optional(),
     simultaneousScans: z.string().optional(),
+    useStealth: z.boolean().optional(),
   }),
   name: z.string(),
 })
@@ -83,7 +114,7 @@ function ScannerSettingsForm({
     resolver: zodResolver(scannerOptionsSchema),
     defaultValues: {
       config: scanner.config,
-      name: scanner.name,
+      name: scanner.name
     },
   })
   return (
@@ -137,6 +168,24 @@ function ScannerSettingsForm({
                   name="config.lang"
                   placeholder="Language"
                   tooltip={ScannerLangTip}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+          />
+        <FormField
+          control={form.control}
+          name="config.useStealth"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <CheckboxInput
+                  {...field}
+                  label="Stealth mode"
+                  name="config.useStealth"
+                  placeholder="False"
+                  tooltip={StealthTooltip}
                 />
               </FormControl>
               <FormMessage />

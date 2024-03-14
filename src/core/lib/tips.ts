@@ -5,5 +5,6 @@ const ScannerLangTip =
   "Set language of the browser" + " (e.g. en-US, zh-CN, ja-JP, etc.)"
 const SimultaneousScansTooltip =
   "Maximum number of scans that can be run at the same time"
+const StealthTooltip = "Enable stealth mode to try to circumvent bot detection"
 
-export { ScannerUaTip, ScannerLangTip, SimultaneousScansTooltip }
+export { ScannerUaTip, ScannerLangTip, SimultaneousScansTooltip, StealthTooltip }
