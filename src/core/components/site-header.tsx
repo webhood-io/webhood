@@ -12,7 +12,7 @@ export function SiteHeader() {
           <MainNav items={siteConfig.mainNav} />
         </div>
         <div>
-          <div className="p-4">
+          <div className="p-4 max-md:hidden">
             <ScanStatus />
           </div>
           <div className="flex items-center justify-center gap-2 max-md:hidden">
