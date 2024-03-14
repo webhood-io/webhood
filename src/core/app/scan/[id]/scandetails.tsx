@@ -1,6 +1,6 @@
 "use client"
 
-import { ReactNode, useEffect, useState } from "react"
+import { ReactNode, useEffect, useMemo, useState } from "react"
 import { scanSingleFetcher } from "@/hooks/use-api"
 import { useFile, useToken } from "@/hooks/use-file"
 import { useSubscription } from "@/hooks/use-sub"
@@ -17,6 +17,7 @@ import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { columns } from "./columns"
 import { DataTable } from "./data-table"
+import { Loader } from "lucide-react"
 
 interface ScanImageProps {
   scanItem: ScansResponse
@@ -143,7 +144,22 @@ function CodeViewer({ scanItem }: ScanImageProps) {
   )
 }
 
+function getScanIcon(status: string) {
+  const size = 50
+  switch (status) {
+    case "running":
+      return <Loader className="animate-spin" size={size} />
+    case "error":
+      return <Icons.error size={size} />
+    case "done":
+      return <Icons.check size={size} />
+    default:
+      return null
+  }
+}
+
 export default function ScanPage({ id }: { id: string }) {
+  const [tabState, setTabState] = useState("screenshot")
   const scanId = id
   const { data: scanItem, error } = useSWR({ slug: scanId }, scanSingleFetcher)
   const { mutate } = useSWRConfig()
@@ -152,12 +168,26 @@ export default function ScanPage({ id }: { id: string }) {
 
   const isError = scanItem?.status === "error"
   const isTraceDisabled = isError || scanItem?.html.length < 2
+  useEffect(() => {
+    if (scanItem?.status === "error") {
+      setTabState("meta")
+    }
+  }, [scanItem?.status])
+  const titleStatusImg = useMemo(() => getScanIcon(scanItem?.status), [scanItem?.status])
+  const title = useMemo(() => {
+    return (
+      <div className="flex flex-row items-end gap-2">
+        Scan results
+        {titleStatusImg}
+      </div>
+      )
+  }, [scanItem?.status])
   return (
     <div className="container grid auto-rows-max gap-6 pb-8 pt-6 md:py-10">
       <div className={"truncate"}>
         {" "}
         {/* for large url */}
-        <Title title="Scan results" subtitle={scanItem?.url} />
+        <Title title={title} subtitle={scanItem?.url} />
       </div>
       {isLoading && (
         <div className="mx-auto w-full p-4 shadow">
@@ -176,7 +206,7 @@ export default function ScanPage({ id }: { id: string }) {
         </div>
       )}
       {scanItem && (
-        <Tabs defaultValue={isError ? "meta" : "screenshot"}>
+        <Tabs defaultValue={isError ? "meta" : "screenshot"} value={tabState} onValueChange={setTabState}>
           <TabsList>
             <TabsTrigger value="screenshot" disabled={isError}>
               Screenshot
