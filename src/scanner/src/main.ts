@@ -11,7 +11,7 @@ import * as errors from "./errors";
 import { Semaphore } from "async-mutex";
 import { updateScanStatus } from "./server";
 import { ScansRecord } from "./types/pocketbase-types";
-import { Browser } from "puppeteer";
+import { Browser } from "puppeteer-core";
 import * as os from "os";
 import { logger } from "./logging";
 import { filterScans } from "./utils/other";
@@ -258,6 +258,7 @@ async function intelligentCheckForNewScans() {
     logger.debug({ type: "scanPromisesFinished" });
     if (browser) browser.close();
   } catch (error) {
+    console.log("Error while starting scanning", error);
     logger.error({
       type: "errorTryIntelligentScans",
       error: error,

@@ -7,7 +7,7 @@ import {
   launch,
   Page,
   TimeoutError,
-} from "puppeteer";
+} from "puppeteer-core";
 import { join } from "path";
 import { v4 as uuidv4 } from "uuid";
 import {
@@ -31,8 +31,8 @@ import {
   WebhoodScandataDocument,
 } from "./types/extended";
 import { logger } from "./logging";
-import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
+import puppeteerVanilla from "puppeteer-core";
 
 // @ts-ignore
 global.EventSource = EventSource;
@@ -111,8 +111,9 @@ const browserinit = async () => {
   );
   const { ua, lang, useStealth, useSkipCookiePrompt } = await getBrowserInfo();
   logger.debug({ type: "useConfig", ua, lang, useStealth });
-  const pp = puppeteer;
-  if (useStealth === true) pp.use(StealthPlugin());
+  const puppeteerExtra = await import("puppeteer-extra"); // import dynamically because we load Plugins soon after this. Plugins may change from run to run.
+  const p = new puppeteerExtra.PuppeteerExtra(puppeteerVanilla);
+  if (useStealth === true) p.use(StealthPlugin());
   let args = [
     "--disable-gpu",
     "--start-maximized",
@@ -124,7 +125,7 @@ const browserinit = async () => {
     args.push(`--disable-extensions-except=${pathToExtension}`);
     args.push(`--load-extension=${pathToExtension}`);
   }
-  const browser = await pp.launch({
+  const browser = await p.launch({
     executablePath: chromePath,
     args,
     defaultViewport: {
