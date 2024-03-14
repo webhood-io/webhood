@@ -111,7 +111,7 @@ const browserinit = async () => {
   const { ua, lang, useStealth } = await getBrowserInfo();
   logger.debug({ type: "useConfig", ua, lang, useStealth });
   const pp = puppeteer;
-  if (useStealth) pp.use(StealthPlugin());
+  if (useStealth === true) pp.use(StealthPlugin());
   let args = [
     "--disable-gpu",
     "--start-maximized",
