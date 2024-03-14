@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 
 import { Icons } from "@/components/icons"
 import { TypographySubtle } from "@/components/ui/typography/subtle"
+import { useStatusMessage } from "@/hooks/use-statusmessage"
 
 export interface StatusMessageProps {
   message: string
@@ -15,17 +16,30 @@ export function StatusMessage({
   statusMessage: StatusMessageProps
 }) {
   if (!statusMessage) return null
+  const defaultError = "Error"
+  const defaultMessage = "Success"
   return (
     <div className="flex items-center gap-2">
       {statusMessage.status === "error" && (
+        <>
         <Icons.warning className="h-5 w-5 text-red-500" />
+        </>
       )}
       {statusMessage.status === "success" && (
         <Icons.check className="h-5 w-5 text-green-500" />
       )}
       <span data-cy="status-message">
-        <TypographySubtle>{statusMessage.message}</TypographySubtle>
+        <TypographySubtle>{statusMessage.message || (statusMessage.status === "success" ? defaultMessage : defaultError)}</TypographySubtle>
       </span>
     </div>
   )
+}
+
+export function StatusMessageUncontrolled({statusMessage}: {statusMessage: StatusMessageProps}) {
+  const {statusMessage: statusMessageControlled, setStatusMessage} = useStatusMessage()
+  useEffect(() => {
+    setStatusMessage(statusMessage)
+  }, [statusMessage.message, statusMessage.status])
+  return <StatusMessage statusMessage={statusMessageControlled} />
+
 }
