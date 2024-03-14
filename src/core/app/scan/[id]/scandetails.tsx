@@ -148,11 +148,13 @@ function getScanIcon(status: string) {
   const size = 50
   switch (status) {
     case "running":
-      return <Loader className="animate-spin" size={size} />
+      return <span title="Scan is running"><Loader className="animate animate-spin" size={size}/></span>
     case "error":
-      return <Icons.error size={size} />
+      return <span title="Scan errored"><Icons.error size={size}/></span>
     case "done":
-      return <Icons.check size={size} />
+      return <span title="Scan is done"><Icons.check size={size}/></span>
+    case "pending":
+      return <span title="Scan is pending"><Icons.clock size={size}/></span>
     default:
       return null
   }
