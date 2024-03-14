@@ -2,7 +2,6 @@
  * This file was @generated using pocketbase-typegen
  */
 
-import { Json } from "./database.types"
 import { ScanData } from "./trace"
 
 export enum Collections {
