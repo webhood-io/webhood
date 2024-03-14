@@ -1,4 +1,4 @@
-import {StatusMessage} from "./statusMessage"
+import {StatusMessage, StatusMessageUncontrolled} from "./statusMessage"
 
 describe("StatusMessage", () => {
     it("shows error message", () => {
@@ -28,7 +28,7 @@ describe("StatusMessage", () => {
         cy.get('[data-cy=status-message]').should('have.text', 'Success');
     });
     it("disappears after 2 seconds", () => {
-        cy.mount(<StatusMessage statusMessage={{
+        cy.mount(<StatusMessageUncontrolled statusMessage={{
             status: "success",
             message: "Success test",
         }} />);
