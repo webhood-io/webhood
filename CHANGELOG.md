@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ⚠️ ️️️Note: this feature was previously enabled by default, but was not documented. It now must be explicitly enabled by setting `Skip cookie prompts` in Settings --> General in the scanner configuration UI.
 
 ### Fixed
+
+- Fixed an issue causing 'Settings saved' message to not appear when saving settings in the scanner configuration UI specifically when save was pressed more than once. 
+
 ### Changed
 
 - Login page now has the Webhood logo in place of "Login" title text.

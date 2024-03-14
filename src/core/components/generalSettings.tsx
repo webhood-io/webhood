@@ -37,6 +37,7 @@ import {
 import { TypographyLarge } from "@/components/ui/typography/large"
 import { TypographySubtle } from "@/components/ui/typography/subtle"
 import { Switch } from "@/components/ui/switch"
+import { useStatusMessage } from "@/hooks/use-statusmessage"
 
 function SettingsInput({
   label,
@@ -249,8 +250,7 @@ function ScannerSettingsForm({
 }
 
 export function GeneralSettings() {
-  const [statusMessage, setStatusMessage] =
-    React.useState<StatusMessageProps>(undefined)
+  const {statusMessage, setStatusMessage} = useStatusMessage()
   const [selectedScanner, setSelectedScanner] = React.useState<
     ScannersRecord | undefined
   >(undefined)
@@ -261,7 +261,6 @@ export function GeneralSettings() {
   } = useSWR("/api/scanners", scannersFetcher)
 
   const { mutate } = useSWRConfig()
-
   React.useEffect(() => {
     if (scanDataSwr && selectedScanner === undefined) {
       setSelectedScanner(scanDataSwr[0])
@@ -298,27 +297,28 @@ export function GeneralSettings() {
         <div>
           <TypographyLarge>Scanner settings</TypographyLarge>
           <TypographySubtle>
-            Set settings for scanner. Configure User agent and Language set in
-            the scanner browser.
+            Configure settings for your scanners.
           </TypographySubtle>
         </div>
+        <div className="max-w-[300px]">
         <Select
           defaultValue={selectedScanner.id}
           onValueChange={(value) =>
             setSelectedScanner(scanDataSwr?.find((e) => e.id === value))
           }
         >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select a scanner" />
+          <SelectTrigger className="truncate">
+            <SelectValue placeholder="Select a scanner"/>
           </SelectTrigger>
           <SelectContent>
             {scanDataSwr?.map((scanner) => (
-              <SelectItem value={scanner.id}>
+              <SelectItem value={scanner.id} className="-z-100">
                 {scanner.name || scanner.id}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
+        </div>
       </div>
       <ScannerSettingsForm
         scanner={selectedScanner}
