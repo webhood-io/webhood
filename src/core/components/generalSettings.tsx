@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/select"
 import { TypographyLarge } from "@/components/ui/typography/large"
 import { TypographySubtle } from "@/components/ui/typography/subtle"
+import { Switch } from "@/components/ui/switch"
 
 function SettingsInput({
   label,
@@ -66,7 +67,7 @@ function SettingsInput({
     </div>
   )
 }
-function CheckboxInput({
+function SwitchInput({
   label,
   name,
   tooltip,
@@ -85,13 +86,9 @@ function CheckboxInput({
           {tooltip && <GenericTooltip>{tooltip}</GenericTooltip>}
         </div>
       </Label>
-      <Input
-        type="checkbox"
-        name={name}
-        className={
-          "peer h-5 w-5 shrink-0 rounded-sm border border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-50 dark:focus:ring-slate-400 dark:focus:ring-offset-slate-900"
-        }
+      <Switch
         checked={props.value}
+        onCheckedChange={props.onChange}
         id={name.toLowerCase()}
         {...props}
       />
@@ -189,7 +186,7 @@ function ScannerSettingsForm({
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <CheckboxInput
+                  <SwitchInput
                     {...field}
                     label="Stealth mode"
                     name="config.useStealth"
@@ -207,7 +204,7 @@ function ScannerSettingsForm({
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <CheckboxInput
+                  <SwitchInput
                     {...field}
                     label="Skip cookie prompts"
                     name="config.useSkipCookiePrompt"
