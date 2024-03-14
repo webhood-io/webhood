@@ -108,22 +108,22 @@ const browserinit = async () => {
     process.cwd(),
     "fihnjjcciajhdojfnbdddfaoknhalnja"
   );
-  const { ua, lang } = await getBrowserInfo();
-  const browser = await puppeteer.use(StealthPlugin()).launch({
+  const { ua, lang, useStealth } = await getBrowserInfo();
+  const pp = puppeteer;
+  if (useStealth) pp.use(StealthPlugin());
+  let args = [
+    "--disable-gpu",
+    "--start-maximized",
+    `--lang=${lang || "en-US"}`,
+    `--disable-extensions-except=${pathToExtension}`,
+    `--load-extension=${pathToExtension}`,
+    `--window-size=${width},${height}`, // new option
+    "--ignore-certificate-errors",
+  ];
+  if (ua) args.push(`--user-agent=${ua}`);
+  const browser = await pp.launch({
     executablePath: chromePath,
-    args: [
-      "--disable-gpu",
-      "--start-maximized",
-      `--user-agent=${
-        ua ||
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36"
-      }`, // TODO: change to most recent chrome version
-      `--lang=${lang || "en-US"}`,
-      `--disable-extensions-except=${pathToExtension}`,
-      `--load-extension=${pathToExtension}`,
-      `--window-size=${width},${height}`, // new option
-      "--ignore-certificate-errors",
-    ],
+    args,
     defaultViewport: {
       width: width,
       height: height,
@@ -134,7 +134,6 @@ const browserinit = async () => {
 };
 
 async function constructFromEvaluatePage(
-  scanData: ScanData,
   page: Page
 ): Promise<WebhoodScandataDocument> {
   return await page.evaluate(() => {
@@ -196,7 +195,7 @@ async function screenshot(
   logger.debug({ type: "evaluateScanData", scanId });
 
   // construct scan data
-  scanData.document = await constructFromEvaluatePage(scanData, page);
+  scanData.document = await constructFromEvaluatePage(page);
   scanData.version = "1.0";
   scanData.request = parsedRequest(getNow(), pageRes?.request());
   scanData.response = parsedResponse(getNow(), pageRes);
