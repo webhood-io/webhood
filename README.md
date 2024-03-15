@@ -8,8 +8,8 @@
 [Webhood](https://webhood.io) is a free URL scanner hosted by you, whether in AWS, Azure, Google Cloud, or your own server, you control the data. Webhood is a modern, simple and private URL scanner that helps you analyze website and find if they are safe to visit.
 
 
-![Latest release](https://img.shields.io/github/v/release/webhood-io/webhood?label=Latest%20release&style=for-the-badge)
-![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/webhood-io/webhood/publish.prod.yml?display_name=Build%20status&style=for-the-badge)
+[![Latest release](https://img.shields.io/github/v/release/webhood-io/webhood?label=Latest%20release&style=for-the-badge)](https://github.com/webhood-io/webhood/releases)
+[![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/webhood-io/webhood/publish.prod.yml?display_name=Build%20status&style=for-the-badge)](https://github.com/webhood-io/webhood/actions/workflows/publish.prod.yml)
 
 
 [![CodeQL](https://github.com/webhood-io/webhood/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/webhood-io/webhood/actions/workflows/github-code-scanning/codeql)
