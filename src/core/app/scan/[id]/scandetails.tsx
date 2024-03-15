@@ -18,6 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { columns } from "./columns"
 import { DataTable } from "./data-table"
 import { Loader } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface ScanImageProps {
   scanItem: ScansResponse
@@ -145,16 +146,16 @@ function CodeViewer({ scanItem }: ScanImageProps) {
 }
 
 function getScanIcon(status: string) {
-  const size = 50
+  const className = "md:size-[45px] size-[25px]"
   switch (status) {
     case "running":
-      return <span title="Scan is running"><Loader className="animate animate-spin" size={size}/></span>
+      return <span title="Scan is running"><Loader className={cn("animate animate-spin", className)}/></span>
     case "error":
-      return <span title="Scan errored"><Icons.error size={size}/></span>
+      return <span title="Scan errored"><Icons.error className={className} /></span>
     case "done":
-      return <span title="Scan is done"><Icons.check size={size}/></span>
+      return <span title="Scan is done"><Icons.check className={className} /></span>
     case "pending":
-      return <span title="Scan is pending"><Icons.clock size={size}/></span>
+      return <span title="Scan is pending"><Icons.clock className={className}/></span>
     default:
       return null
   }
@@ -178,7 +179,7 @@ export default function ScanPage({ id }: { id: string }) {
   const titleStatusImg = useMemo(() => getScanIcon(scanItem?.status), [scanItem?.status])
   const title = useMemo(() => {
     return (
-      <div className="flex flex-row items-end gap-2">
+      <div className="flex flex-row items-center gap-2">
         Scan results
         {titleStatusImg}
       </div>
