@@ -3,7 +3,7 @@ import Link from "next/link"
 import ScanLoading from "@/public/scan-in-progress.png"
 import X from "@/public/x.png"
 
-import { ScansRecord, ScansResponse } from "@/types/pocketbase-types"
+import { ScansRecord, ScansResponse } from "@webhood/types/pocketbase-types"
 import { dateToLocaleString, imageLoader, parseUrl } from "@/lib/utils"
 import { DataItem } from "@/components/DataItem"
 import { Icons } from "@/components/icons"
@@ -16,7 +16,7 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { ImageFileComponent } from "./ImageFileComponent"
 
-export function ScanListItem({ document }: { document: ScansRecord }) {
+export function ScanListItem({ document }: { document: ScansResponse }) {
   let img
   const fileName =
     document.screenshots &&
@@ -66,7 +66,7 @@ export function ScanListItemComponent({
   document,
   ImageComponent,
 }: {
-  document: ScansRecord
+  document: ScansResponse
   ImageComponent: React.ReactNode
 }) {
   const { protocol, host, path, query, fragment } = parseUrl(document.url)

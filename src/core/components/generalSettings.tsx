@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form"
 import useSWR, { useSWRConfig } from "swr"
 import { z } from "zod"
 
-import { ScannersRecord } from "@/types/pocketbase-types"
+import { ScannersRecord, ScannersResponse } from "@webhood/types/pocketbase-types"
 import { pb } from "@/lib/pocketbase"
 import {
   ScannerLangTip,
@@ -252,7 +252,7 @@ function ScannerSettingsForm({
 export function GeneralSettings() {
   const {statusMessage, setStatusMessage} = useStatusMessage()
   const [selectedScanner, setSelectedScanner] = React.useState<
-    ScannersRecord | undefined
+    ScannersResponse | undefined
   >(undefined)
   const {
     data: scanDataSwr,

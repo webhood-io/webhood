@@ -1,0 +1,15 @@
+{
+  "name": "@webhood/types",
+  "version": "1.0.0",
+  "repository": "https://github.com/webhood-io/webhood",
+  "author": "Markus Lehtonen @ Webhood",
+  "license": "GPL-3.0",
+  "private": true,
+  "scripts": {
+    "gen": "pocketbase-typegen --db ../backend/src/pb_data/data.db --out pocketbase-types.ts"
+  },
+  "devDependencies": {
+    "puppeteer-core": "latest",
+    "pocketbase-typegen": "latest"
+  }
+}

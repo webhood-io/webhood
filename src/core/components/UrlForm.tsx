@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form"
 import useSWR from "swr"
 import { z } from "zod"
 
-import { ScansRecord } from "@/types/pocketbase-types"
+import { ScansRecord } from "@webhood/types/pocketbase-types"
 import { pb } from "@/lib/pocketbase"
 import { generateSlug } from "@/lib/utils"
 import { Icons } from "@/components/icons"

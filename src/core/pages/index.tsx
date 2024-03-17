@@ -7,7 +7,7 @@ import { useSubscription } from "@/hooks/use-sub"
 import { useToast } from "@/hooks/use-toast"
 import useSWR, { useSWRConfig } from "swr"
 
-import { ScansResponse } from "@/types/pocketbase-types"
+import { ScansResponse } from "@webhood/types/pocketbase-types"
 import { siteConfig } from "@/config/site"
 import { Layout } from "@/components/layout"
 import { Title } from "@/components/title"

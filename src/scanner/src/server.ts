@@ -24,12 +24,12 @@ import * as errors from "./errors";
 import MemoryStream from "memorystream";
 // https://github.com/pocketbase/pocketbase/discussions/178
 import EventSource from "eventsource";
-import { ScansRecord } from "./types/pocketbase-types";
+import { ScansRecord, ScansResponse, ScanstatsResponse } from "@webhood/types/pocketbase-types";
 import {
   ScanData,
   ScanStatsRecord,
   WebhoodScandataDocument,
-} from "./types/extended";
+} from "@webhood/types/extended";
 import { logger } from "./logging";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import puppeteerVanilla from "puppeteer-core";
@@ -118,7 +118,7 @@ const browserinit = async () => {
     "--disable-gpu",
     "--start-maximized",
     `--lang=${lang || "en-US"}`,
-    `--window-size=${width},${height}`, // new option
+    `--window-size=${width},${height}`,
     "--ignore-certificate-errors",
   ];
   if (useSkipCookiePrompt === true) {
@@ -290,7 +290,7 @@ async function screenshot(
   });
 }
 
-const onGoingScans = (stats: ScanStatsRecord[]) => {
+const onGoingScans = (stats: ScanstatsResponse[]) => {
   const runningScans = stats.filter((scan) => scan.status === "running")[0];
   const pendingScans = stats.filter((scan) => scan.status === "queued")[0];
   const runningScansCount = runningScans?.count_items || 0;
@@ -309,7 +309,7 @@ async function checkForNewScans(maxScans: number) {
       throw new errors.WebhoodScannerBackendError(error);
     });
 
-  const currentlyRunningScans = onGoingScans(stats as ScanStatsRecord[]);
+  const currentlyRunningScans = onGoingScans(stats as ScanstatsResponse[]);
   const availableScans = maxScans - currentlyRunningScans;
   logger.debug({
     type: "availableScansCheck",
@@ -320,7 +320,7 @@ async function checkForNewScans(maxScans: number) {
     logger.debug({ type: "scansNotAvailableSkip" });
     return {
       scanrecords: [],
-      stats: stats as ScanStatsRecord[],
+      stats: stats as ScanstatsResponse[],
     };
   }
   const filter =
@@ -343,8 +343,8 @@ async function checkForNewScans(maxScans: number) {
     );
   }
   return {
-    scanrecords: data.items as ScansRecord[],
-    stats: stats as ScanStatsRecord[],
+    scanrecords: data.items as ScansResponse[],
+    stats: stats as ScanstatsResponse[],
   };
 }
 async function checkForOldScans() {

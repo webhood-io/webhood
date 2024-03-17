@@ -3,11 +3,11 @@
 // /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome in mac
 // C:\Program Files (x86)\Google\Chrome\Application\chrome.exe in windows
 
-import { HTTPRequest, HTTPResponse, Page } from "puppeteer";
+import { HTTPRequest, HTTPResponse, Page } from "puppeteer-core";
 import {
   WebhoodScandataRequest,
   WebhoodScandataResponse,
-} from "../types/extended";
+} from "../../../types/extended";
 
 //
 const chromePath = (function () {

@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react"
 import { scanStatsFetcher } from "@/hooks/use-api"
 import { Loader, RefreshCcw } from "lucide-react"
 import useSWR from "swr"

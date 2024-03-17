@@ -1,4 +1,4 @@
-import { Protocol, RemoteAddress, SecurityDetails } from "puppeteer";
+import { Protocol, RemoteAddress, SecurityDetails } from "puppeteer-core";
 import { BaseSystemFields, ScansStatusOptions } from "./pocketbase-types";
 
 export type ScanStatsRecord = {
@@ -51,3 +51,7 @@ export type ScanData = {
   request: WebhoodScandataRequest | null;
   response: WebhoodScandataResponse | null;
 };
+
+export type ScanOptions = {
+  scannerId?: string
+} | null;

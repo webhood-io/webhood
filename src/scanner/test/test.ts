@@ -2,7 +2,7 @@ import { expect } from "chai";
 import "mocha"; // required for types
 import { pb } from "../src/server";
 import { filterScans } from "../src/utils/other";
-import { ScansRecord } from "../src/types/pocketbase-types";
+import { ScansRecord } from "../../types/pocketbase-types";
 import { randomSlug } from "./utils";
 
 describe("other scanner tests", () => {

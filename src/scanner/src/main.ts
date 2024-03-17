@@ -10,11 +10,12 @@ import {
 import * as errors from "./errors";
 import { Semaphore } from "async-mutex";
 import { updateScanStatus } from "./server";
-import { ScansRecord } from "./types/pocketbase-types";
+import { ScansRecord, ScansResponse } from "@webhood/types/pocketbase-types";
 import { Browser } from "puppeteer-core";
 import * as os from "os";
 import { logger } from "./logging";
 import { filterScans } from "./utils/other";
+import { ScanOptions } from "@webhood/types/extended";
 
 /*
  * Main file for the scanner
@@ -160,18 +161,19 @@ async function startScanning({
   scan,
   browser,
 }: {
-  scan: ScansRecord;
+  scan: ScansResponse;
   browser: Browser;
 }) {
+  const options = scan?.options as ScanOptions;
   if (
-    scan?.options &&
-    scan.options.scannerId &&
-    scan.options.scannerId !== pb.authStore.model?.config
+    options &&
+    options.scannerId &&
+    options.scannerId !== pb.authStore.model?.config
   ) {
     logger.info({
       type: "notForThisScanner",
       scanId: scan.id,
-      scannerOptionId: scan.options.scannerId,
+      scannerOptionId: options.scannerId,
       thisScannerConfigId: pb.authStore.model?.config,
     });
     return;

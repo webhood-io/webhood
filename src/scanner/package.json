@@ -1,5 +1,5 @@
 {
-  "name": "scan-headless",
+  "name": "@webhood/scanner",
   "version": "1.0.0",
   "description": "Webhood scanner",
   "main": "dist/main.js",
@@ -9,8 +9,9 @@
     "dev": "pkgroll && NODE_ENV=development node --require dotenv/config dist/main.js",
     "prod": "node dist/main.js"
   },
-  "author": "Markus Lehtonen",
-  "license": "SEE LICENSE IN LICENSE",
+  "author": "Markus Lehtonen @ Webhood",
+  "private": true,
+  "license": "GPL-3.0-only",
   "dependencies": {
     "async-mutex": "^0.4.1",
     "dotenv": "^16.0.3",
@@ -39,7 +40,8 @@
     "ts-mocha": "^10.0.0",
     "ts-node": "^10.9.1",
     "tsx": "^3.14.0",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "@webhood/types": "*"
   },
   "volta": {
     "node": "21.6.2"

@@ -1,9 +1,10 @@
 import React from "react"
+import { useStatusMessage } from "@/hooks/use-statusmessage"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
-import { UsersResponse } from "@/types/pocketbase-types"
+import { UsersResponse } from "@webhood/types/pocketbase-types"
 import { pb } from "@/lib/pocketbase"
 import { Button } from "@/components/ui/button"
 import {
@@ -31,9 +32,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { TypographySubtle } from "./ui/typography/subtle"
-import { useStatusMessage } from "@/hooks/use-statusmessage"
 import { StatusMessage } from "./statusMessage"
+import { TypographySubtle } from "./ui/typography/subtle"
 
 const userCreateSchema = z
   .object({
@@ -82,7 +82,7 @@ export function UserEditSheet({
   onClose: () => void
 }) {
   const schema = getEditSchema(user)
-  const {statusMessage, setStatusMessage} = useStatusMessage()
+  const { statusMessage, setStatusMessage } = useStatusMessage()
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -105,7 +105,11 @@ export function UserEditSheet({
           handleClose()
         })
         .catch((err) => {
-          setStatusMessage({ message: err.message, status: "error", details: err.data })
+          setStatusMessage({
+            message: err.message,
+            status: "error",
+            details: err.data,
+          })
         })
     } else {
       pb.collection("users")
@@ -114,7 +118,11 @@ export function UserEditSheet({
           handleClose()
         })
         .catch((err) => {
-          setStatusMessage({ message: err.message, status: "error", details: err.data })
+          setStatusMessage({
+            message: err.message,
+            status: "error",
+            details: err.data,
+          })
         })
     }
   }
@@ -125,12 +133,17 @@ export function UserEditSheet({
         handleClose()
       })
       .catch((err) => {
-          setStatusMessage({ message: err.message, status: "error", details: err.data })
+        setStatusMessage({
+          message: err.message,
+          status: "error",
+          details: err.data,
+        })
       })
   }
   const onOpenChange = (open) => {
     setIsOpen(open)
-    if (!open) { // close
+    if (!open) {
+      // close
       form.reset()
       setStatusMessage(null)
     }
@@ -239,28 +252,30 @@ export function UserEditSheet({
             </div>
             <SheetFooter>
               <div className="flex flex-col gap-2">
-              <div className="flex flex-row gap-2">
-              {user.id && (
-                <Button
-                  variant="destructive"
-                  type="button"
-                  onClick={deleteUser}
-                >
-                  Delete
-                </Button>
-              )}
-              {/* TODO: add loading and errors */}
-              <Button type="submit" data-cy="submit-button">
-                Save changes
-              </Button>
-              <StatusMessage statusMessage={statusMessage} />
-              </div>
-              {statusMessage && statusMessage.details &&
-              <div className="max-w-[400px]">
-              <p className="text-sm text-right">Error details</p>
-              <div className="text-sm bg-slate-200 dark:text-slate-800 rounded p-4">{JSON.stringify(statusMessage.details)}</div>
-              </div>
-              }
+                <div className="flex flex-row gap-2">
+                  {user.id && (
+                    <Button
+                      variant="destructive"
+                      type="button"
+                      onClick={deleteUser}
+                    >
+                      Delete
+                    </Button>
+                  )}
+                  {/* TODO: add loading and errors */}
+                  <Button type="submit" data-cy="submit-button">
+                    Save changes
+                  </Button>
+                  <StatusMessage statusMessage={statusMessage} />
+                </div>
+                {statusMessage && statusMessage.details && (
+                  <div className="max-w-[400px]">
+                    <p className="text-right text-sm">Error details</p>
+                    <div className="rounded bg-slate-200 p-4 text-sm dark:text-slate-800">
+                      {JSON.stringify(statusMessage.details)}
+                    </div>
+                  </div>
+                )}
               </div>
             </SheetFooter>
           </form>

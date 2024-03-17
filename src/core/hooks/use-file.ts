@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react"
 
-import { ScansRecord } from "@/types/pocketbase-types"
+import { ScansRecord } from "@webhood/types/pocketbase-types"
 import { FileTokenContext } from "@/lib/FileTokenProvider"
 import { pb } from "@/lib/pocketbase"
 
