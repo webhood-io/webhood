@@ -2,7 +2,6 @@ import { browserinit, screenshot } from "../src/server";
 import { expect } from "chai";
 import "mocha"; // required for types
 import { pb } from "../src/server";
-import { WebhoodScannerPageError } from "../src/errors";
 import { randomSlug } from "./utils";
 
 const browser = await browserinit();
@@ -41,9 +40,9 @@ describe("Basic scanner tests", function() {
 });
 
 describe("E2E scanner tests", function() {
-  this.timeout(60000);
+  this.timeout(60000); 
   import("../src/main");
-  // remove all pending scans
+  // remove all pending scans, otherwise they will be picked up by the scanner and they wont be finished until timeout
   before(async () => {
     const scans = pb.collection("scans");
     const allScans = await scans.getFullList({ filter: 'status="pending"'})
@@ -82,3 +81,4 @@ describe("E2E scanner tests", function() {
     expect(scanResults.error).to.not.be.empty;
   });
 })
+
