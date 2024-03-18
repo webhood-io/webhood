@@ -1,0 +1,10 @@
+{
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit"
+    },
+    "eslint.alwaysShowStatus": true,
+    "editor.formatOnSave": true,
+    "prettier.requireConfig": true,
+    "prettier.configPath": "./src/core/prettier.config.js",
+    "prettier.prettierPath": "./src/core/node_modules/prettier/index.cjs", 
+}

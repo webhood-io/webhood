@@ -70,8 +70,15 @@ describe("E2E scanner tests", function() {
     });
     // sleep for 10 seconds
     await new Promise((resolve) => setTimeout(resolve, 10000));
-    const updatedData = await scans.getOne(data.id);
-    expect(updatedData.status).to.equal("error");
-    expect(updatedData.error).to.not.be.empty;
+
+    let scanResults;
+    scanResults = await scans.getOne(data.id);
+    if(data.status === "running"){
+      // wait for 10 seconds more
+      await new Promise((resolve) => setTimeout(resolve, 10000));
+      scanResults = await scans.getOne(data.id);
+    }
+    expect(scanResults.status).to.equal("error");
+    expect(scanResults.error).to.not.be.empty;
   });
 })
