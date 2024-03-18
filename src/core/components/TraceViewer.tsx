@@ -97,7 +97,7 @@ function HeadersPopover({
   return (
     <Popover>
       <PopoverTrigger>
-        <Button size="sm" variant="outline">
+        <Button size="sm" variant="subtle">
           {trigger}
         </Button>
       </PopoverTrigger>
