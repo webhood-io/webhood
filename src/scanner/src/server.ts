@@ -1,12 +1,16 @@
 // Filename: server.js
 
+import MemoryStream from "memorystream";
+import { join } from "path";
+import PocketBase from "pocketbase";
 import {
   Browser,
   HTTPResponse,
   Page,
 } from "puppeteer-core";
-import { join } from "path";
 import { v4 as uuidv4 } from "uuid";
+import * as errors from "./errors";
+import { EnvAuthStore } from "./memoryAuthStore";
 import {
   chromePath,
   getNow,
@@ -15,20 +19,12 @@ import {
   startTracing,
   stopTracing,
 } from "./utils/puppeteerUtils";
-import { EnvAuthStore } from "./memoryAuthStore";
-import PocketBase, { RecordModel } from "pocketbase";
-import * as errors from "./errors";
-import MemoryStream from "memorystream";
 // https://github.com/pocketbase/pocketbase/discussions/178
+import { ScanData, ScansResponse, ScanstatsResponse, WebhoodScandataDocument } from "@webhood/types";
 import EventSource from "eventsource";
-import { ScansResponse, ScanstatsResponse } from "@webhood/types";
-import {
-  ScanData,
-  WebhoodScandataDocument,
-} from "@webhood/types";
-import { logger } from "./logging";
-import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import puppeteerVanilla from "puppeteer-core";
+import StealthPlugin from "puppeteer-extra-plugin-stealth";
+import { logger } from "./logging";
 
 // @ts-ignore
 global.EventSource = EventSource;
@@ -36,7 +32,7 @@ global.EventSource = EventSource;
 const width = 1920;
 const height = 1080;
 
-const GOTO_TIMEOUT = 10_000; // 10 seconds
+const GOTO_TIMEOUT = 30_000; // 10 seconds
 
 if (!process.env.ENDPOINT || !process.env.SCANNER_TOKEN) {
   console.error(
@@ -72,7 +68,6 @@ const errorMessage = (message: string, scanId: string) => {
 };
 // save document
 const updateDocument = async (id: string, data: any): Promise<ScansResponse> => {
-  // todo: fix typ
   return new Promise((resolve, reject) => {
     pb.collection("scans")
       .update(id, data)
@@ -384,11 +379,8 @@ async function updateScanStatus(scanId: string, status: string) {
 }
 
 export {
-  checkForNewScans,
-  checkForOldScans,
-  browserinit,
-  screenshot,
-  updateDocument,
-  errorMessage,
-  updateScanStatus,
+  browserinit, checkForNewScans,
+  checkForOldScans, errorMessage, screenshot,
+  updateDocument, updateScanStatus
 };
+

@@ -1,19 +1,19 @@
+import { ScanOptions, ScansResponse } from "@webhood/types";
+import { Semaphore } from "async-mutex";
+import * as os from "os";
+import { Browser } from "puppeteer-core";
+import * as errors from "./errors";
+import { logger } from "./logging";
 import {
+  browserinit,
   checkForNewScans,
   checkForOldScans,
-  screenshot,
   errorMessage,
-  browserinit,
   pb,
   refreshConfig,
+  screenshot,
+  updateScanStatus,
 } from "./server";
-import * as errors from "./errors";
-import { Semaphore } from "async-mutex";
-import { updateScanStatus } from "./server";
-import { ScansResponse, ScanOptions } from "@webhood/types";
-import { Browser } from "puppeteer-core";
-import * as os from "os";
-import { logger } from "./logging";
 import { filterScans } from "./utils/other";
 
 /*
@@ -163,6 +163,7 @@ async function startScanning({
   scan: ScansResponse;
   browser: Browser;
 }) {
+  const tsNow = new Date();
   const options = scan?.options as ScanOptions;
   if (
     options &&
@@ -212,7 +213,8 @@ async function startScanning({
         errorMessage("Unknown error occurred during scan", scanId);
       }
     } finally {
-      logger.debug({ type: "scanFinished", scanId });
+      const tookSeconds = (new Date()).getSeconds() - tsNow.getSeconds()
+      logger.debug({ type: "scanFinished", scanId, tookSeconds });
     }
   }
 }
