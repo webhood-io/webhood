@@ -10,8 +10,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - 
-        name: Use Node.js
+      - uses: browser-actions/setup-chrome@v1
+      - run: chrome --version
+      - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '21.x'
