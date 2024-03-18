@@ -6,8 +6,7 @@ on:
       - 'main'
     paths:
       - 'src/scanner/**'
-    paths-ignore:
-      - 'src/scanner/test/**' 
+      - '!src/scanner/test/**' 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}/scanner 
