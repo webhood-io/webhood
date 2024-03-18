@@ -2,7 +2,7 @@ import { expect } from "chai";
 import "mocha"; // required for types
 import { pb } from "../src/server";
 import { filterScans } from "../src/utils/other";
-import { ScansRecord } from "../../types/pocketbase-types";
+import { ScansResponse } from "@webhood/types";
 import { randomSlug } from "./utils";
 
 describe("other scanner tests", () => {
@@ -18,7 +18,7 @@ describe("other scanner tests", () => {
       status: "pending",
       slug: randomSlug(),
     });
-    const scans = [localScan, publicScan] as ScansRecord[];
+    const scans = [localScan, publicScan] as ScansResponse[];
     process.env.SCANNER_NO_PRIVATE_IPS = "true";
     const filtered = await filterScans(scans);
     process.env.SCANNER_NO_PRIVATE_IPS = "false";
