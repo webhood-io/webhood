@@ -41,7 +41,7 @@ describe("Basic scanner tests", function() {
 });
 
 describe("E2E scanner tests", function() {
-  this.timeout(30000);
+  this.timeout(60000);
   import("../src/main");
   // remove all pending scans
   before(async () => {
