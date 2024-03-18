@@ -1,4 +1,4 @@
-name: Scanner mocha tests
+name: Scanner Mocha tests
 on: 
   workflow_dispatch: # manual
   push:
