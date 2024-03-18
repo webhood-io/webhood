@@ -73,7 +73,7 @@ describe("E2E scanner tests", function() {
 
     let scanResults;
     scanResults = await scans.getOne(data.id);
-    if(data.status === "running"){
+    while(scanResults.status === "running"){
       // wait for 10 seconds more
       await new Promise((resolve) => setTimeout(resolve, 10000));
       scanResults = await scans.getOne(data.id);
