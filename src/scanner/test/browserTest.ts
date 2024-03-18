@@ -23,7 +23,7 @@ describe("Basic scanner tests", function() {
     expect(finalUrl).to.equal("https://www.google.com/");
     await browser.close();
   })
-  it("should run screenshot", async () => {
+  it("should run screenshot", async (done) => {
     const scans = pb.collection("scans");
     const data = await scans.create({
       url: "https://google.com",
@@ -39,5 +39,6 @@ describe("Basic scanner tests", function() {
     expect(updatedData.screenshots).to.have.length(1);
     expect(updatedData.html).to.have.length(2); // with trace
     expect(updatedData.error).to.be.empty;
+    done();
   })
 });
