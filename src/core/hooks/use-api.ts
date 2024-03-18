@@ -5,7 +5,7 @@ import {
   ScannersResponse,
   ScansResponse,
   UsersResponse,
-} from "@webhood/types/pocketbase-types"
+} from "@webhood/types"
 import { pb } from "@/lib/pocketbase"
 
 function accountFetcher() {

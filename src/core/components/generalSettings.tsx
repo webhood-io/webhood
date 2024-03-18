@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form"
 import useSWR, { useSWRConfig } from "swr"
 import { z } from "zod"
 
-import { ScannersRecord, ScannersResponse } from "@webhood/types/pocketbase-types"
+import { ScannersRecord, ScannersResponse } from "@webhood/types"
 import { pb } from "@/lib/pocketbase"
 import {
   ScannerLangTip,

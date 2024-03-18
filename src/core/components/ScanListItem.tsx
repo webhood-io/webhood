@@ -3,7 +3,7 @@ import Link from "next/link"
 import ScanLoading from "@/public/scan-in-progress.png"
 import X from "@/public/x.png"
 
-import { ScansRecord, ScansResponse } from "@webhood/types/pocketbase-types"
+import { ScansRecord, ScansResponse } from "@webhood/types"
 import { dateToLocaleString, imageLoader, parseUrl } from "@/lib/utils"
 import { DataItem } from "@/components/DataItem"
 import { Icons } from "@/components/icons"

@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
-import { UsersResponse } from "@webhood/types/pocketbase-types"
+import { UsersResponse } from "@webhood/types"
 import { pb } from "@/lib/pocketbase"
 import { Button } from "@/components/ui/button"
 import {

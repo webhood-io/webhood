@@ -1,15 +1,15 @@
 import { useFile2, useToken } from "@/hooks/use-file"
 import { Editor } from "@monaco-editor/react"
 import { useTheme } from "next-themes"
-
-import { ScansRecord, ScansResponse } from "@webhood/types/pocketbase-types"
-import {
+import { 
+  ScansRecord,
+  ScansResponse,
   RequestTrace,
   ResponseTrace,
   TraceObj,
   Traces,
   TraceWrap,
-} from "@webhood/types/trace"
+} from "@webhood/types"
 import { siteConfig } from "@/config/site"
 import {
   Popover,

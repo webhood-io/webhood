@@ -8,7 +8,7 @@ import Editor from "@monaco-editor/react"
 import { useTheme } from "next-themes"
 import useSWR, { useSWRConfig } from "swr"
 
-import { ScansResponse } from "@webhood/types/pocketbase-types"
+import { ScansResponse } from "@webhood/types"
 import { Icons } from "@/components/icons"
 import { ImageFileComponent } from "@/components/ImageFileComponent"
 import { Title } from "@/components/title"
