@@ -1,15 +1,18 @@
 {
   "name": "@webhood/types",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "repository": "https://github.com/webhood-io/webhood",
   "author": "Markus Lehtonen @ Webhood",
   "main": "index.ts",
   "license": "GPL-3.0",
   "scripts": {
-    "gen": "pocketbase-typegen --db ../backend/src/pb_data/data.db --out db-types.ts"
+    "gen": "pocketbase-typegen --db ../backend/src/pb_data/data.db --out db-types.ts",
+    "pub": "yarn publish --access=public --no-git-tag-version"
+  },
+  "dependencies": {
+    "puppeteer-core": "latest"
   },
   "devDependencies": {
-    "pocketbase-typegen": "latest",
-    "puppeteer-core": "latest"
+    "pocketbase-typegen": "latest"
   }
 }

@@ -2,11 +2,8 @@
 
 import {
   Browser,
-  HTTPRequest,
   HTTPResponse,
-  launch,
   Page,
-  TimeoutError,
 } from "puppeteer-core";
 import { join } from "path";
 import { v4 as uuidv4 } from "uuid";
@@ -24,12 +21,11 @@ import * as errors from "./errors";
 import MemoryStream from "memorystream";
 // https://github.com/pocketbase/pocketbase/discussions/178
 import EventSource from "eventsource";
-import { ScansRecord, ScansResponse, ScanstatsResponse } from "@webhood/types/pocketbase-types";
+import { ScansResponse, ScanstatsResponse } from "@webhood/types";
 import {
   ScanData,
-  ScanStatsRecord,
   WebhoodScandataDocument,
-} from "@webhood/types/extended";
+} from "@webhood/types";
 import { logger } from "./logging";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import puppeteerVanilla from "puppeteer-core";

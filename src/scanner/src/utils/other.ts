@@ -1,6 +1,6 @@
 import { errorMessage } from "../server";
 import { logger } from "../logging";
-import { ScansRecord, ScansResponse } from "../../../types/pocketbase-types";
+import { ScansResponse } from "@webhood/types";
 import { resolvesPublicIp } from "./dnsUtils";
 
 export async function filterScans(

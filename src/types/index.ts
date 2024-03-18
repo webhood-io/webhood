@@ -1,4 +1,5 @@
-import { Protocol, RemoteAddress } from "puppeteer-core";
+// TODO: remove puppeteer-core from dependency, bundle 
+import { Protocol, RemoteAddress } from "puppeteer-core/lib/types";
 export * from "./db"
 
 

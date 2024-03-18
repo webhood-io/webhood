@@ -10,12 +10,11 @@ import {
 import * as errors from "./errors";
 import { Semaphore } from "async-mutex";
 import { updateScanStatus } from "./server";
-import { ScansRecord, ScansResponse } from "@webhood/types/pocketbase-types";
+import { ScansResponse, ScanOptions } from "@webhood/types";
 import { Browser } from "puppeteer-core";
 import * as os from "os";
 import { logger } from "./logging";
 import { filterScans } from "./utils/other";
-import { ScanOptions } from "@webhood/types/extended";
 
 /*
  * Main file for the scanner

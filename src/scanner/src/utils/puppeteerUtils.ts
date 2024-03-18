@@ -7,7 +7,7 @@ import { HTTPRequest, HTTPResponse, Page } from "puppeteer-core";
 import {
   WebhoodScandataRequest,
   WebhoodScandataResponse,
-} from "../../../types/extended";
+} from "@webhood/types";
 
 //
 const chromePath = (function () {

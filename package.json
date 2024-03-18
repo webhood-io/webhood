@@ -9,8 +9,5 @@
     },
     "devDependencies": {
         "cypress": "latest"
-    },
-    "workspaces": [
-        "src/*"
-    ]
+    }
 }
