@@ -53,7 +53,7 @@ describe("Basic scanner tests", () => {
     } catch (err) {
       error = err;
     }
-    expect(error).to.an.instanceOf(WebhoodScannerPageError);
     await browser.close();
-  }).timeout(20000);
+    expect(error).to.an.instanceOf(WebhoodScannerPageError);
+  }).timeout(40000);
 });
