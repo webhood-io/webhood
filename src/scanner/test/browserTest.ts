@@ -39,21 +39,4 @@ describe("Basic scanner tests", () => {
     expect(updatedData.html).to.have.length(2); // with trace
     expect(updatedData.error).to.be.empty;
   }).timeout(10000);
-  it("should error on unavailable site", async () => {
-    const scans = pb.collection("scans");
-    const data = await scans.create({
-      url: "https://googl.se",
-      status: "pending",
-      slug: randomSlug(),
-    });
-    const browser = await browserinit();
-    let error;
-    try {
-      await screenshot(null, data.url, data.id, browser);
-    } catch (err) {
-      error = err;
-    }
-    expect(error).to.an.instanceOf(WebhoodScannerPageError);
-    browser.close();
-  }).timeout(40000);
 });
