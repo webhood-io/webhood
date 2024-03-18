@@ -16,7 +16,7 @@ import {
   stopTracing,
 } from "./utils/puppeteerUtils";
 import { EnvAuthStore } from "./memoryAuthStore";
-import PocketBase from "pocketbase";
+import PocketBase, { RecordModel } from "pocketbase";
 import * as errors from "./errors";
 import MemoryStream from "memorystream";
 // https://github.com/pocketbase/pocketbase/discussions/178
@@ -71,19 +71,18 @@ const errorMessage = (message: string, scanId: string) => {
   }
 };
 // save document
-const updateDocument = async (id: string, data: any) => {
+const updateDocument = async (id: string, data: any): Promise<ScansResponse> => {
   // todo: fix typ
-  const promise = new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     pb.collection("scans")
       .update(id, data)
       .then((response) => {
-        resolve(response);
+        resolve(response as ScansResponse);
       })
       .catch((error) => {
         reject(error);
       });
   });
-  return promise;
 };
 
 export async function getBrowserInfo() {

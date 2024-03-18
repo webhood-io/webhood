@@ -8,6 +8,7 @@ import {
   WebhoodScandataRequest,
   WebhoodScandataResponse,
 } from "@webhood/types";
+import MemoryStream from "memorystream";
 
 //
 const chromePath = (function () {
@@ -73,7 +74,7 @@ const parsedRequest = (
   };
 };
 
-function startTracing(page: Page, stream: any): undefined {
+function startTracing(page: Page, stream: MemoryStream): void {
   const now = getNow();
   /*
     await page.tracing.start({
@@ -107,7 +108,7 @@ function startTracing(page: Page, stream: any): undefined {
   });
   return;
 }
-function stopTracing(stream: any): object {
+function stopTracing(stream: MemoryStream): object {
   const streamData = stream.read().toString().split("\n") as Array<string>;
   const streamDataArr = [] as Array<object>;
   streamData.forEach((element) => {
