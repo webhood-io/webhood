@@ -1,15 +1,8 @@
-import { useFile2, useToken } from "@/hooks/use-file"
+import { useFile2 } from "@/hooks/use-file"
 import { Editor } from "@monaco-editor/react"
+import { ScansResponse, Traces } from "@webhood/types"
 import { useTheme } from "next-themes"
-import { 
-  ScansRecord,
-  ScansResponse,
-  RequestTrace,
-  ResponseTrace,
-  TraceObj,
-  Traces,
-  TraceWrap,
-} from "@webhood/types"
+
 import { siteConfig } from "@/config/site"
 import {
   Popover,

@@ -1,5 +1,5 @@
-import {UserEditSheet} from "./UserEditSheet"
-import {newUser} from "./accountSettings"
+import { UserEditSheet } from "./UserEditSheet";
+import { newUser } from "./accountSettings";
 
 const existingUser = {
     id: "1",

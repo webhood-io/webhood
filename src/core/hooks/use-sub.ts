@@ -18,8 +18,7 @@ export function useSubscription(
   collection: string,
   selector: string,
   update: () => void
-)
- {
+) {
   useEffect(() => {
     // subscribe to changes in scan. on return, cleanup
     if (!selector) return

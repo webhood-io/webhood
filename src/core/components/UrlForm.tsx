@@ -3,16 +3,20 @@
 import { useState } from "react"
 import { scannersFetcher } from "@/hooks/use-api"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { ScansRecord } from "@webhood/types"
 import { AlertCircle } from "lucide-react"
 import { useForm } from "react-hook-form"
 import useSWR from "swr"
 import { z } from "zod"
 
-import { ScansRecord } from "@webhood/types"
 import { pb } from "@/lib/pocketbase"
 import { generateSlug } from "@/lib/utils"
 import { Icons } from "@/components/icons"
-import { StatusMessage, StatusMessageProps, StatusMessageUncontrolled } from "@/components/statusMessage"
+import {
+  StatusMessage,
+  StatusMessageProps,
+  StatusMessageUncontrolled,
+} from "@/components/statusMessage"
 import { IconButton } from "@/components/ui/button-icon"
 import {
   Collapsible,

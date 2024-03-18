@@ -5,10 +5,12 @@ import { scanSingleFetcher } from "@/hooks/use-api"
 import { useFile, useToken } from "@/hooks/use-file"
 import { useSubscription } from "@/hooks/use-sub"
 import Editor from "@monaco-editor/react"
+import { ScansResponse } from "@webhood/types"
+import { Loader } from "lucide-react"
 import { useTheme } from "next-themes"
 import useSWR, { useSWRConfig } from "swr"
 
-import { ScansResponse } from "@webhood/types"
+import { cn } from "@/lib/utils"
 import { Icons } from "@/components/icons"
 import { ImageFileComponent } from "@/components/ImageFileComponent"
 import { Title } from "@/components/title"
@@ -17,8 +19,6 @@ import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { columns } from "./columns"
 import { DataTable } from "./data-table"
-import { Loader } from "lucide-react"
-import { cn } from "@/lib/utils"
 
 interface ScanImageProps {
   scanItem: ScansResponse
@@ -149,13 +149,29 @@ function getScanIcon(status: string) {
   const className = "md:size-[45px] size-[25px]"
   switch (status) {
     case "running":
-      return <span title="Scan is running"><Loader className={cn("animate animate-spin", className)}/></span>
+      return (
+        <span title="Scan is running">
+          <Loader className={cn("animate animate-spin", className)} />
+        </span>
+      )
     case "error":
-      return <span title="Scan errored"><Icons.error className={className} /></span>
+      return (
+        <span title="Scan errored">
+          <Icons.error className={className} />
+        </span>
+      )
     case "done":
-      return <span title="Scan is done"><Icons.check className={className} /></span>
+      return (
+        <span title="Scan is done">
+          <Icons.check className={className} />
+        </span>
+      )
     case "pending":
-      return <span title="Scan is pending"><Icons.clock className={className}/></span>
+      return (
+        <span title="Scan is pending">
+          <Icons.clock className={className} />
+        </span>
+      )
     default:
       return null
   }
@@ -176,14 +192,17 @@ export default function ScanPage({ id }: { id: string }) {
       setTabState("meta")
     }
   }, [scanItem?.status])
-  const titleStatusImg = useMemo(() => getScanIcon(scanItem?.status), [scanItem?.status])
+  const titleStatusImg = useMemo(
+    () => getScanIcon(scanItem?.status),
+    [scanItem?.status]
+  )
   const title = useMemo(() => {
     return (
       <div className="flex flex-row items-center gap-2">
         Scan results
         {titleStatusImg}
       </div>
-      )
+    )
   }, [scanItem?.status])
   return (
     <div className="container grid auto-rows-max gap-6 pb-8 pt-6 md:py-10">
@@ -209,7 +228,11 @@ export default function ScanPage({ id }: { id: string }) {
         </div>
       )}
       {scanItem && (
-        <Tabs defaultValue={isError ? "meta" : "screenshot"} value={tabState} onValueChange={setTabState}>
+        <Tabs
+          defaultValue={isError ? "meta" : "screenshot"}
+          value={tabState}
+          onValueChange={setTabState}
+        >
           <TabsList>
             <TabsTrigger value="screenshot" disabled={isError}>
               Screenshot

@@ -10,9 +10,9 @@ const SkipCookiePromptTooltip =
   "Try to skip cookie prompts by using 'I Dont Care About Cookies' browser extension"
 
 export {
-  ScannerUaTip,
   ScannerLangTip,
+  ScannerUaTip,
   SimultaneousScansTooltip,
-  StealthTooltip,
   SkipCookiePromptTooltip,
+  StealthTooltip,
 }

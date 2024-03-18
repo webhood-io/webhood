@@ -1,22 +1,25 @@
 import { FormEvent, useState } from "react"
 import Head from "next/head"
 import { useRouter } from "next/router"
+import { useStatusMessage } from "@/hooks/use-statusmessage"
 import { useToast } from "@/hooks/use-toast"
 
 import { pb } from "@/lib/pocketbase"
 import { Icons } from "@/components/icons"
 import { Layout } from "@/components/layout"
-import { StatusMessage, StatusMessageProps } from "@/components/statusMessage"
+import { StatusMessage } from "@/components/statusMessage"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { TypographyLarge } from "@/components/ui/typography/large"
 import { TypographySubtle } from "@/components/ui/typography/subtle"
-import { useStatusMessage } from "@/hooks/use-statusmessage"
 
 export function ChangePasswordForm() {
-  const { statusMessage: passwordMessage, setStatusMessage: setPasswordMessage } = useStatusMessage()
+  const {
+    statusMessage: passwordMessage,
+    setStatusMessage: setPasswordMessage,
+  } = useStatusMessage()
   const [isLoading, setIsLoading] = useState(false)
   const setMessage = (message: string, status: "error" | "success") => {
     setPasswordMessage({ message, status })
@@ -68,7 +71,7 @@ export function ChangePasswordForm() {
         }, 2000)
       })
       .catch((error) => {
-                setMessage(error.message, "error")
+        setMessage(error.message, "error")
       })
       .finally(() => {
         setIsLoading(false)

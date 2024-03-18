@@ -1,6 +1,6 @@
-import {ScanListItem, ScanListItemComponent} from './ScanListItem';
-import X from "../public/x.png"
-import Image from "next/image"
+import Image from "next/image";
+import X from "../public/x.png";
+import { ScanListItem, ScanListItemComponent } from './ScanListItem';
 
 const testDocumentPending = {
     title: "Test",

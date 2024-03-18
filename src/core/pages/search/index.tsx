@@ -2,7 +2,6 @@ import { FormEvent, useEffect, useState } from "react"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import { scansSearchFetcher } from "@/hooks/use-api"
-import { useToken } from "@/hooks/use-file"
 import useSWR from "swr"
 import { useLocalStorage } from "usehooks-ts"
 
@@ -21,7 +20,6 @@ import {
   SelectGroup,
   SelectItem,
   SelectLabel,
-  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"

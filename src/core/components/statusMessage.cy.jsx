@@ -1,4 +1,4 @@
-import {StatusMessage, StatusMessageUncontrolled} from "./statusMessage"
+import { StatusMessage, StatusMessageUncontrolled } from "./statusMessage";
 
 describe("StatusMessage", () => {
     it("shows error message", () => {

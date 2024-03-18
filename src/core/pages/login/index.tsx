@@ -9,7 +9,6 @@ import { siteConfig } from "@/config/site"
 import { pb } from "@/lib/pocketbase"
 import { Icons } from "@/components/icons"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 

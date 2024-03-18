@@ -1,11 +1,12 @@
 import * as React from "react"
 import { scannersFetcher } from "@/hooks/use-api"
+import { useStatusMessage } from "@/hooks/use-statusmessage"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { ScannersRecord, ScannersResponse } from "@webhood/types"
 import { useForm } from "react-hook-form"
 import useSWR, { useSWRConfig } from "swr"
 import { z } from "zod"
 
-import { ScannersRecord, ScannersResponse } from "@webhood/types"
 import { pb } from "@/lib/pocketbase"
 import {
   ScannerLangTip,
@@ -34,10 +35,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
 import { TypographyLarge } from "@/components/ui/typography/large"
 import { TypographySubtle } from "@/components/ui/typography/subtle"
-import { Switch } from "@/components/ui/switch"
-import { useStatusMessage } from "@/hooks/use-statusmessage"
 
 function SettingsInput({
   label,
@@ -250,7 +250,7 @@ function ScannerSettingsForm({
 }
 
 export function GeneralSettings() {
-  const {statusMessage, setStatusMessage} = useStatusMessage()
+  const { statusMessage, setStatusMessage } = useStatusMessage()
   const [selectedScanner, setSelectedScanner] = React.useState<
     ScannersResponse | undefined
   >(undefined)
@@ -301,23 +301,23 @@ export function GeneralSettings() {
           </TypographySubtle>
         </div>
         <div className="max-w-[300px]">
-        <Select
-          defaultValue={selectedScanner.id}
-          onValueChange={(value) =>
-            setSelectedScanner(scanDataSwr?.find((e) => e.id === value))
-          }
-        >
-          <SelectTrigger className="truncate">
-            <SelectValue placeholder="Select a scanner"/>
-          </SelectTrigger>
-          <SelectContent>
-            {scanDataSwr?.map((scanner) => (
-              <SelectItem value={scanner.id} className="-z-100">
-                {scanner.name || scanner.id}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          <Select
+            defaultValue={selectedScanner.id}
+            onValueChange={(value) =>
+              setSelectedScanner(scanDataSwr?.find((e) => e.id === value))
+            }
+          >
+            <SelectTrigger className="truncate">
+              <SelectValue placeholder="Select a scanner" />
+            </SelectTrigger>
+            <SelectContent>
+              {scanDataSwr?.map((scanner) => (
+                <SelectItem value={scanner.id} className="-z-100">
+                  {scanner.name || scanner.id}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
       <ScannerSettingsForm
