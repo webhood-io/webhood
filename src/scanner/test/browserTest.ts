@@ -39,3 +39,39 @@ describe("Basic scanner tests", function() {
     expect(updatedData.error).to.be.empty;
   })
 });
+
+describe("E2E scanner tests", function() {
+  this.timeout(30000);
+  import("../src/main");
+  // remove all pending scans
+  before(async () => {
+    const scans = pb.collection("scans");
+    const allScans = await scans.getFullList({ filter: 'status="pending"'})
+    await Promise.all(allScans.map((scan) => scans.update(scan.id, { status: "error" })));
+  })
+  it("should finish scan e2s", async () => {
+    // Wait for scanner to start and subscribe to realtime
+    await new Promise((resolve) => setTimeout(resolve, 10000));
+    const scans = pb.collection("scans");
+    const data = await scans.create({
+      url: "https://google.com",
+      status: "pending",
+      slug: randomSlug(),
+    });
+    // sleep for 10 seconds
+    await new Promise((resolve) => setTimeout(resolve, 10000));
+  })
+  it("should error on bad site", async () => {
+    const scans = pb.collection("scans");
+    const data = await scans.create({
+      url: "https://googl.se",
+      status: "pending",
+      slug: randomSlug(),
+    });
+    // sleep for 10 seconds
+    await new Promise((resolve) => setTimeout(resolve, 10000));
+    const updatedData = await scans.getOne(data.id);
+    expect(updatedData.status).to.equal("error");
+    expect(updatedData.error).to.not.be.empty;
+  });
+})
