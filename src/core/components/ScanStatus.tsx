@@ -36,7 +36,7 @@ export default function ScanStatus() {
       {scanDataSwr &&
         scanDataSwr.map((scan) => {
           return (
-            <div>
+            <div key={scan.id}>
               <div
                 key={scan.id}
                 className="flex flex-row justify-between text-sm "
