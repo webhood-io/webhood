@@ -51,10 +51,6 @@ function Filter({
         : Array.from(column.getFacetedUniqueValues().keys()).sort(),
     [column.getFacetedUniqueValues()]
   )
-  console.log(
-    Array.from(column.getFacetedUniqueValues().keys()).sort(),
-    column.getFacetedUniqueValues()
-  )
   return (
     <div className="flex flex-row items-center gap-1">
       <datalist id={column.id + "list"}>
@@ -162,7 +158,14 @@ export function DataTable<TData, TValue>({
           <TableRow key={headerGroup.id}>
             {headerGroup.headers.map((header) => {
               return (
-                <TableHead key={header.id}>
+                <TableHead
+                  key={header.id}
+                  colSpan={header.colSpan}
+                  style={{
+                    // @ts-expect-error: meta is not in the types
+                    width: header.column.columnDef.meta?.size || "auto",
+                  }}
+                >
                   <div>
                     {header.column.getCanFilter() ? (
                       <Filter column={header.column} table={table} />

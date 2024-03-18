@@ -8,7 +8,11 @@ import { Button } from "@/components/ui/button"
 export const columns = [
   {
     id: "pin",
-    header: () => "Pin to top",
+    header: () => "Pin",
+    // https://github.com/TanStack/table/discussions/3192#discussioncomment-8419949
+    meta: {
+      size: "44px",
+    },
     cell: ({ row }) =>
       row.getIsPinned() ? (
         <Button size="sm" onClick={() => row.pin(false, false, false)}>
@@ -29,6 +33,9 @@ export const columns = [
   {
     accessorKey: "key",
     header: "Key",
+    meta: {
+      size: "165px",
+    },
   },
   {
     accessorKey: "value",
