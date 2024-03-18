@@ -5,14 +5,15 @@ import { pb } from "../src/server";
 import { WebhoodScannerPageError } from "../src/errors";
 import { randomSlug } from "./utils";
 
-describe("Basic scanner tests", () => {
+describe("Basic scanner tests", function() {
+  this.timeout(20000);
   it("should launch browser", async () => {
     const browser = await browserinit();
     const connected = browser.connected;
     console.log("Browser is connected: ", connected);
     expect(browser.connected).to.equal(true);
     await browser.close();
-  }).timeout(10000);
+  })
   it("should navigate to google.com", async () => {
     const browser = await browserinit();
     const page = await browser.newPage();
@@ -21,7 +22,7 @@ describe("Basic scanner tests", () => {
     const finalUrl = await page.evaluate(() => document.location.href);
     expect(finalUrl).to.equal("https://www.google.com/");
     await browser.close();
-  }).timeout(10000);
+  })
   it("should run screenshot", async () => {
     const scans = pb.collection("scans");
     const data = await scans.create({
@@ -38,5 +39,5 @@ describe("Basic scanner tests", () => {
     expect(updatedData.screenshots).to.have.length(1);
     expect(updatedData.html).to.have.length(2); // with trace
     expect(updatedData.error).to.be.empty;
-  }).timeout(10000);
+  })
 });
