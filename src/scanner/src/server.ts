@@ -98,7 +98,7 @@ export async function getBrowserInfo() {
   return data.config;
 }
 
-const browserinit = async () => {
+const browserinit = async (): Promise<Browser> => {
   logger.debug({ type: "browserStarting" });
   const pathToExtension = join(
     process.cwd(),
@@ -108,7 +108,8 @@ const browserinit = async () => {
   const { ua, lang, useStealth, useSkipCookiePrompt } = await getBrowserInfo();
   logger.debug({ type: "useConfig", ua, lang, useStealth });
   const puppeteerExtra = await import("puppeteer-extra"); // import dynamically because we load Plugins soon after this. Plugins may change from run to run.
-  const p = new puppeteerExtra.PuppeteerExtra(puppeteerVanilla);
+  // @ts-ignore
+  const p = new puppeteerExtra.PuppeteerExtra(puppeteerVanilla as VanillaPuppeteer);
   if (useStealth === true) p.use(StealthPlugin());
   let args = [
     "--disable-gpu",
@@ -130,7 +131,7 @@ const browserinit = async () => {
     },
     ignoreHTTPSErrors: true,
   });
-  return browser;
+  return browser as unknown as Browser;
 };
 
 async function constructFromEvaluatePage(

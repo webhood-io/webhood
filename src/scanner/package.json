@@ -37,6 +37,7 @@
     "mocha": "^10.2.0",
     "pino-pretty": "^10.3.1",
     "pkgroll": "^2.0.1",
+    "puppeteer": "^22.4.1",
     "ts-mocha": "^10.0.0",
     "ts-node": "^10.9.1",
     "tsx": "^3.14.0",

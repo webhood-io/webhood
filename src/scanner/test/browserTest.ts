@@ -1,5 +1,5 @@
 import { browserinit, screenshot } from "../src/server";
-import { assert, expect } from "chai";
+import { expect } from "chai";
 import "mocha"; // required for types
 import { pb } from "../src/server";
 import { WebhoodScannerPageError } from "../src/errors";
@@ -31,13 +31,13 @@ describe("Basic scanner tests", () => {
     });
     const browser = await browserinit();
     await screenshot(null, data.url, data.id, browser);
+    await browser.close();
     const updatedData = await scans.getOne(data.id);
     expect(updatedData.final_url).to.equal("https://www.google.com/");
     expect(updatedData.status).to.equal("done");
     expect(updatedData.screenshots).to.have.length(1);
     expect(updatedData.html).to.have.length(2); // with trace
     expect(updatedData.error).to.be.empty;
-    await browser.close();
   }).timeout(10000);
   it("should error on unavailable site", async () => {
     const scans = pb.collection("scans");
