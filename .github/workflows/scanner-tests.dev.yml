@@ -1,7 +1,12 @@
 name: Scanner mocha tests
 on: 
   workflow_dispatch: # manual
-#  pull_request:
+  push:
+    branches-ignore:
+      - 'main'
+    paths:
+      - 'src/scanner/**'
+  pull_request:
     
 jobs:
   scanner-test:
