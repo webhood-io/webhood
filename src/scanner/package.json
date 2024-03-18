@@ -4,7 +4,7 @@
   "description": "Webhood scanner",
   "main": "dist/main.js",
   "scripts": {
-    "test": "ts-mocha test/*.ts -r dotenv/config",
+    "test": "ts-mocha --exit test/*.ts -r dotenv/config",
     "build": "pkgroll",
     "dev": "pkgroll && NODE_ENV=development node --require dotenv/config dist/main.js",
     "prod": "node dist/main.js"
