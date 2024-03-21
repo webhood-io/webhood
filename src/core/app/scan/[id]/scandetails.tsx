@@ -1,6 +1,7 @@
 "use client"
 
 import { ReactNode, useEffect, useMemo, useState } from "react"
+import Link from "next/link"
 import { scanSingleFetcher } from "@/hooks/use-api"
 import { useFile, useToken } from "@/hooks/use-file"
 import { useSubscription } from "@/hooks/use-sub"
@@ -15,6 +16,7 @@ import { Icons } from "@/components/icons"
 import { ImageFileComponent } from "@/components/ImageFileComponent"
 import { Title } from "@/components/title"
 import Traceviewer from "@/components/TraceViewer"
+import { GenericTooltip } from "@/components/ui/generic-tooltip"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { columns } from "./columns"
@@ -94,6 +96,8 @@ function ScanDetails({ scanItem }: { scanItem: ScansResponse }) {
 }
 
 function ScanMetadetails({ scanItem }: { scanItem: ScansResponse }) {
+  const { token } = useToken()
+  const url = useFile(scanItem, "files", token, 0)
   return (
     <div className="flex flex-col gap-2 truncate">
       <h4 className="text-md font-medium dark:text-gray-300">Scan results</h4>
@@ -108,6 +112,27 @@ function ScanMetadetails({ scanItem }: { scanItem: ScansResponse }) {
       <ScanDetailItem
         label={"Error message"}
         value={scanItem?.error || <i>none</i>}
+      />
+      <ScanDetailItem
+        label={"Downloaded file"}
+        value={
+          scanItem?.files.length > 0 ? (
+            <div className="flex h-fit flex-row gap-2">
+              {scanItem?.files[0]}
+              {url && (
+                <Link className="text-blue-700 underline" href={url || ""}>
+                  Download
+                </Link>
+              )}
+              <GenericTooltip>
+                The Download link will initiate a download on your browser for a
+                .zip file containting the file downloaded from the scanned page.
+              </GenericTooltip>
+            </div>
+          ) : (
+            "No file downloaded"
+          )
+        }
       />
     </div>
   )
@@ -191,6 +216,9 @@ export default function ScanPage({ id }: { id: string }) {
     if (scanItem?.status === "error") {
       setTabState("meta")
     }
+    if (scanItem?.files.length > 0) {
+      setTabState("meta")
+    }
   }, [scanItem?.status])
   const titleStatusImg = useMemo(
     () => getScanIcon(scanItem?.status),
@@ -204,6 +232,12 @@ export default function ScanPage({ id }: { id: string }) {
       </div>
     )
   }, [scanItem?.status])
+  const hasContent = (field) => {
+    return scanItem && scanItem[field]
+  }
+  const hasFiles = (field) => {
+    return scanItem && scanItem[field] && scanItem[field].length > 0
+  }
   return (
     <div className="container grid auto-rows-max gap-6 pb-8 pt-6 md:py-10">
       <div className={"truncate"}>
@@ -234,13 +268,25 @@ export default function ScanPage({ id }: { id: string }) {
           onValueChange={setTabState}
         >
           <TabsList>
-            <TabsTrigger value="screenshot" disabled={isError}>
+            <TabsTrigger
+              value="screenshot"
+              disabled={
+                isError ||
+                (scanItem?.status === "done" && !hasFiles("screenshots"))
+              }
+            >
               Screenshot
             </TabsTrigger>
-            <TabsTrigger value="details" disabled={isError}>
+            <TabsTrigger
+              value="details"
+              disabled={isError || !hasContent("scandata")}
+            >
               Details
             </TabsTrigger>
-            <TabsTrigger value="html" disabled={isLoading || isError}>
+            <TabsTrigger
+              value="html"
+              disabled={isLoading || isError || !hasFiles("html")}
+            >
               HTML
             </TabsTrigger>
             <TabsTrigger value="trace" disabled={isTraceDisabled}>

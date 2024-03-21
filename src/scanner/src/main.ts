@@ -12,7 +12,7 @@ import {
   pb,
   refreshConfig,
   screenshot,
-  updateScanStatus,
+  updateScanStatus
 } from "./server";
 import { filterScans } from "./utils/other";
 
@@ -30,6 +30,7 @@ import { filterScans } from "./utils/other";
 
 const initialValue = 1;
 const semaphore = new Semaphore(initialValue);
+let localLock: string[] = [];
 
 const maxScansCount = (): number => {
   const simultaneousScans =
@@ -193,14 +194,13 @@ async function startScanning({
       console.log("Error while updating status", e);
     }
     const url = scan.url;
+    const prom = new Promise((resolve, reject) => {
+      screenshot(null, url, scanId, browser, resolve, reject)
+    });
     try {
-      await screenshot(null, url, scanId, browser);
+     await prom 
     } catch (e) {
-      logger.info({
-        type: "scanErrored",
-        scanId,
-      });
-      console.log("error while screenhost. ScanID:", scanId, e);
+      console.log("error while screenhost. ScanID:", scanId, e,);
       if (e instanceof errors.WebhoodScannerPageError) {
         errorMessage(e.message, scanId);
       } else if (e instanceof errors.WebhoodScannerTimeoutError) {
@@ -212,7 +212,8 @@ async function startScanning({
       } else {
         errorMessage("Unknown error occurred during scan", scanId);
       }
-    } finally {
+    }
+    finally {
       const tookSeconds = (new Date()).getSeconds() - tsNow.getSeconds()
       logger.debug({ type: "scanFinished", scanId, tookSeconds });
     }
@@ -254,8 +255,18 @@ async function intelligentCheckForNewScans() {
     const browser = await browserinit();
     await Promise.all(
       filteredScans.map(async (scan) => {
+        /* Limit possibility of race condition causing multiple scans to start. 
+         * The race condition is caused by both the setInterval and the 
+         * realtime subscription calling intelligentCheckForNewScans at the same time
+         */
+        if (localLock.includes(scan.id)) return;
+        localLock.push(scan.id);
         await updateScanStatus(scan.id, "queued");
         await startScanning({ scan, browser });
+        // remove the lock after 5 seconds
+        setTimeout(() => {
+          localLock = localLock.filter((lock) => lock !== scan.id);
+        }, 5000);
       })
     );
     logger.debug({ type: "scanPromisesFinished" });

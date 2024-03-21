@@ -1,7 +1,6 @@
-import { browserinit, screenshot } from "../src/server";
 import { expect } from "chai";
 import "mocha"; // required for types
-import { pb } from "../src/server";
+import { browserinit, pb, screenshot } from "../src/server";
 import { randomSlug } from "./utils";
 
 const browser = await browserinit();
@@ -29,7 +28,10 @@ describe("Basic scanner tests", function() {
       slug: randomSlug(),
     });
     console.log("Data created", data);
-    await screenshot(null, data.url, data.id, browser);
+    const prom = new Promise((resolve, reject) => {
+      screenshot(null, data.url, data.id, browser, resolve, reject);
+    });
+    await prom
     const updatedData = await scans.getOne(data.id);
     expect(updatedData.final_url).to.equal("https://www.google.com/");
     expect(updatedData.status).to.equal("done");
@@ -79,6 +81,27 @@ describe("E2E scanner tests", function() {
     }
     expect(scanResults.status).to.equal("error");
     expect(scanResults.error).to.not.be.empty;
+  });
+  it("should download sample file" , async () => {
+    const scans = pb.collection("scans");
+    const data = await scans.create({
+      url: "https://getsamplefiles.com/download/mp4/sample-5.mp4",
+      status: "pending",
+      slug: randomSlug(),
+    });
+    // sleep for 10 seconds
+    await new Promise((resolve) => setTimeout(resolve, 10000));
+
+    let scanResults;
+    scanResults = await scans.getOne(data.id);
+    while(scanResults.status === "running"){
+      // wait for 10 seconds more
+      await new Promise((resolve) => setTimeout(resolve, 10000));
+      scanResults = await scans.getOne(data.id);
+    }
+    expect(scanResults.status).to.equal("done");
+    expect(scanResults.error).to.be.empty;
+    expect(scanResults.files).to.have.length(1);
   });
 })
 

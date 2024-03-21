@@ -62,6 +62,7 @@ export enum ScansStatusOptions {
 export type ScansRecord<Toptions = unknown, Tscandata = unknown> = {
 	done_at?: IsoDateString
 	error?: string
+	files?: string[]
 	final_url?: string
 	html?: string[]
 	options?: null | Toptions

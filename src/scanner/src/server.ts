@@ -22,6 +22,8 @@ import {
 // https://github.com/pocketbase/pocketbase/discussions/178
 import { ScanData, ScansResponse, ScanstatsResponse, WebhoodScandataDocument } from "@webhood/types";
 import EventSource from "eventsource";
+import JSZip from "jszip";
+import fs from "node:fs";
 import puppeteerVanilla from "puppeteer-core";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import { logger } from "./logging";
@@ -33,6 +35,7 @@ const width = 1920;
 const height = 1080;
 
 const GOTO_TIMEOUT = 10_000; // 10 seconds
+const WAIT_FOR_DOWNLOAD_TIMEOUT = 5_000; // 5 seconds. This is the time to wait for a download to start without knowing if there will be a download or not
 
 if (!process.env.ENDPOINT || !process.env.SCANNER_TOKEN) {
   console.error(
@@ -143,16 +146,82 @@ async function constructFromEvaluatePage(
   });
 }
 
+const MAX_BYTES =50_000_000; // 50MB, max size of a file that can be uploaded to pocketbase. This is set in the pocketbase field configuration.
+
+type DownloadProgress = {
+  url: string;
+  name: string;
+  progress: number; // 0...1
+  state: string;
+} | undefined;
+
 async function screenshot(
   res: null,
   url: string,
   scanId: string,
-  browser: Browser
+  browser: Browser,
+  resolve: any,
+  reject: any
 ) {
   const page = await browser.newPage();
+  const client = await page.createCDPSession()
+  // set download behavior and enable events to listen for download progress
+  await client.send('Browser.setDownloadBehavior', {
+    behavior: 'allow',
+    downloadPath: './tmp',
+    eventsEnabled: true
+  })
+  let downloadProgress: DownloadProgress;
   page.on("error", (msg) => {
     logger.error({ type: "pageLoadingErrorListener", scanId });
-    throw new errors.WebhoodScannerPageError("Error while loading page:" + msg);
+    // throw new errors.WebhoodScannerPageError("Error while loading page:" + msg);
+    reject("Error while loading page:" + msg);
+  });
+  client.on("Browser.downloadWillBegin" , (msg) => {
+    downloadProgress = {
+      url: msg["url"],
+      name: msg["suggestedFilename"],
+      progress: 0,
+      state: "started"
+    }
+  });
+  client.on("Browser.downloadProgress" , (msg) => {
+    if(!downloadProgress) {
+      reject("Download size error");
+      return
+    }
+    if(msg["totalBytes"] > MAX_BYTES) {
+      logger.error({ type: "downloadSizeError", scanId });
+      reject(new errors.WebhoodScannerBackendError("Download size too large"));
+      return
+    }
+    downloadProgress.progress = msg["receivedBytes"] / msg["totalBytes"]
+    downloadProgress.state = msg["state"]
+    if(downloadProgress.state === "completed") {
+      updateScanStatus(scanId, "done")
+      const output = fs.readFileSync("./tmp/" +  downloadProgress.name);
+      var zip = new JSZip();
+      zip.file(downloadProgress.name, output)
+      zip.generateAsync({type:"blob"}).then(function(content) {
+        const formData = new FormData();
+        formData.append(
+          "files",
+          new File([content], `${downloadProgress!.name}.zip`, { type: "application/x-zip" })
+        );
+        updateDocument(scanId, {
+          status: "done",
+          done_at: new Date().toISOString(),
+          files: formData.get("files")
+        });
+        resolve("done");
+        try {
+          fs.unlinkSync("./tmp/" + downloadProgress!.name);
+        }
+        catch (e) {
+          logger.error({ type: "unlinkError", scanId });
+        }
+      })
+    }
   });
   const memstream = new MemoryStream([]);
   let scanData = {} as ScanData;
@@ -188,13 +257,24 @@ async function screenshot(
     scanId,
     next: "finalUrl",
   });
+  if(downloadProgress) {
+    logger.debug({ type: "downloadProgress", downloadProgress, scanId });
+    return
+  }
   if (page.isClosed()) {
     logger.error({ type: "pageIsClosedError", scanId });
-    throw new errors.WebhoodScannerPageError("Page is closed.");
+    reject(new errors.WebhoodScannerPageError("Page is closed."));
+    return
   }
   if(!pageRes) {
-    logger.error({ type: "pageResIsNullError", scanId });
-    throw new errors.WebhoodScannerPageError("Could not get page response.");
+    // wait for 5 seconds for any downloads to starts
+    setTimeout(() => {
+      if(!downloadProgress) {
+        logger.error({ type: "pageResIsNullError", scanId });
+        reject(new errors.WebhoodScannerPageError("Page response is null."));
+        return
+      }
+    }, WAIT_FOR_DOWNLOAD_TIMEOUT);
   }
   const finalUrl = await page.evaluate(() => document.location.href);
   logger.debug({ type: "evaluateScanData", scanId });
@@ -216,10 +296,11 @@ async function screenshot(
      * chrome-error://chromewebdata can be returned for various reasons. For example, googl.se returns this for some reason
      */
     logger.info({ type: "urlInvalid", finalUrl, scanId });
-    throw new errors.WebhoodScannerPageError(
+    reject(new errors.WebhoodScannerPageError(
       "Error while getting final url, url might be invalid. Final URL was: " +
         finalUrl
-    );
+    ));
+    return
   }
   logger.debug({ type: "evaluatedDone", finalUrl, next: "html" });
   const html = await page.content();
@@ -232,9 +313,10 @@ async function screenshot(
   } catch (e) {
     logger.error({ type: "screenshotError", scanId });
     console.log("Error while getting screenshot", scanId, e);
-    throw new errors.WebhoodScannerPageError(
+    reject(new errors.WebhoodScannerPageError(
       "Error while getting screenshot:" + e
-    );
+    ));
+    return
   }
   logger.debug({ type: "screenshotSuccess", scanId, next: "saveToDb" });
   let htmlId = uuidv4();
@@ -261,9 +343,10 @@ async function screenshot(
   } catch (e) {
     logger.error({ type: "dbSaveFormDataError", scanId });
     console.log("Error while saving formData", e);
-    throw new errors.WebhoodScannerBackendError(
+    reject(new errors.WebhoodScannerBackendError(
       "Error while saving formData:" + e
-    );
+    ));
+    return
   }
   logger.debug({
     type: "dbSaveFormDataSuccess",
@@ -281,13 +364,15 @@ async function screenshot(
   } catch (e) {
     logger.error({ type: "saveScanMetadataError", scanId });
     console.log("Error while saving final document", e);
-    throw new errors.WebhoodScannerBackendError(
+    reject( new errors.WebhoodScannerBackendError(
       "Error while saving final document:" + e
-    );
+    ));
+    return
   }
   logger.debug({
     type: "saveScanMetadataSuccess",
   });
+  resolve("done");
 }
 
 const onGoingScans = (stats: ScanstatsResponse[]) => {
