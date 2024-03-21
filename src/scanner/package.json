@@ -14,7 +14,7 @@
   "private": true,
   "license": "GPL-3.0-only",
   "dependencies": {
-    "async-mutex": "^0.4.1",
+    "async-mutex": "^0.5.0",
     "dotenv": "^16.0.3",
     "eventsource": "^2.0.2",
     "ip": "^2.0.1",
