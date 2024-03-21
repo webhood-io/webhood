@@ -32,7 +32,7 @@ global.EventSource = EventSource;
 const width = 1920;
 const height = 1080;
 
-const GOTO_TIMEOUT = 30_000; // 10 seconds
+const GOTO_TIMEOUT = 10_000; // 10 seconds
 
 if (!process.env.ENDPOINT || !process.env.SCANNER_TOKEN) {
   console.error(
@@ -161,7 +161,7 @@ async function screenshot(
   try {
     pageRes = await page.goto(url, { timeout: GOTO_TIMEOUT });
   } catch (e) {
-    logger.debug({ type: "pageLoadingTimeout", scanId });
+    logger.info({ type: "pageLoadingTimeout", scanId });
     /*
      * Some pages are slow to load and will timeout, continue with the scan in any case
      * later stages need to ensure that the page is actually loaded and has not otherwise errored
@@ -170,15 +170,17 @@ async function screenshot(
      */
   }
   // wait until page is fully loaded
-  logger.debug({ type: "waitForDocumentloaded", scanId });
-  try {
-    const waitResponse = await page.waitForNavigation({
-      waitUntil: "domcontentloaded",
-      timeout: 2000,
-    });
-    if (!pageRes) pageRes = waitResponse;
-  } catch (e) {
-    logger.debug({ type: "documentLoadedTimeout", scanId });
+  if(!pageRes) {
+    logger.debug({ type: "pageResIsNull", scanId });
+    try {
+      logger.debug({ type: "waitForNavigation", scanId });
+      pageRes = await page.waitForNavigation({
+        waitUntil: "domcontentloaded",
+        timeout: 2000,
+      });
+    } catch (error) {
+      logger.debug({ type: "documentLoadedTimeout", scanId });
+    }
   }
   logger.debug({
     type: "pageIsClosed",
