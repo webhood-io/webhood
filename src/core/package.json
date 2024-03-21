@@ -86,7 +86,7 @@
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-tailwindcss": "^3.11.0",
     "identity-obj-proxy": "^3.0.0",
-    "postcss": "latest",
+    "postcss": "^8.4.38",
     "prettier": "latest",
     "prettier-plugin-tailwindcss": "latest",
     "tailwindcss": "latest",
