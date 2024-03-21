@@ -54,7 +54,7 @@ RUN chmod +x /usr/local/bin/dumb-init
 
 
 # Copy plugin
-ADD fihnjjcciajhdojfnbdddfaoknhalnja ./fihnjjcciajhdojfnbdddfaoknhalnja
+ADD extensions ./extensions
 
 RUN groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
     && mkdir -p /home/pptruser/Downloads \

@@ -1,16 +1,30 @@
 import * as React from "react"
-import { scannerFetcher, scannersFetcher } from "@/hooks/use-api"
-import useSWR, {useSWRConfig} from "swr"
-import { z } from "zod"
+import { scannersFetcher } from "@/hooks/use-api"
+import { useStatusMessage } from "@/hooks/use-statusmessage"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { ScannersRecord, ScannersResponse } from "@webhood/types"
 import { useForm } from "react-hook-form"
+import useSWR, { useSWRConfig } from "swr"
+import { z } from "zod"
 
-import { ScannersRecord } from "@/types/pocketbase-types"
 import { pb } from "@/lib/pocketbase"
-import { ScannerLangTip, ScannerUaTip, SimultaneousScansTooltip } from "@/lib/tips"
+import {
+  ScannerLangTip,
+  ScannerUaTip,
+  SimultaneousScansTooltip,
+  SkipCookiePromptTooltip,
+  StealthTooltip,
+} from "@/lib/tips"
 import { Icons } from "@/components/icons"
 import { StatusMessage, StatusMessageProps } from "@/components/statusMessage"
 import { IconButton } from "@/components/ui/button-icon"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form"
 import { GenericTooltip } from "@/components/ui/generic-tooltip"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -21,13 +35,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form"
+import { Switch } from "@/components/ui/switch"
 import { TypographyLarge } from "@/components/ui/typography/large"
 import { TypographySubtle } from "@/components/ui/typography/subtle"
 
@@ -60,12 +68,42 @@ function SettingsInput({
     </div>
   )
 }
+function SwitchInput({
+  label,
+  name,
+  tooltip,
+  ...props
+}: {
+  label: string
+  name: string
+  tooltip?: string
+  [key: string]: any
+}) {
+  return (
+    <div className="grid grid-cols-5 items-center py-2">
+      <Label>
+        <div className={"mr-2 flex items-center justify-between gap-1"}>
+          {label}
+          {tooltip && <GenericTooltip>{tooltip}</GenericTooltip>}
+        </div>
+      </Label>
+      <Switch
+        checked={props.value}
+        onCheckedChange={props.onChange}
+        id={name.toLowerCase()}
+        {...props}
+      />
+    </div>
+  )
+}
 
 const scannerOptionsSchema = z.object({
   config: z.object({
     ua: z.string().optional(),
     lang: z.string().optional(),
     simultaneousScans: z.string().optional(),
+    useStealth: z.boolean().optional(),
+    useSkipCookiePrompt: z.boolean().optional(),
   }),
   name: z.string(),
 })
@@ -73,12 +111,12 @@ const scannerOptionsSchema = z.object({
 function ScannerSettingsForm({
   scanner,
   onSubmit,
-  statusMessage
-  }: {
-    scanner: ScannersRecord
-    onSubmit: (data: any) => void
-    statusMessage: StatusMessageProps
-  }) {
+  statusMessage,
+}: {
+  scanner: ScannersRecord
+  onSubmit: (data: any) => void
+  statusMessage: StatusMessageProps
+}) {
   const form = useForm<z.infer<typeof scannerOptionsSchema>>({
     resolver: zodResolver(scannerOptionsSchema),
     defaultValues: {
@@ -90,77 +128,113 @@ function ScannerSettingsForm({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-2">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <SettingsInput
-                  {...field}
-                  label="Name"
-                  name="name"
-                  placeholder="Friendly name for this scanner"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="config.ua"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <SettingsInput
-                  {...field}
-                  label="User Agent"
-                  name="config.ua"
-                  placeholder="User agent"
-                  tooltip={ScannerUaTip}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />   
-        <FormField
-          control={form.control}
-          name="config.lang"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <SettingsInput
-                  {...field}
-                  label="Language"
-                  name="config.lang"
-                  placeholder="Language"
-                  tooltip={ScannerLangTip}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <SettingsInput
+                    {...field}
+                    label="Name"
+                    name="name"
+                    placeholder="Friendly name for this scanner"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        <FormField
-          control={form.control}
-          name="config.simultaneousScans"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <SettingsInput
-                  {...field}
-                  label="Simultaneous Scans"
-                  name="config.simultaneousScans"
-                  placeholder="Defaults to 1 when not set"
-                  tooltip={SimultaneousScansTooltip}
-                  type="number"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          <FormField
+            control={form.control}
+            name="config.ua"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <SettingsInput
+                    {...field}
+                    label="User Agent"
+                    name="config.ua"
+                    placeholder="User agent"
+                    tooltip={ScannerUaTip}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="config.lang"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <SettingsInput
+                    {...field}
+                    label="Language"
+                    name="config.lang"
+                    placeholder="Language"
+                    tooltip={ScannerLangTip}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="config.useStealth"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <SwitchInput
+                    {...field}
+                    label="Stealth mode"
+                    name="config.useStealth"
+                    placeholder="False"
+                    tooltip={StealthTooltip}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="config.useSkipCookiePrompt"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <SwitchInput
+                    {...field}
+                    label="Skip cookie prompts"
+                    name="config.useSkipCookiePrompt"
+                    placeholder="False"
+                    tooltip={SkipCookiePromptTooltip}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="config.simultaneousScans"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <SettingsInput
+                    {...field}
+                    label="Simultaneous Scans"
+                    name="config.simultaneousScans"
+                    placeholder="Defaults to 1 when not set"
+                    tooltip={SimultaneousScansTooltip}
+                    type="number"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
         </div>
 
@@ -176,10 +250,9 @@ function ScannerSettingsForm({
 }
 
 export function GeneralSettings() {
-  const [statusMessage, setStatusMessage] =
-    React.useState<StatusMessageProps>(undefined)
+  const { statusMessage, setStatusMessage } = useStatusMessage()
   const [selectedScanner, setSelectedScanner] = React.useState<
-    ScannersRecord | undefined
+    ScannersResponse | undefined
   >(undefined)
   const {
     data: scanDataSwr,
@@ -187,8 +260,7 @@ export function GeneralSettings() {
     isLoading: isSwrLoading,
   } = useSWR("/api/scanners", scannersFetcher)
 
-  const {mutate} = useSWRConfig()
-
+  const { mutate } = useSWRConfig()
   React.useEffect(() => {
     if (scanDataSwr && selectedScanner === undefined) {
       setSelectedScanner(scanDataSwr[0])
@@ -216,9 +288,8 @@ export function GeneralSettings() {
   }
   // @ts-ignore TODO: fix this
   const { ua, lang } = selectedScanner?.config || { ua: "", lang: "" }
-  if((!scanDataSwr || scanDataSwr.length===0) && !isSwrLoading) return <div>
-    No scanners found. Add a scanner and start scanning.
-  </div>
+  if ((!scanDataSwr || scanDataSwr.length === 0) && !isSwrLoading)
+    return <div>No scanners found. Add a scanner and start scanning.</div>
   if (!selectedScanner) return <div>Loading...</div>
   return (
     <div className="flex flex-col justify-between gap-6">
@@ -226,27 +297,35 @@ export function GeneralSettings() {
         <div>
           <TypographyLarge>Scanner settings</TypographyLarge>
           <TypographySubtle>
-            Set settings for scanner. Configure User agent and Language set in
-            the scanner browser.
+            Configure settings for your scanners.
           </TypographySubtle>
         </div>
-        <Select
-          defaultValue={selectedScanner.id}
-          onValueChange={(value) =>
-            setSelectedScanner(scanDataSwr?.find((e) => e.id === value))
-          }
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select a scanner" />
-          </SelectTrigger>
-          <SelectContent>
-            {scanDataSwr?.map((scanner) => (
-              <SelectItem value={scanner.id}>{scanner.name || scanner.id}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="max-w-[300px]">
+          <Select
+            defaultValue={selectedScanner.id}
+            onValueChange={(value) =>
+              setSelectedScanner(scanDataSwr?.find((e) => e.id === value))
+            }
+          >
+            <SelectTrigger className="truncate">
+              <SelectValue placeholder="Select a scanner" />
+            </SelectTrigger>
+            <SelectContent>
+              {scanDataSwr?.map((scanner) => (
+                <SelectItem value={scanner.id} className="-z-100">
+                  {scanner.name || scanner.id}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
-      <ScannerSettingsForm scanner={selectedScanner} onSubmit={handleSubmit} key={selectedScanner.id} statusMessage={statusMessage} />
+      <ScannerSettingsForm
+        scanner={selectedScanner}
+        onSubmit={handleSubmit}
+        key={selectedScanner.id}
+        statusMessage={statusMessage}
+      />
     </div>
   )
 }

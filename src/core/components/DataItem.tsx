@@ -16,8 +16,12 @@ function Content(props: {
       onClick={props.onClick}
     >
       <div className="flex flex-row justify-between">
-        <div className="max-w-5/6 truncate">
-          {props.content || <i>Not available</i>}
+        <div className="max-w-5/6 truncate" title={props.content}>
+          {props.content === null || props.content === undefined ? (
+            <i>Empty</i>
+          ) : (
+            props.content
+          )}
         </div>
         <div>
           {props.copied && (
@@ -49,7 +53,9 @@ export function DataItem(props: {
       className="grid grid-cols-5 items-center gap-4"
       data-cy="dataitem-wrapper"
     >
-      <Label>{props.label}</Label>
+      <Label className="truncate" title={props.label}>
+        {props.label}
+      </Label>
       <Content content={props.content} copied={copied} onClick={onClick} />
     </div>
   )
@@ -61,7 +67,7 @@ export function DataItemValueOnly(props: { content: string }) {
     content: props.content,
   })
   return (
-    <div className="rounded-md border-2 border-solid p-2">
+    <div className="grid grid-cols-1 rounded-md border-2 border-solid p-2">
       <Content content={props.content} copied={copied} onClick={onClick} />
     </div>
   )

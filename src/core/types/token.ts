@@ -1,4 +1,4 @@
-import { JWTPayload, JWTVerifyResult } from "jose"
+import { JWTPayload } from "jose"
 
 export interface ApiToken extends JWTPayload {
   role: string

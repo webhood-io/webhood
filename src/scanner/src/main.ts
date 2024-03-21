@@ -1,19 +1,20 @@
+import { ScanOptions, ScansResponse } from "@webhood/types";
+import { Semaphore } from "async-mutex";
+import fs from "node:fs";
+import * as os from "os";
+import { Browser } from "puppeteer-core";
+import * as errors from "./errors";
+import { logger } from "./logging";
 import {
+  browserinit,
   checkForNewScans,
   checkForOldScans,
-  screenshot,
   errorMessage,
-  browserinit,
   pb,
   refreshConfig,
+  screenshot,
+  updateScanStatus
 } from "./server";
-import * as errors from "./errors";
-import { Semaphore } from "async-mutex";
-import { updateScanStatus } from "./server";
-import { ScansRecord } from "./types/pocketbase-types";
-import { Browser } from "puppeteer";
-import * as os from "os";
-import { logger } from "./logging";
 import { filterScans } from "./utils/other";
 
 /*
@@ -30,6 +31,11 @@ import { filterScans } from "./utils/other";
 
 const initialValue = 1;
 const semaphore = new Semaphore(initialValue);
+let localLock: string[] = [];
+
+const createTmpIfNotExists = async () => {
+  fs.mkdirSync("tmp", { recursive: true });
+}
 
 const maxScansCount = (): number => {
   const simultaneousScans =
@@ -160,18 +166,20 @@ async function startScanning({
   scan,
   browser,
 }: {
-  scan: ScansRecord;
+  scan: ScansResponse;
   browser: Browser;
 }) {
+  const tsNow = new Date();
+  const options = scan?.options as ScanOptions;
   if (
-    scan?.options &&
-    scan.options.scannerId &&
-    scan.options.scannerId !== pb.authStore.model?.config
+    options &&
+    options.scannerId &&
+    options.scannerId !== pb.authStore.model?.config
   ) {
     logger.info({
       type: "notForThisScanner",
       scanId: scan.id,
-      scannerOptionId: scan.options.scannerId,
+      scannerOptionId: options.scannerId,
       thisScannerConfigId: pb.authStore.model?.config,
     });
     return;
@@ -191,14 +199,13 @@ async function startScanning({
       console.log("Error while updating status", e);
     }
     const url = scan.url;
+    const prom = new Promise((resolve, reject) => {
+      screenshot(null, url, scanId, browser, resolve, reject)
+    });
     try {
-      await screenshot(null, url, scanId, browser);
+     await prom 
     } catch (e) {
-      logger.info({
-        type: "scanErrored",
-        scanId,
-      });
-      console.log("error while screenhost. ScanID:", scanId, e);
+      console.log("error while screenhost. ScanID:", scanId, e,);
       if (e instanceof errors.WebhoodScannerPageError) {
         errorMessage(e.message, scanId);
       } else if (e instanceof errors.WebhoodScannerTimeoutError) {
@@ -210,8 +217,10 @@ async function startScanning({
       } else {
         errorMessage("Unknown error occurred during scan", scanId);
       }
-    } finally {
-      logger.debug({ type: "scanFinished", scanId });
+    }
+    finally {
+      const tookSeconds = (new Date()).getSeconds() - tsNow.getSeconds()
+      logger.debug({ type: "scanFinished", scanId, tookSeconds });
     }
   }
 }
@@ -251,13 +260,24 @@ async function intelligentCheckForNewScans() {
     const browser = await browserinit();
     await Promise.all(
       filteredScans.map(async (scan) => {
+        /* Limit possibility of race condition causing multiple scans to start. 
+         * The race condition is caused by both the setInterval and the 
+         * realtime subscription calling intelligentCheckForNewScans at the same time
+         */
+        if (localLock.includes(scan.id)) return;
+        localLock.push(scan.id);
         await updateScanStatus(scan.id, "queued");
         await startScanning({ scan, browser });
+        // remove the lock after 5 seconds
+        setTimeout(() => {
+          localLock = localLock.filter((lock) => lock !== scan.id);
+        }, 5000);
       })
     );
     logger.debug({ type: "scanPromisesFinished" });
     if (browser) browser.close();
   } catch (error) {
+    console.log("Error while starting scanning", error);
     logger.error({
       type: "errorTryIntelligentScans",
       error: error,
@@ -279,3 +299,5 @@ process.on("unhandledRejection", (error) => {
 setInterval(async function () {
   await checkForOldScans();
 }, 15000);
+
+createTmpIfNotExists();

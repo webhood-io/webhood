@@ -1,4 +1,4 @@
-import {DataItem} from './DataItem';
+import { DataItem } from './DataItem';
 
 describe('DataItem', () => {
     beforeEach(() => {

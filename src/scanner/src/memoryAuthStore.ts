@@ -1,4 +1,4 @@
-import PocketBase, { BaseAuthStore } from 'pocketbase';
+import { BaseAuthStore } from 'pocketbase';
 import fs from 'fs';
 
 export class EnvAuthStore extends BaseAuthStore {

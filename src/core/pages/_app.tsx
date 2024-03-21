@@ -32,8 +32,8 @@ export default function App({ Component, pageProps }: AppProps) {
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <FileTokenProvider>
           <TooltipProvider delayDuration={0}>
-          <Component {...pageProps} />
-          <Toaster />
+            <Component {...pageProps} />
+            <Toaster />
           </TooltipProvider>
         </FileTokenProvider>
       </ThemeProvider>

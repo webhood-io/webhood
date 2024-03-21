@@ -1,12 +1,14 @@
 import { useEffect } from "react"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { AccountErrors, useAccount } from "@/hooks/use-api"
+import LoginLogoDark from "@/public/webhood-logo-icon-text-paths-dark.svg"
+import LoginLogo from "@/public/webhood-logo-icon-text-paths.svg"
 
 import { siteConfig } from "@/config/site"
 import { pb } from "@/lib/pocketbase"
 import { Icons } from "@/components/icons"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
@@ -101,15 +103,6 @@ function RegisterForm() {
           placeholder="Password"
           autoComplete="new-password"
         />
-        <div className="flex items-start space-x-2">
-          <Checkbox id="terms" />
-          <label
-            htmlFor="terms"
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-          >
-            Accept terms and conditions
-          </label>
-        </div>
         <Button>Register</Button>
         <div>{errorMessage}</div>
       </div>
@@ -124,12 +117,25 @@ export default function Login() {
   return (
     <div className="container h-screen">
       <div className="flex h-full flex-col justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <h1 className="text-4xl font-bold">Login</h1>
+        <div className="flex flex-col items-center">
+          <Image
+            src={LoginLogo}
+            alt="Webhood Logo"
+            width={300}
+            height={150}
+            className="dark:hidden"
+          />
+          <Image
+            src={LoginLogoDark}
+            alt="Webhood Logo Dark"
+            width={300}
+            height={150}
+            className="hidden dark:block"
+          />
           <p className="text-lg text-slate-600 dark:text-slate-400">
             Login with your local account
           </p>
-          <Tabs defaultValue={"login"}>
+          <Tabs defaultValue={"login"} className="pt-6">
             {selfRegistrationEnabled && (
               <TabsList>
                 <TabsTrigger value={"login"}>Login</TabsTrigger>

@@ -1,4 +1,4 @@
-import {UrlForm} from './UrlForm';
+import { UrlForm } from './UrlForm';
 
 describe('UrlFormComponent', () => {
     beforeEach(() => {

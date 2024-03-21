@@ -1,13 +1,9 @@
-"use client"
-
-import * as React from "react"
 import { useEffect } from "react"
 import Link from "next/link"
-import { useRouter } from "next/router"
+import { usePathname, useRouter } from "next/navigation"
 import { useAccount } from "@/hooks/use-api"
 
 import { NavItem } from "@/types/nav"
-import { pb } from "@/lib/pocketbase"
 import { cn } from "@/lib/utils"
 import { Icons } from "@/components/icons"
 import { Button } from "@/components/ui/button"
@@ -26,7 +22,7 @@ interface MainNavProps {
 
 export function MainNav({ items }: MainNavProps) {
   const router = useRouter()
-  const isValid = pb.authStore.isValid
+  const pathname = usePathname()
   const { data, loading, error } = useAccount()
   const role = data?.role
 
@@ -57,14 +53,14 @@ export function MainNav({ items }: MainNavProps) {
                       variant="ghost"
                       className={cn(
                         "-ml-2 h-8 w-full justify-between pl-2 text-left",
-                        router.pathname === item.href &&
+                        pathname === item.href &&
                           "bg-slate-100 hover:bg-gray-100 dark:bg-slate-700 dark:hover:bg-gray-700"
                       )}
                       key={index}
                       type="button"
                     >
                       {item.title}
-                      {router.pathname === item.href && (
+                      {pathname === item.href && (
                         <Icons.open className="h-4 w-4" />
                       )}
                     </Button>

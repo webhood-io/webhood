@@ -6,7 +6,7 @@ on:
       - 'main'
     paths:
       - 'src/scanner/**'
-    
+      - '!src/scanner/test/**' 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}/scanner 
@@ -17,11 +17,11 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       -
         name: Docker meta
         id: meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
@@ -31,7 +31,7 @@ jobs:
             type=sha
 
       - name: Login to GHCR
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -39,7 +39,7 @@ jobs:
 
       -
         name: Build and push
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: src/scanner
           push: ${{ github.event_name != 'pull_request' }}

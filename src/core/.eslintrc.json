@@ -4,6 +4,7 @@
   "extends": [
     "next/core-web-vitals",
     "prettier",
+    "next/babel",
     "plugin:tailwindcss/recommended"
   ],
   "plugins": ["tailwindcss"],
@@ -11,7 +12,8 @@
     "@next/next/no-html-link-for-pages": "off",
     "react/jsx-key": "off",
     "tailwindcss/no-custom-classname": "off",
-    "react-hooks/exhaustive-deps": "off"
+    "react-hooks/exhaustive-deps": "off",
+    "eslint-plugin-import/no-unassigned-import": "warn"
   },
   "settings": {
     "tailwindcss": {

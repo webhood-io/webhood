@@ -1,17 +1,22 @@
 "use client"
 
-import { FormEvent, useState } from "react"
+import { useState } from "react"
 import { scannersFetcher } from "@/hooks/use-api"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { ScansRecord } from "@webhood/types"
+import { AlertCircle } from "lucide-react"
 import { useForm } from "react-hook-form"
 import useSWR from "swr"
 import { z } from "zod"
 
-import { ScansRecord } from "@/types/pocketbase-types"
 import { pb } from "@/lib/pocketbase"
 import { generateSlug } from "@/lib/utils"
 import { Icons } from "@/components/icons"
-import { StatusMessage, StatusMessageProps } from "@/components/statusMessage"
+import {
+  StatusMessage,
+  StatusMessageProps,
+  StatusMessageUncontrolled,
+} from "@/components/statusMessage"
 import { IconButton } from "@/components/ui/button-icon"
 import {
   Collapsible,
@@ -28,7 +33,6 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
@@ -37,8 +41,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Toggle } from "@/components/ui/toggle"
-import { Button } from "./ui/button"
-import { AlertCircle } from "lucide-react"
 
 const urlFormSchema = z.object({
   url: z.string(),
@@ -58,7 +60,7 @@ export function UrlForm() {
     resolver: zodResolver(urlFormSchema),
     defaultValues: {
       options: {
-        scannerId: "",
+        scannerId: "any",
       },
       url: "",
     },
@@ -89,12 +91,13 @@ export function UrlForm() {
       setInputError({ status: "error", message: "Invalid URL" })
       return
     }
+    const scannerId = form.getValues("options.scannerId")
     const data = {
       url: url,
       slug: slug,
       status: "pending",
       options: {
-        scannerId: form.getValues("options.scannerId"),
+        scannerId: scannerId === "any" ? undefined : scannerId,
       },
     } as ScansRecord
 
@@ -127,7 +130,6 @@ export function UrlForm() {
               <FormItem>
                 <FormLabel>URL</FormLabel>
                 <FormControl>
-                  
                   <Input
                     data-cy="url-input"
                     placeholder="URL to scan"
@@ -151,7 +153,10 @@ export function UrlForm() {
             </IconButton>
             <CollapsibleTrigger asChild>
               <Toggle type="button" className="mx-2" data-cy="options-open">
-                Options {isOptionsError && <AlertCircle className="h-4 stroke-red-500" />}
+                Options{" "}
+                {isOptionsError && (
+                  <AlertCircle className="h-4 stroke-red-500" />
+                )}
               </Toggle>
             </CollapsibleTrigger>
             <CollapsibleContent className="mt-2">
@@ -163,7 +168,12 @@ export function UrlForm() {
                     <FormLabel>Scanner</FormLabel>
                     {isOptionsError && (
                       <FormDescription>
-                        <StatusMessage statusMessage={{message: "No scanners available.", status: "error"}} />
+                        <StatusMessageUncontrolled
+                          statusMessage={{
+                            message: "No scanners available.",
+                            status: "error",
+                          }}
+                        />
                       </FormDescription>
                     )}
                     <FormControl>
@@ -172,12 +182,12 @@ export function UrlForm() {
                         defaultValue={field.value}
                         name={field.name}
                       >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select scanner to run the scan" />
-                          </SelectTrigger>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select scanner to run the scan" />
+                        </SelectTrigger>
                         <SelectContent>
-                          <SelectItem key={"any"} value={""}>
-                            {"any"}
+                          <SelectItem key={"any"} value={"any"}>
+                            {"any (default)"}
                           </SelectItem>
                           {scannerDataSwr &&
                             scannerDataSwr.map((scanner) => (
@@ -190,15 +200,15 @@ export function UrlForm() {
                     </FormControl>
                     <FormMessage />
                   </FormItem>
-                  
                 )}
               />
             </CollapsibleContent>
           </Collapsible>
-              {inputError && (
-                <div data-cy="url-input-error">
-                  <StatusMessage statusMessage={inputError} />
-                </div>)}
+          {inputError && (
+            <div data-cy="url-input-error">
+              <StatusMessage statusMessage={inputError} />
+            </div>
+          )}
         </div>
       </form>
     </Form>

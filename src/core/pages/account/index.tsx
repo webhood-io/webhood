@@ -1,12 +1,13 @@
 import { FormEvent, useState } from "react"
 import Head from "next/head"
 import { useRouter } from "next/router"
+import { useStatusMessage } from "@/hooks/use-statusmessage"
 import { useToast } from "@/hooks/use-toast"
 
 import { pb } from "@/lib/pocketbase"
 import { Icons } from "@/components/icons"
 import { Layout } from "@/components/layout"
-import { StatusMessage, StatusMessageProps } from "@/components/statusMessage"
+import { StatusMessage } from "@/components/statusMessage"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -15,8 +16,10 @@ import { TypographyLarge } from "@/components/ui/typography/large"
 import { TypographySubtle } from "@/components/ui/typography/subtle"
 
 export function ChangePasswordForm() {
-  const [passwordMessage, setPasswordMessage] =
-    useState<StatusMessageProps | null>(null)
+  const {
+    statusMessage: passwordMessage,
+    setStatusMessage: setPasswordMessage,
+  } = useStatusMessage()
   const [isLoading, setIsLoading] = useState(false)
   const setMessage = (message: string, status: "error" | "success") => {
     setPasswordMessage({ message, status })

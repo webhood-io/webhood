@@ -1,4 +1,4 @@
-name: Cypress Tests
+name: Cypress Component tests
 on: 
   push:
     branches-ignore:

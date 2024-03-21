@@ -1,15 +1,8 @@
-import { useFile2, useToken } from "@/hooks/use-file"
+import { useFile2 } from "@/hooks/use-file"
 import { Editor } from "@monaco-editor/react"
+import { ScansResponse, Traces } from "@webhood/types"
 import { useTheme } from "next-themes"
 
-import { ScansRecord, ScansResponse } from "@/types/pocketbase-types"
-import {
-  RequestTrace,
-  ResponseTrace,
-  TraceObj,
-  Traces,
-  TraceWrap,
-} from "@/types/trace"
 import { siteConfig } from "@/config/site"
 import {
   Popover,
@@ -104,7 +97,7 @@ function HeadersPopover({
   return (
     <Popover>
       <PopoverTrigger>
-        <Button size="sm" variant="outline">
+        <Button size="sm" variant="subtle">
           {trigger}
         </Button>
       </PopoverTrigger>

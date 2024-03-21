@@ -1,25 +1,30 @@
 {
-  "name": "scan-headless",
+  "name": "@webhood/scanner",
   "version": "1.0.0",
   "description": "Webhood scanner",
   "main": "dist/main.js",
   "scripts": {
-    "test": "ts-mocha test/*.ts -r dotenv/config",
+    "test": "ts-mocha --exit test/*.ts -r dotenv/config",
+    "test:e2e": "ts-mocha --exit test/browserTest.ts -g E2E* -r dotenv/config",
     "build": "pkgroll",
     "dev": "pkgroll && NODE_ENV=development node --require dotenv/config dist/main.js",
     "prod": "node dist/main.js"
   },
-  "author": "Markus Lehtonen",
-  "license": "SEE LICENSE IN LICENSE",
+  "author": "Markus Lehtonen @ Webhood",
+  "private": true,
+  "license": "GPL-3.0-only",
   "dependencies": {
     "async-mutex": "^0.4.1",
     "dotenv": "^16.0.3",
     "eventsource": "^2.0.2",
     "ip": "^2.0.1",
+    "jszip": "^3.10.1",
     "memorystream": "^0.3.1",
     "pino": "^8.19.0",
     "pocketbase": "^0.21.0",
-    "puppeteer": "^22.0.0",
+    "puppeteer-core": "^22.4.1",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
@@ -30,6 +35,7 @@
     "@types/memorystream": "^0.3.3",
     "@types/mocha": "^10.0.3",
     "@types/uuid": "^9.0.4",
+    "@webhood/types": "*",
     "chai": "^4.3.10",
     "mocha": "^10.2.0",
     "pino-pretty": "^10.3.1",

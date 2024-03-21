@@ -1,12 +1,12 @@
 import { errorMessage } from "../server";
 import { logger } from "../logging";
-import { ScansRecord } from "../types/pocketbase-types";
+import { ScansResponse } from "@webhood/types";
 import { resolvesPublicIp } from "./dnsUtils";
 
 export async function filterScans(
-  scans: ScansRecord[]
-): Promise<ScansRecord[]> {
-  let filteredScans: ScansRecord[] = [];
+  scans: ScansResponse[]
+): Promise<ScansResponse[]> {
+  let filteredScans: ScansResponse[] = [];
   if (!isRestrictedPrivateIp()) return scans;
   await Promise.all(
     scans.map(async (scan) => {
