@@ -73,7 +73,12 @@ function dateToLocaleString(date: Date) {
 
 function generateSlug(url: string) {
   const now = new Date().getTime().toFixed(0)
-  const slug = `${parseUrl(url).host?.substring(0, 25)}-${now}`
+  const host =
+    parseUrl(url)
+      .host?.replaceAll(".", "-")
+      .replaceAll(":", "--")
+      .substring(0, 25) || "unknown"
+  const slug = `${encodeURIComponent(host)}-${now}`
   return slug
 }
 
