@@ -1,5 +1,6 @@
 import { ScanOptions, ScansResponse } from "@webhood/types";
 import { Semaphore } from "async-mutex";
+import fs from "node:fs";
 import * as os from "os";
 import { Browser } from "puppeteer-core";
 import * as errors from "./errors";
@@ -31,6 +32,10 @@ import { filterScans } from "./utils/other";
 const initialValue = 1;
 const semaphore = new Semaphore(initialValue);
 let localLock: string[] = [];
+
+const createTmpIfNotExists = async () => {
+  fs.mkdirSync("tmp", { recursive: true });
+}
 
 const maxScansCount = (): number => {
   const simultaneousScans =
@@ -294,3 +299,5 @@ process.on("unhandledRejection", (error) => {
 setInterval(async function () {
   await checkForOldScans();
 }, 15000);
+
+createTmpIfNotExists();
