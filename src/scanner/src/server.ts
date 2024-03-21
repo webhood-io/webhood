@@ -188,6 +188,14 @@ async function screenshot(
     scanId,
     next: "finalUrl",
   });
+  if (page.isClosed()) {
+    logger.error({ type: "pageIsClosedError", scanId });
+    throw new errors.WebhoodScannerPageError("Page is closed.");
+  }
+  if(!pageRes) {
+    logger.error({ type: "pageResIsNullError", scanId });
+    throw new errors.WebhoodScannerPageError("Could not get page response.");
+  }
   const finalUrl = await page.evaluate(() => document.location.href);
   logger.debug({ type: "evaluateScanData", scanId });
   // construct scan data
