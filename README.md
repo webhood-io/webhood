@@ -43,6 +43,6 @@ Watch "releases" of this repo to get notified of major updates.
 
 ## How it works
 
-Webhood is a combination of open source tools as well as freely available, but (currently) non-open source components that make up the full deployment that includes file storage, authentication, database, URL scanner as well as rich UI. 
+Webhood is a combination of open source tools as well as freely available open source components that make up the full deployment that includes file storage, authentication, database, URL scanner as well as rich UI. 
 
 You can check out the [architecture diagram](https://webhood.io/docs/security) to get a better idea of how Webhood works.
