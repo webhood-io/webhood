@@ -9,18 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Configure scanner to run in `Stealth mode`. Stealth mode configures the browser to appear as a real user. This is useful when you want to scan sites that block bots. The feature utilizes [puppeteer-extra-plugin-stealth](https://github.com/berstend/puppeteer-extra/tree/master/packages/puppeteer-extra-plugin-stealth).
+- Configure scanner to run in `Stealth mode`. Stealth mode tries to configure the browser to appear as a real user. This is useful when you want to scan sites that block bots. The feature utilizes [puppeteer-extra-plugin-stealth](https://github.com/berstend/puppeteer-extra/tree/master/packages/puppeteer-extra-plugin-stealth).
 
 - Configure scanner to run in `Skip cookie prompts` mode. This mode enables 'I don't care about cookies' extension to bypass prompts to accept cookies. This is useful when you want to scan sites that have cookie prompts that prevent you from seeing what is actually on the site. The feature utilizes [I don't care about cookies](https://chromewebstore.google.com/detail/fihnjjcciajhdojfnbdddfaoknhalnja) browser extension.
   - ⚠️ ️️️Note: this feature was previously enabled by default, but was not documented. It now must be explicitly enabled by setting `Skip cookie prompts` in Settings --> General in the scanner configuration UI.
 
 - Added new "Details" tab in the scan results UI. The tab contains detailed information about the scanned page such as request headers, host IP address and port, links found on the page etc. The table allows you to filter different types of data and pin interesting data to the top of the table. Pinned data is saved to the browser's local storage and will be available on all scan results.
 
+- Webhood now stores downloaded files in the database when the site automatically initiates a download. You can download the file from the scan results UI (`Metadata` tab) by clicking the `Download` link. The file is downloaded to your computer as a zip file. At the moment, the maximum file size is set to 50MB.
+
 ### Fixed
 
 - Fixed an issue causing 'Settings saved' message to not appear when saving settings in the scanner configuration UI specifically when save was pressed more than once. 
 
 - Added error handling on 'Add user' sheet. Previously, if the user registration failed due to backend error, the user was not notified of the failure.
+
+- Fixed an issue where the `slug` (a link to the scan results) was not generated correctly when the URL contained port number or an IP address. The slug is now properly URL-encoded.
+
+- Fixed some scans running twice when the user started a scan. This was caused by the scanner picking up the scan twice. The issue was fixed by adding a check to the scanner to see if the scan is already running.
 
 ### Changed
 
@@ -29,6 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Scan results UI now has icon that displays the scan status. The icon is located in the title of the page.
 
 - In Scan results page, moved metadata about the scan as start and end time to the "Metadata" tab in the scan results UI.
+
+- Buttons that open POST data and header details in the Traceviewer are now slightly more visible.
 
 ### Removed
 
