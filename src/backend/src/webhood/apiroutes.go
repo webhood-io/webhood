@@ -147,7 +147,7 @@ func ScansPostRoute(app core.App) echo.Route {
 			var hostname string
 			u, err := url.Parse(form.Data()["url"].(string))
 			if err != nil {
-				log.Fatal(err)
+				log.Println("Error parsing url: " + err.Error())
 				hostname = ""
 			} else {
 				hostname = u.Hostname()
