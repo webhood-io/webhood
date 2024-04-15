@@ -52,7 +52,7 @@
     "cmdk": "^0.2.0",
     "jose": "^4.15.5",
     "jsonwebtoken": "^9.0.2",
-    "lucide-react": "^0.282.0",
+    "lucide-react": "^0.368.0",
     "monaco-editor": "^0.45.0",
     "next": "^13.5.2",
     "next-themes": "^0.2.1",
