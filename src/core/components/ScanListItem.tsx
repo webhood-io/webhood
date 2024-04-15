@@ -28,7 +28,7 @@ export function ScanListItem({
   scanners,
 }: {
   document: ScansResponse
-  scanners: ScannersResponse[]
+  scanners?: ScannersResponse[]
 }) {
   let img
   const fileName =
