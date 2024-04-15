@@ -1,5 +1,5 @@
-import dns from "node:dns";
 import ip from "ip";
+import dns from "node:dns";
 import url from "node:url";
 
 export function resolvesPublicIp(scanurl: string): Promise<string> {

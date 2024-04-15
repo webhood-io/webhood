@@ -1,8 +1,8 @@
+import { ScansResponse } from "@webhood/types";
 import { expect } from "chai";
 import "mocha"; // required for types
-import { pb } from "../src/server";
 import { filterScans } from "../src/utils/other";
-import { ScansResponse } from "@webhood/types";
+import { pb } from "../src/utils/pbUtils";
 import { randomSlug } from "./utils";
 
 describe("other scanner tests", () => {

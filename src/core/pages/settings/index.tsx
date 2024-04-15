@@ -2,8 +2,8 @@ import Head from "next/head"
 
 import { siteConfig } from "@/config/site"
 import { AccountSettings } from "@/components/accountSettings"
-import { GeneralSettings } from "@/components/generalSettings"
 import { Layout } from "@/components/layout"
+import { ScannerSettings } from "@/components/scannerSettingsCard"
 import { Title } from "@/components/title"
 import { Container } from "@/components/ui/container"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -26,7 +26,7 @@ export default function Settings() {
             <TabsTrigger value="account">Accounts</TabsTrigger>
           </TabsList>
           <TabsContent value="general">
-            <GeneralSettings />
+            <ScannerSettings />
           </TabsContent>
           <TabsContent value="account">
             <AccountSettings />
