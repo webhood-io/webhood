@@ -1,8 +1,15 @@
+import { useMemo } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import ScanLoading from "@/public/scan-in-progress.png"
 import X from "@/public/x.png"
-import { ScansResponse } from "@webhood/types"
+import {
+  ScanData,
+  ScannersResponse,
+  ScanOptions,
+  ScansResponse,
+} from "@webhood/types"
+import { Bot, Radar, User } from "lucide-react"
 
 import { dateToLocaleString, parseUrl } from "@/lib/utils"
 import { DataItem } from "@/components/DataItem"
@@ -16,12 +23,39 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { ImageFileComponent } from "./ImageFileComponent"
 
-export function ScanListItem({ document }: { document: ScansResponse }) {
+export function ScanListItem({
+  document,
+  scanners,
+}: {
+  document: ScansResponse
+  scanners: ScannersResponse[]
+}) {
   let img
   const fileName =
     document.screenshots &&
     document.screenshots.length > 0 &&
     document.screenshots[0]
+
+  const getScannerNameFromId = (id: string): string => {
+    if (!scanners) return ""
+    return scanners.find((scanner) => scanner.id === id)?.name || ""
+  }
+  function getScanScannerId(document: ScansResponse) {
+    const scanData = document.scandata as ScanData
+    if (scanData?.version === "1.1" && scanData?.meta?.scannedByScanner) {
+      return scanData.meta.scannedByScanner
+    } else if (document.options) {
+      const scanOptions = document.options as ScanOptions
+      return scanOptions.scannerId
+    }
+    return undefined
+  }
+  const scannerName = useMemo(() => {
+    const scannerId = getScanScannerId(document)
+    if (scannerId) {
+      return getScannerNameFromId(scannerId)
+    }
+  }, [document.status])
   switch (document.status) {
     case "pending" || "queued":
       img = (
@@ -59,17 +93,29 @@ export function ScanListItem({ document }: { document: ScansResponse }) {
       )
       break
   }
-  return <ScanListItemComponent document={document} ImageComponent={img} />
+  return (
+    <ScanListItemComponent
+      document={document}
+      ImageComponent={img}
+      scannerName={scannerName}
+    />
+  )
 }
 
 export function ScanListItemComponent({
   document,
   ImageComponent,
+  scannerName,
 }: {
   document: ScansResponse
   ImageComponent: React.ReactNode
+  scannerName: string
 }) {
   const { protocol, host, path, query, fragment } = parseUrl(document.url)
+  const scanData = document.scandata as ScanData
+  const username = scanData?.version === "1.1" && scanData.meta?.initiatedBy
+  const initiatedByType =
+    scanData?.version == "1.1" && scanData.meta?.initiatedByType
   return (
     <div className="flex-rows flex justify-between py-3">
       <div className="flex w-full flex-col truncate">
@@ -142,7 +188,7 @@ export function ScanListItemComponent({
             </div>
           </PopoverContent>
         </Popover>
-        <div className="grid grid-cols-4">
+        <div className="grid grid-cols-4 text-sm">
           {/* Status */}
           <div className="flex-rows flex items-center gap-0.5 text-slate-500">
             {document.status === "pending" && <Icons.clock className="h-4" />}
@@ -150,15 +196,42 @@ export function ScanListItemComponent({
             {document.status === "running" && <Icons.loader className="h-4" />}
             {document.status === "error" && <Icons.error className="h-4" />}
             {document.status === "done" && <Icons.done className="h-4" />}
-            <div className="text-sm" data-cy="scan-status-text">
-              {document.status}
-            </div>
+            <div data-cy="scan-status-text">{document.status}</div>
           </div>
           {/* When */}
-          <div className="flex-rows flex items-center gap-0.5 text-slate-500">
-            <div className="text-sm">
-              {dateToLocaleString(new Date(document.created))}
-            </div>
+          <div
+            className="flex flex-row items-center gap-0.5 text-slate-500"
+            title="Date when the scan was initialized"
+          >
+            <div>{dateToLocaleString(new Date(document.created))}</div>
+          </div>
+          {/* Which scanner */}
+          <div
+            className="flex flex-row items-center gap-0.5 text-sm text-slate-500 dark:text-slate-400"
+            title="Scanner name"
+          >
+            {scannerName && (
+              <>
+                <Radar size={15} />
+                {scannerName}
+              </>
+            )}
+          </div>
+          {/* Who initiated */}
+          <div
+            className="flex flex-row items-center gap-0.5 text-sm text-slate-500 dark:text-slate-400"
+            title="Initiated by"
+          >
+            {username && (
+              <>
+                {initiatedByType === "user" ? (
+                  <User size={15} />
+                ) : (
+                  <Bot size={15} />
+                )}
+                {username}
+              </>
+            )}
           </div>
         </div>
       </div>

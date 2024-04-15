@@ -1,16 +1,16 @@
-// Filename: server.js
-
+import {
+  ScanDataUpdateRequest,
+  ScanDataV1_1,
+  ScanOptions,
+  ScansResponse,
+  ScanstatsResponse,
+  WebhoodScandataDocument,
+} from "@webhood/types";
 import MemoryStream from "memorystream";
 import { join } from "path";
-import PocketBase from "pocketbase";
-import {
-  Browser,
-  HTTPResponse,
-  Page,
-} from "puppeteer-core";
+import { Browser, HTTPResponse, Page } from "puppeteer-core";
 import { v4 as uuidv4 } from "uuid";
 import * as errors from "./errors";
-import { EnvAuthStore } from "./memoryAuthStore";
 import {
   chromePath,
   getNow,
@@ -20,31 +20,31 @@ import {
   stopTracing,
 } from "./utils/puppeteerUtils";
 // https://github.com/pocketbase/pocketbase/discussions/178
-import { ScanData, ScansResponse, ScanstatsResponse, WebhoodScandataDocument } from "@webhood/types";
 import EventSource from "eventsource";
 import JSZip from "jszip";
 import fs from "node:fs";
 import puppeteerVanilla from "puppeteer-core";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import { logger } from "./logging";
+import {
+  DEFAULT_RATE,
+  height,
+  rateConfig,
+  WAIT_FOR_DOWNLOAD_TIMEOUT,
+  width,
+} from "./rateConfig";
+import { cloudCaptchaPlugin } from "./utils/captcha";
+import { mergeDeep } from "./utils/other";
+import { getBrowserInfo, getScanInfoStatic, pb } from "./utils/pbUtils";
 
 // @ts-ignore
 global.EventSource = EventSource;
-
-const width = 1920;
-const height = 1080;
-
-const GOTO_TIMEOUT = 10_000; // 10 seconds
-const WAIT_FOR_DOWNLOAD_TIMEOUT = 5_000; // 5 seconds. This is the time to wait for a download to start without knowing if there will be a download or not
 
 if (!process.env.ENDPOINT || !process.env.SCANNER_TOKEN) {
   console.error(
     "Please set the ENDPOINT and SCANNER_TOKEN environment variables"
   );
 }
-
-export const pb = new PocketBase(process.env.ENDPOINT, new EnvAuthStore());
-pb.autoCancellation(false);
 
 export async function refreshConfig() {
   return await pb
@@ -70,7 +70,10 @@ const errorMessage = (message: string, scanId: string) => {
   }
 };
 // save document
-const updateDocument = async (id: string, data: any): Promise<ScansResponse> => {
+const updateDocument = async (
+  id: string,
+  data: any
+): Promise<ScansResponse> => {
   return new Promise((resolve, reject) => {
     pb.collection("scans")
       .update(id, data)
@@ -83,18 +86,6 @@ const updateDocument = async (id: string, data: any): Promise<ScansResponse> => 
   });
 };
 
-export async function getBrowserInfo() {
-  // Get config for current scanner
-  const authModel = await pb.collection("api_tokens").authRefresh({
-    expand: "config",
-  });
-  const data = authModel.record.expand?.config;
-  if (!data?.config) {
-    throw new errors.WebhoodScannerInvalidConfigError("Could not get config");
-  }
-  return data.config;
-}
-
 const browserinit = async (): Promise<Browser> => {
   logger.debug({ type: "browserStarting" });
   const pathToExtension = join(
@@ -102,8 +93,9 @@ const browserinit = async (): Promise<Browser> => {
     "extensions",
     "fihnjjcciajhdojfnbdddfaoknhalnja"
   );
-  const { ua, lang, useStealth, useSkipCookiePrompt } = await getBrowserInfo();
-  logger.debug({ type: "useConfig", ua, lang, useStealth });
+  const { scannerConfig, scannerObject } = await getBrowserInfo();
+  const { ua, lang, useStealth, useSkipCookiePrompt } = scannerConfig;
+  logger.debug({ type: "useConfig", scannerConfig });
   const puppeteerExtra = await import("puppeteer-extra"); // import dynamically because we load Plugins soon after this. Plugins may change from run to run.
   const p = new puppeteerExtra.PuppeteerExtra(puppeteerVanilla);
   if (useStealth === true) p.use(StealthPlugin());
@@ -114,9 +106,20 @@ const browserinit = async (): Promise<Browser> => {
     `--window-size=${width},${height}`,
     "--ignore-certificate-errors",
   ];
+  if (ua) args.push(`--user-agent=${ua}`);
   if (useSkipCookiePrompt === true) {
+    logger.debug({ type: "useSkipCookiePrompt" });
     args.push(`--disable-extensions-except=${pathToExtension}`);
     args.push(`--load-extension=${pathToExtension}`);
+  }
+  // Load the Cloud Captcha Resolver if enabled
+  if (
+    scannerObject.useCloudApi === true &&
+    scannerConfig.useCloudCaptchaSolver
+  ) {
+    logger.debug({ type: "useCloudCaptcha" });
+    const plugin = cloudCaptchaPlugin(scannerObject.apiToken);
+    p.use(plugin);
   }
   const browser = await p.launch({
     executablePath: chromePath,
@@ -146,100 +149,116 @@ async function constructFromEvaluatePage(
   });
 }
 
-const MAX_BYTES =50_000_000; // 50MB, max size of a file that can be uploaded to pocketbase. This is set in the pocketbase field configuration.
+const MAX_BYTES = 50_000_000; // 50MB, max size of a file that can be uploaded to pocketbase. This is set in the pocketbase field configuration.
 
-type DownloadProgress = {
-  url: string;
-  name: string;
-  progress: number; // 0...1
-  state: string;
-} | undefined;
+type DownloadProgress =
+  | {
+      url: string;
+      name: string;
+      progress: number; // 0...1
+      state: string;
+    }
+  | undefined;
 
 async function screenshot(
-  res: null,
   url: string,
   scanId: string,
   browser: Browser,
+  scanOptions: ScanOptions,
   resolve: any,
   reject: any
 ) {
   const page = await browser.newPage();
-  const client = await page.createCDPSession()
+  const client = await page.createCDPSession();
+  const config = getScanInfoStatic();
+  logger.debug({ type: "staticConfig", config });
   // set download behavior and enable events to listen for download progress
-  await client.send('Browser.setDownloadBehavior', {
-    behavior: 'allow',
-    downloadPath: './tmp',
-    eventsEnabled: true
-  })
+  await client.send("Browser.setDownloadBehavior", {
+    behavior: "allow",
+    downloadPath: "./tmp",
+    eventsEnabled: true,
+  });
   let downloadProgress: DownloadProgress;
   page.on("error", (msg) => {
     logger.error({ type: "pageLoadingErrorListener", scanId });
     // throw new errors.WebhoodScannerPageError("Error while loading page:" + msg);
     reject("Error while loading page:" + msg);
   });
-  client.on("Browser.downloadWillBegin" , (msg) => {
+  client.on("Browser.downloadWillBegin", (msg) => {
     downloadProgress = {
       url: msg["url"],
       name: msg["suggestedFilename"],
       progress: 0,
-      state: "started"
-    }
+      state: "started",
+    };
   });
-  client.on("Browser.downloadProgress" , (msg) => {
-    if(!downloadProgress) {
+  client.on("Browser.downloadProgress", (msg) => {
+    if (!downloadProgress) {
       reject("Download size error");
-      return
+      return;
     }
-    if(msg["totalBytes"] > MAX_BYTES) {
+    if (msg["totalBytes"] > MAX_BYTES) {
       logger.error({ type: "downloadSizeError", scanId });
       reject(new errors.WebhoodScannerBackendError("Download size too large"));
-      return
+      return;
     }
-    downloadProgress.progress = msg["receivedBytes"] / msg["totalBytes"]
-    downloadProgress.state = msg["state"]
-    if(downloadProgress.state === "completed") {
-      updateScanStatus(scanId, "done")
-      const output = fs.readFileSync("./tmp/" +  downloadProgress.name);
+    downloadProgress.progress = msg["receivedBytes"] / msg["totalBytes"];
+    downloadProgress.state = msg["state"];
+    if (downloadProgress.state === "completed") {
+      updateScanStatus(scanId, "done");
+      const output = fs.readFileSync("./tmp/" + downloadProgress.name);
       var zip = new JSZip();
-      zip.file(downloadProgress.name, output)
-      zip.generateAsync({type:"blob"}).then(function(content) {
+      zip.file(downloadProgress.name, output);
+      zip.generateAsync({ type: "blob" }).then(function (content) {
         const formData = new FormData();
         formData.append(
           "files",
-          new File([content], `${downloadProgress!.name}.zip`, { type: "application/x-zip" })
+          new File([content], `${downloadProgress!.name}.zip`, {
+            type: "application/x-zip",
+          })
         );
         updateDocument(scanId, {
           status: "done",
           done_at: new Date().toISOString(),
-          files: formData.get("files")
+          files: formData.get("files"),
         });
         resolve("done");
         try {
           fs.unlinkSync("./tmp/" + downloadProgress!.name);
-        }
-        catch (e) {
+        } catch (e) {
           logger.error({ type: "unlinkError", scanId });
         }
-      })
+      });
     }
   });
   const memstream = new MemoryStream([]);
-  let scanData = {} as ScanData;
+  let scanData = {} as ScanDataV1_1;
   startTracing(page, memstream);
   let pageRes: HTTPResponse | null = null;
+  const rateConfigSet = rateConfig[scanOptions?.rate || DEFAULT_RATE];
   try {
-    pageRes = await page.goto(url, { timeout: GOTO_TIMEOUT });
+    pageRes = await page.goto(url, { timeout: rateConfigSet.goto_timeout });
   } catch (e) {
     logger.info({ type: "pageLoadingTimeout", scanId });
     /*
      * Some pages are slow to load and will timeout, continue with the scan in any case
      * later stages need to ensure that the page is actually loaded and has not otherwise errored
      * example: https://globalcybersecurityforum.com/ takes more than 10 seconds to load
-     * TODO: enable setting timeout in config or per scan
      */
   }
+  if (config?.useCloudCaptchaSolver === true) {
+    try {
+      logger.debug({ type: "solveRecaptcha", scanId });
+      const results = await page.solveRecaptchas();
+      logger.debug({ type: "recaptchaResults", results, scanId });
+      // if any captchas were solved, assume we are being redirected
+      if (results.solved.length > 0) await page.waitForNavigation();
+    } catch (e) {
+      logger.error({ type: "recaptchaError", scanId });
+    }
+  }
   // wait until page is fully loaded
-  if(!pageRes) {
+  if (!pageRes) {
     logger.debug({ type: "pageResIsNull", scanId });
     try {
       logger.debug({ type: "waitForNavigation", scanId });
@@ -257,22 +276,22 @@ async function screenshot(
     scanId,
     next: "finalUrl",
   });
-  if(downloadProgress) {
+  if (downloadProgress) {
     logger.debug({ type: "downloadProgress", downloadProgress, scanId });
-    return
+    return;
   }
   if (page.isClosed()) {
     logger.error({ type: "pageIsClosedError", scanId });
     reject(new errors.WebhoodScannerPageError("Page is closed."));
-    return
+    return;
   }
-  if(!pageRes) {
+  if (!pageRes) {
     // wait for 5 seconds for any downloads to starts
     setTimeout(() => {
-      if(!downloadProgress) {
+      if (!downloadProgress) {
         logger.error({ type: "pageResIsNullError", scanId });
         reject(new errors.WebhoodScannerPageError("Page response is null."));
-        return
+        return;
       }
     }, WAIT_FOR_DOWNLOAD_TIMEOUT);
   }
@@ -280,9 +299,9 @@ async function screenshot(
   logger.debug({ type: "evaluateScanData", scanId });
   // construct scan data
   scanData.document = await constructFromEvaluatePage(page);
-  scanData.version = "1.0";
-  scanData.request = parsedRequest(getNow(), pageRes?.request());
-  scanData.response = parsedResponse(getNow(), pageRes);
+  scanData.version = "1.1";
+  scanData.request = parsedRequest(getNow(), pageRes?.request()) || undefined;
+  scanData.response = parsedResponse(getNow(), pageRes) || undefined;
 
   if (
     !finalUrl ||
@@ -290,17 +309,19 @@ async function screenshot(
     finalUrl === "about:blank#blocked" ||
     finalUrl.includes("chrome-error://chromewebdata")
   ) {
-    /*
+    /**
      * about:blank is returned when the page is not loaded
      * about:blank#blocked is returned when the page is blocked
      * chrome-error://chromewebdata can be returned for various reasons. For example, googl.se returns this for some reason
      */
     logger.info({ type: "urlInvalid", finalUrl, scanId });
-    reject(new errors.WebhoodScannerPageError(
-      "Error while getting final url, url might be invalid. Final URL was: " +
-        finalUrl
-    ));
-    return
+    reject(
+      new errors.WebhoodScannerPageError(
+        "Error while getting final url, url might be invalid. Final URL was: " +
+          finalUrl
+      )
+    );
+    return;
   }
   logger.debug({ type: "evaluatedDone", finalUrl, next: "html" });
   const html = await page.content();
@@ -313,10 +334,10 @@ async function screenshot(
   } catch (e) {
     logger.error({ type: "screenshotError", scanId });
     console.log("Error while getting screenshot", scanId, e);
-    reject(new errors.WebhoodScannerPageError(
-      "Error while getting screenshot:" + e
-    ));
-    return
+    reject(
+      new errors.WebhoodScannerPageError("Error while getting screenshot:" + e)
+    );
+    return;
   }
   logger.debug({ type: "screenshotSuccess", scanId, next: "saveToDb" });
   let htmlId = uuidv4();
@@ -343,10 +364,10 @@ async function screenshot(
   } catch (e) {
     logger.error({ type: "dbSaveFormDataError", scanId });
     console.log("Error while saving formData", e);
-    reject(new errors.WebhoodScannerBackendError(
-      "Error while saving formData:" + e
-    ));
-    return
+    reject(
+      new errors.WebhoodScannerBackendError("Error while saving formData:" + e)
+    );
+    return;
   }
   logger.debug({
     type: "dbSaveFormDataSuccess",
@@ -354,9 +375,20 @@ async function screenshot(
     next: "saveScanMetadata",
   });
   try {
+    await saveScanMetadata(scanId, scanData);
+  } catch (e) {
+    logger.error({ type: "saveScanMetadataError", scanId });
+    console.log("Error while saving scan metadata", e);
+    reject(
+      new errors.WebhoodScannerBackendError(
+        "Error while saving scan metadata:" + e
+      )
+    );
+    return;
+  }
+  try {
     const data = {
       final_url: finalUrl,
-      scandata: scanData,
       done_at: endDateTime,
       status: "done",
     };
@@ -364,10 +396,12 @@ async function screenshot(
   } catch (e) {
     logger.error({ type: "saveScanMetadataError", scanId });
     console.log("Error while saving final document", e);
-    reject( new errors.WebhoodScannerBackendError(
-      "Error while saving final document:" + e
-    ));
-    return
+    reject(
+      new errors.WebhoodScannerBackendError(
+        "Error while saving final document:" + e
+      )
+    );
+    return;
   }
   logger.debug({
     type: "saveScanMetadataSuccess",
@@ -396,7 +430,7 @@ async function checkForNewScans(maxScans: number) {
 
   const currentlyRunningScans = onGoingScans(stats as ScanstatsResponse[]);
   const availableScans = maxScans - currentlyRunningScans;
-  logger.debug({
+  logger.trace({
     type: "availableScansCheck",
     availableScans,
     currentlyRunningScans,
@@ -473,9 +507,32 @@ async function updateScanStatus(scanId: string, status: string) {
     });
 }
 
-export {
-  browserinit, checkForNewScans,
-  checkForOldScans, errorMessage, screenshot,
-  updateDocument, updateScanStatus
-};
+async function saveScanMetadata(
+  scanId: string,
+  scanData: ScanDataUpdateRequest
+) {
+  // get the scan and update the final url and status
+  const scan = await pb.collection("scans").getOne(scanId);
+  const merged = mergeDeep(scan.scandata || {}, scanData);
+  return pb
+    .collection("scans")
+    .update(scanId, {
+      scandata: {
+        ...merged,
+      },
+    })
+    .catch((error) => {
+      throw new errors.WebhoodScannerBackendError(error);
+    });
+}
 
+export {
+  browserinit,
+  checkForNewScans,
+  checkForOldScans,
+  errorMessage,
+  saveScanMetadata,
+  screenshot,
+  updateDocument,
+  updateScanStatus,
+};

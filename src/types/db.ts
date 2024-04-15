@@ -48,8 +48,11 @@ export type ApiTokensRecord = {
 }
 
 export type ScannersRecord<Tconfig = unknown> = {
+	apiToken?: string
 	config?: null | Tconfig
+	isCloudManaged?: boolean
 	name?: string
+	useCloudApi?: boolean
 }
 
 export enum ScansStatusOptions {

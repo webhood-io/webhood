@@ -1712,7 +1712,7 @@ memorystream@^0.3.1:
   resolved "https://registry.yarnpkg.com/memorystream/-/memorystream-0.3.1.tgz#86d7090b30ce455d63fbae12dda51a47ddcaf9b2"
   integrity sha512-S3UwM3yj5mtUSEfP41UZmt/0SCoVYUcU1rkXv+BQ5Ig8ndL4sPoJNBUJERafdPb5jjHJGuMgytgKvKIf58XNBw==
 
-merge-deep@^3.0.1:
+merge-deep@^3.0.1, merge-deep@^3.0.2:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/merge-deep/-/merge-deep-3.0.3.tgz#1a2b2ae926da8b2ae93a0ac15d90cd1922766003"
   integrity sha512-qtmzAS6t6grwEkNrunqTBdn0qKwFgNWvlxUbAV8es9M7Ot1EbyApytCnvE0jALPa46ZpKDUo527kKiaWplmlFA==
@@ -2046,6 +2046,15 @@ puppeteer-core@^22.4.1, puppeteer-core@latest:
     debug "4.3.4"
     devtools-protocol "0.0.1262051"
     ws "8.16.0"
+
+puppeteer-extra-plugin-recaptcha@^3.6.8:
+  version "3.6.8"
+  resolved "https://registry.yarnpkg.com/puppeteer-extra-plugin-recaptcha/-/puppeteer-extra-plugin-recaptcha-3.6.8.tgz#be3644efd421600f3230b7fd2916dbc452c7704f"
+  integrity sha512-AY2HG1ZFlSi4xs+Hy84LtRJ95DIfnbjR3Az64dJGVW8gr/hBAGEWRlXTMzea7YOmxO3Nc8Ak3CcUgjgp1gIu1w==
+  dependencies:
+    debug "^4.1.1"
+    merge-deep "^3.0.2"
+    puppeteer-extra-plugin "^3.2.3"
 
 puppeteer-extra-plugin-stealth@^2.11.2:
   version "2.11.2"
