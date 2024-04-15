@@ -41,15 +41,34 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Toggle } from "@/components/ui/toggle"
+import { GenericTooltip } from "./ui/generic-tooltip"
 
 const urlFormSchema = z.object({
   url: z.string(),
   options: z
     .object({
       scannerId: z.string().optional(),
+      rate: z.enum(["fast", "balanced", "slow"]).optional(),
     })
     .optional(),
 })
+
+function FormLabelWithTooltip({
+  label,
+  tooltip,
+}: {
+  label: string
+  tooltip: string
+}) {
+  return (
+    <FormLabel>
+      <div className="flex flex-row items-center gap-1">
+        {label}
+        <GenericTooltip>{tooltip}</GenericTooltip>
+      </div>
+    </FormLabel>
+  )
+}
 
 export function UrlForm() {
   const [inputError, setInputError] = useState<StatusMessageProps | null>(
@@ -59,9 +78,7 @@ export function UrlForm() {
   const form = useForm<z.infer<typeof urlFormSchema>>({
     resolver: zodResolver(urlFormSchema),
     defaultValues: {
-      options: {
-        scannerId: "any",
-      },
+      options: {},
       url: "",
     },
   })
@@ -97,12 +114,12 @@ export function UrlForm() {
       slug: slug,
       status: "pending",
       options: {
+        ...form.getValues("options"),
         scannerId: scannerId === "any" ? undefined : scannerId,
       },
     } as ScansRecord
 
     const record = await pb.collection("scans").create(data)
-    console.log(record)
     setInputError(null)
     setIsLoading(false)
   }
@@ -159,7 +176,7 @@ export function UrlForm() {
                 )}
               </Toggle>
             </CollapsibleTrigger>
-            <CollapsibleContent className="mt-2">
+            <CollapsibleContent className="flex flex-col gap-2 pt-2">
               <FormField
                 control={form.control}
                 name="options.scannerId"
@@ -183,7 +200,7 @@ export function UrlForm() {
                         name={field.name}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select scanner to run the scan" />
+                          <SelectValue placeholder="Choose specific scanner to run the scan" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem key={"any"} value={"any"}>
@@ -195,6 +212,38 @@ export function UrlForm() {
                                 {scanner.name || scanner.id}
                               </SelectItem>
                             ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="options.rate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabelWithTooltip
+                      label="Scan speed"
+                      tooltip="How fast the scan will run. Balances waiting for page resources against speed."
+                    />
+
+                    <FormControl>
+                      <Select onValueChange={field.onChange} name={field.name}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select speed of the scan" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem key={"fast"} value={"fast"}>
+                            Fast
+                          </SelectItem>
+                          <SelectItem key={"balanced"} value={"balanced"}>
+                            Balanced (default)
+                          </SelectItem>
+                          <SelectItem key={"slow"} value={"slow"}>
+                            Slow
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </FormControl>
