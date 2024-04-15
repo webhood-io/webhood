@@ -1,6 +1,8 @@
 package main
 
 import (
+	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -9,13 +11,11 @@ import (
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
+	"github.com/pocketbase/pocketbase/models"
 	"github.com/pocketbase/pocketbase/plugins/jsvm"
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
 	"github.com/webhood-io/backend/webhood"
 )
-
-// RequireAdminAuth middleware requires a request to have
-// a valid admin Authorization header.
 
 func main() {
 	app := pocketbase.New()
@@ -84,9 +84,68 @@ func main() {
 		e.Router.AddRoute(webhood.ScansGetByIdRoute(app))
 		e.Router.AddRoute(webhood.ScansPostRoute(app))
 		e.Router.AddRoute(webhood.ScansGetRoute(app))
+		e.Router.AddRoute(webhood.CreateScannerTokenRoute(app))
 		return nil
 	})
+	// Add metadata to scans record on after it has been created
+	app.OnRecordAfterCreateRequest("scans").Add(func(e *core.RecordCreateEvent) error {
+		record, _ := e.HttpContext.Get("authRecord").(*models.Record)
+		var initiatedByType string
+		if record.TableName() == "users" {
+			initiatedByType = "user"
+		} else {
+			initiatedByType = "api"
+		}
+		e.Record.Set("scandata", map[string]map[string]string{"meta": {"initiatedBy": record.Username(), "initiatedByType": initiatedByType}})
+		dao := app.Dao()
+		//save
+		err := dao.SaveRecord(e.Record)
+		if err != nil {
+			fmt.Println("Error saving record")
+		}
+		return nil
+	})
+	// When scanner record is created, create api token record (auth)
+	app.OnRecordAfterCreateRequest("scanners").Add(func(e *core.RecordCreateEvent) error {
+		scannerRecord := e.Record
+		dao := app.Dao()
+		apiTokensCollection, error := dao.FindCollectionByNameOrId("api_tokens")
+		if error != nil {
+			println("Error fetching collection: " + error.Error())
+			return error
+		}
+		apiTokenRecord := models.NewRecord(apiTokensCollection)
+		apiTokenRecord.Set("id", scannerRecord.Id)       // id is mirrored
+		apiTokenRecord.Set("username", scannerRecord.Id) // username is required
+		apiTokenRecord.Set("role", "scanner")
+		apiTokenRecord.Set("config", scannerRecord.Id)
+		apiTokenRecord.RefreshTokenKey() // tokenKey is unique for some reason, so we need to refresh it to make it unique (i.e. not null which is not unique)
 
+		saveError := dao.SaveRecord(apiTokenRecord)
+		if saveError != nil {
+			println("Error creating scanner: " + saveError.Error())
+			return saveError
+		}
+		return nil
+	})
+	// When scanner is deleted, delete api token
+	app.OnRecordBeforeDeleteRequest("scanners").Add(func(e *core.RecordDeleteEvent) error {
+		scannerRecord := e.Record
+		dao := app.Dao()
+		apiTokenRecord, err := dao.FindRecordById("api_tokens", scannerRecord.Id)
+		if err != nil {
+			return err
+		}
+		if apiTokenRecord == nil {
+			return errors.New("could not find apitoken")
+		}
+		deleteErr := dao.DeleteRecord(apiTokenRecord)
+		if deleteErr != nil {
+			println("Error deleting scanner: " + deleteErr.Error())
+			return deleteErr
+		}
+		return nil
+	})
 	if err := app.Start(); err != nil {
 		log.Fatal(err)
 	}

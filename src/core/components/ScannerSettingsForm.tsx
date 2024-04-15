@@ -1,19 +1,15 @@
-import * as React from "react"
-import { scannersFetcher } from "@/hooks/use-api"
-import { useStatusMessage } from "@/hooks/use-statusmessage"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { ScannersRecord, ScannersResponse } from "@webhood/types"
+import { ScannerConfig, ScannersResponse } from "@webhood/types"
 import { useForm } from "react-hook-form"
-import useSWR, { useSWRConfig } from "swr"
 import { z } from "zod"
 
-import { pb } from "@/lib/pocketbase"
 import {
   ScannerLangTip,
   ScannerUaTip,
   SimultaneousScansTooltip,
   SkipCookiePromptTooltip,
   StealthTooltip,
+  UseCloudApiTooltip,
 } from "@/lib/tips"
 import { Icons } from "@/components/icons"
 import { StatusMessage, StatusMessageProps } from "@/components/statusMessage"
@@ -28,18 +24,9 @@ import {
 import { GenericTooltip } from "@/components/ui/generic-tooltip"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
-import { TypographyLarge } from "@/components/ui/typography/large"
-import { TypographySubtle } from "@/components/ui/typography/subtle"
 
-function SettingsInput({
+export function SettingsInput({
   label,
   name,
   tooltip,
@@ -68,7 +55,7 @@ function SettingsInput({
     </div>
   )
 }
-function SwitchInput({
+export function SwitchInput({
   label,
   name,
   tooltip,
@@ -97,37 +84,78 @@ function SwitchInput({
   )
 }
 
-const scannerOptionsSchema = z.object({
-  config: z.object({
-    ua: z.string().optional(),
-    lang: z.string().optional(),
-    simultaneousScans: z.string().optional(),
-    useStealth: z.boolean().optional(),
-    useSkipCookiePrompt: z.boolean().optional(),
-  }),
-  name: z.string(),
-})
+export const scannerOptionsSchema = z
+  .object({
+    id: z.string(),
+    config: z.object({
+      ua: z.string().optional(),
+      lang: z.string().optional(),
+      simultaneousScans: z.string().optional(),
+      useStealth: z.boolean().optional(),
+      useSkipCookiePrompt: z.boolean().optional(),
+      useCloudCaptchaSolver: z.boolean().optional(),
+    }),
+    useCloudApi: z.boolean(),
+    apiToken: z.string().optional(),
+    name: z.string(),
+  })
+  .superRefine((data, ctx) => {
+    console.log(data)
+    if (data.useCloudApi && !(data.apiToken?.length > 0)) {
+      ctx.addIssue({
+        path: ["apiToken"],
+        code: z.ZodIssueCode.custom,
+        message: "Cloud API token is required when using cloud API.",
+      })
+      return data.apiToken?.length > 0
+    }
+    return z.NEVER
+  })
 
-function ScannerSettingsForm({
+export const managedByCloudPlaceholder = "Managed by cloud"
+
+export function ScannerSettingsForm({
   scanner,
   onSubmit,
   statusMessage,
 }: {
-  scanner: ScannersRecord
+  scanner: ScannersResponse
   onSubmit: (data: any) => void
   statusMessage: StatusMessageProps
 }) {
   const form = useForm<z.infer<typeof scannerOptionsSchema>>({
     resolver: zodResolver(scannerOptionsSchema),
     defaultValues: {
-      config: scanner.config,
+      config: (scanner.config as ScannerConfig) || {
+        ua: "",
+        lang: "",
+        useStealth: false,
+        useSkipCookiePrompt: false,
+        useCloudCaptchaSolver: false,
+      },
+      useCloudApi: false,
+      apiToken: "",
+      id: scanner.id,
       name: scanner.name,
     },
   })
+  const isCloudManaged = scanner.isCloudManaged === true
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-2">
+          <FormField
+            control={form.control}
+            name="id"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <SettingsInput {...field} label="Id" disabled={true} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="name"
@@ -138,7 +166,13 @@ function ScannerSettingsForm({
                     {...field}
                     label="Name"
                     name="name"
-                    placeholder="Friendly name for this scanner"
+                    value={isCloudManaged ? "" : field.value}
+                    disabled={isCloudManaged}
+                    placeholder={
+                      isCloudManaged
+                        ? managedByCloudPlaceholder
+                        : "Friendly name for this scanner"
+                    }
                   />
                 </FormControl>
                 <FormMessage />
@@ -225,9 +259,15 @@ function ScannerSettingsForm({
                 <FormControl>
                   <SettingsInput
                     {...field}
+                    value={isCloudManaged ? "" : field.value}
                     label="Simultaneous Scans"
+                    disabled={isCloudManaged}
                     name="config.simultaneousScans"
-                    placeholder="Defaults to 1 when not set"
+                    placeholder={
+                      isCloudManaged
+                        ? managedByCloudPlaceholder
+                        : "Defaults to 1 when not set"
+                    }
                     tooltip={SimultaneousScansTooltip}
                     type="number"
                   />
@@ -236,6 +276,60 @@ function ScannerSettingsForm({
               </FormItem>
             )}
           />
+          <FormField
+            control={form.control}
+            name="useCloudApi"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <SwitchInput
+                    {...field}
+                    label="Use Cloud API"
+                    name="useCloudApi"
+                    tooltip={UseCloudApiTooltip}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {form.watch("useCloudApi") && (
+            <div className="border-l-2 pl-4">
+              <FormField
+                control={form.control}
+                name="apiToken"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <SettingsInput
+                        {...field}
+                        label="API Token"
+                        name="apiToken"
+                        placeholder="API Token for cloud.webhood.io"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="config.useCloudCaptchaSolver"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <SwitchInput
+                        {...field}
+                        label="Captcha Solver"
+                        name="config.useCloudCaptchaSolver"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          )}
         </div>
 
         <div className={"mt-2 flex flex-row gap-2"}>
@@ -246,86 +340,5 @@ function ScannerSettingsForm({
         </div>
       </form>
     </Form>
-  )
-}
-
-export function GeneralSettings() {
-  const { statusMessage, setStatusMessage } = useStatusMessage()
-  const [selectedScanner, setSelectedScanner] = React.useState<
-    ScannersResponse | undefined
-  >(undefined)
-  const {
-    data: scanDataSwr,
-    error: scanErrorSwr,
-    isLoading: isSwrLoading,
-  } = useSWR("/api/scanners", scannersFetcher)
-
-  const { mutate } = useSWRConfig()
-  React.useEffect(() => {
-    if (scanDataSwr && selectedScanner === undefined) {
-      setSelectedScanner(scanDataSwr[0])
-    }
-  }, [scanDataSwr])
-
-  const handleSubmit = (data: ScannersRecord) => {
-    const record = pb
-      .collection("scanners")
-      .update(selectedScanner.id, data)
-      .then((res) => {
-        setStatusMessage({
-          status: "success",
-          message: "Settings saved",
-        })
-        mutate("/api/scanners")
-      })
-      .catch((err) => {
-        console.log(err)
-        setStatusMessage({
-          status: "error",
-          message: err,
-        })
-      })
-  }
-  // @ts-ignore TODO: fix this
-  const { ua, lang } = selectedScanner?.config || { ua: "", lang: "" }
-  if ((!scanDataSwr || scanDataSwr.length === 0) && !isSwrLoading)
-    return <div>No scanners found. Add a scanner and start scanning.</div>
-  if (!selectedScanner) return <div>Loading...</div>
-  return (
-    <div className="flex flex-col justify-between gap-6">
-      <div className="flex flex-row justify-between gap-2">
-        <div>
-          <TypographyLarge>Scanner settings</TypographyLarge>
-          <TypographySubtle>
-            Configure settings for your scanners.
-          </TypographySubtle>
-        </div>
-        <div className="max-w-[300px]">
-          <Select
-            defaultValue={selectedScanner.id}
-            onValueChange={(value) =>
-              setSelectedScanner(scanDataSwr?.find((e) => e.id === value))
-            }
-          >
-            <SelectTrigger className="truncate">
-              <SelectValue placeholder="Select a scanner" />
-            </SelectTrigger>
-            <SelectContent>
-              {scanDataSwr?.map((scanner) => (
-                <SelectItem value={scanner.id} className="-z-100">
-                  {scanner.name || scanner.id}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-      <ScannerSettingsForm
-        scanner={selectedScanner}
-        onSubmit={handleSubmit}
-        key={selectedScanner.id}
-        statusMessage={statusMessage}
-      />
-    </div>
   )
 }
