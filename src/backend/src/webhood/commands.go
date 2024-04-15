@@ -63,6 +63,27 @@ func CreateUserCmd(app core.App) *cobra.Command {
 	}
 }
 
+func CreateScannerMatchingApiToken(app core.App, scannerRecord *models.Record) (*models.Record, error) {
+	dao := app.Dao()
+	apiTokensCollection, error := dao.FindCollectionByNameOrId("api_tokens")
+	if error != nil {
+		println("Error fetching collection: " + error.Error())
+		return nil, error
+	}
+	apiTokenRecord := models.NewRecord(apiTokensCollection)
+	apiTokenRecord.Set("id", scannerRecord.Id)       // id is mirrored
+	apiTokenRecord.Set("username", scannerRecord.Id) // username is required
+	apiTokenRecord.Set("role", "scanner")
+	apiTokenRecord.Set("config", scannerRecord.Id)
+	apiTokenRecord.RefreshTokenKey() // tokenKey is unique for some reason, so we need to refresh it to make it unique (i.e. not null which is not unique)
+
+	saveError := dao.SaveRecord(apiTokenRecord)
+	if saveError != nil {
+		return nil, saveError
+	}
+	return apiTokenRecord, nil
+}
+
 func CreateScannerToken(app core.App) *cobra.Command {
 	return &cobra.Command{
 		Use: "create_scanner_token",
@@ -127,6 +148,8 @@ func CreateScanner(app core.App) *cobra.Command {
 				println("Error creating scanner: " + saveError.Error())
 				return
 			}
+
+			CreateScannerMatchingApiToken(app, configRecord)
 			println("New scanner config with id: " + configRecord.Id)
 
 			println("New scanner created with id: "+configRecord.Id, "and username: "+username)

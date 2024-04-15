@@ -108,23 +108,10 @@ func main() {
 	// When scanner record is created, create api token record (auth)
 	app.OnRecordAfterCreateRequest("scanners").Add(func(e *core.RecordCreateEvent) error {
 		scannerRecord := e.Record
-		dao := app.Dao()
-		apiTokensCollection, error := dao.FindCollectionByNameOrId("api_tokens")
+		_, error := webhood.CreateScannerMatchingApiToken(app, scannerRecord)
 		if error != nil {
-			println("Error fetching collection: " + error.Error())
+			println("Error creating scanner: " + error.Error())
 			return error
-		}
-		apiTokenRecord := models.NewRecord(apiTokensCollection)
-		apiTokenRecord.Set("id", scannerRecord.Id)       // id is mirrored
-		apiTokenRecord.Set("username", scannerRecord.Id) // username is required
-		apiTokenRecord.Set("role", "scanner")
-		apiTokenRecord.Set("config", scannerRecord.Id)
-		apiTokenRecord.RefreshTokenKey() // tokenKey is unique for some reason, so we need to refresh it to make it unique (i.e. not null which is not unique)
-
-		saveError := dao.SaveRecord(apiTokenRecord)
-		if saveError != nil {
-			println("Error creating scanner: " + saveError.Error())
-			return saveError
 		}
 		return nil
 	})
