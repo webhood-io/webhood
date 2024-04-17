@@ -31,7 +31,8 @@ func main() {
 	})
 
 	create_token_cmd := webhood.CreateScannerToken(app)
-	create_token_cmd.Flags().StringP("scannerid", "i", "", "scanner id (optional)")
+	create_token_cmd.Flags().StringP("scannerid", "i", "", "scanner id")
+	create_token_cmd.MarkFlagRequired("scannerid")
 	create_token_cmd.Flags().StringP("username", "u", "", "scanner name (optional)")
 	app.RootCmd.AddCommand(create_token_cmd)
 
