@@ -291,13 +291,22 @@ async function screenshot(
     }, WAIT_FOR_DOWNLOAD_TIMEOUT);
   }
   */
-  const finalUrl = await page.evaluate(() => document.location.href);
-  logger.debug({ type: "evaluateScanData", scanId });
-  // construct scan data
-  scanData.document = await constructFromEvaluatePage(page);
-  scanData.version = "1.1";
-  scanData.request = parsedRequest(getNow(), pageRes?.request()) || undefined;
-  scanData.response = parsedResponse(getNow(), pageRes) || undefined;
+  let finalUrl;
+  try {
+    finalUrl = await page.evaluate(() => document.location.href);
+    logger.debug({ type: "evaluateScanData", scanId });
+    // construct scan data
+    scanData.document = await constructFromEvaluatePage(page);
+    scanData.version = "1.1";
+    scanData.request = parsedRequest(getNow(), pageRes?.request()) || undefined;
+    scanData.response = parsedResponse(getNow(), pageRes) || undefined;
+  } catch (error) {
+    logger.error({ type: "evaluateScanDataError", scanId });
+    reject(
+      new errors.WebhoodScannerPageError("Error while evaluating scan data")
+    );
+    return;
+  }
 
   if (
     !finalUrl ||
@@ -340,7 +349,7 @@ async function screenshot(
   const formData = new FormData();
   // make sure no tracing is being written, so close page
   logger.debug({ type: "pageClose", scanId });
-  await page.close();
+  page.close();
   const trace = JSON.stringify(stopTracing(memstream));
   formData.append(
     "html",
