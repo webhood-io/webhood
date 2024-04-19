@@ -360,7 +360,7 @@ async function screenshot(
   const formData = new FormData();
   // make sure no tracing is being written, so close page
   logger.debug({ type: "pageClose", scanId });
-  page.close();
+  await page.close();
   const trace = JSON.stringify(stopTracing(memstream));
   formData.append(
     "html",
