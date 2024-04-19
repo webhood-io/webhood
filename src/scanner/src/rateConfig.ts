@@ -10,13 +10,13 @@ type RateConfigObject = {
 
 export const rateConfig: RateConfigObject = {
   fast: {
-    goto_timeout: 5_000,
-  },
-  balanced: {
     goto_timeout: 10_000,
   },
+  balanced: {
+    goto_timeout: 30_000,
+  },
   slow: {
-    goto_timeout: 20_000,
+    goto_timeout: 50_000,
   },
 };
 
