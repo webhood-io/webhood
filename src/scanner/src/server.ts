@@ -26,13 +26,7 @@ import fs from "node:fs";
 import puppeteerVanilla from "puppeteer-core";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import { logger } from "./logging";
-import {
-  DEFAULT_RATE,
-  height,
-  rateConfig,
-  WAIT_FOR_DOWNLOAD_TIMEOUT,
-  width,
-} from "./rateConfig";
+import { DEFAULT_RATE, height, rateConfig, width } from "./rateConfig";
 import { cloudCaptchaPlugin } from "./utils/captcha";
 import { mergeDeep } from "./utils/other";
 import { getBrowserInfo, getScanInfoStatic, pb } from "./utils/pbUtils";
@@ -285,6 +279,7 @@ async function screenshot(
     reject(new errors.WebhoodScannerPageError("Page is closed."));
     return;
   }
+  /*
   if (!pageRes) {
     // wait for 5 seconds for pageRes
     setTimeout(() => {
@@ -295,6 +290,7 @@ async function screenshot(
       }
     }, WAIT_FOR_DOWNLOAD_TIMEOUT);
   }
+  */
   const finalUrl = await page.evaluate(() => document.location.href);
   logger.debug({ type: "evaluateScanData", scanId });
   // construct scan data
