@@ -286,9 +286,9 @@ async function screenshot(
     return;
   }
   if (!pageRes) {
-    // wait for 5 seconds for any downloads to starts
+    // wait for 5 seconds for pageRes
     setTimeout(() => {
-      if (!downloadProgress) {
+      if (!pageRes) {
         logger.error({ type: "pageResIsNullError", scanId });
         reject(new errors.WebhoodScannerPageError("Page response is null."));
         return;
