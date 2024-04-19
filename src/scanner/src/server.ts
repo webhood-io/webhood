@@ -130,17 +130,27 @@ const browserinit = async (): Promise<Browser> => {
 async function constructFromEvaluatePage(
   page: Page
 ): Promise<WebhoodScandataDocument> {
-  return await page.evaluate(() => {
-    return {
-      title: document.title,
-      url: document.location.href,
-      origin: document.location.origin,
-      protocol: document.location.protocol,
-      links: Array.from(document.querySelectorAll("a"))
-        .map((a) => a.href)
-        .filter((a) => a),
-    };
-  });
+  return page
+    .evaluate(() => {
+      return {
+        title: document.title,
+        url: document.location.href,
+        origin: document.location.origin,
+        protocol: document.location.protocol,
+        links: Array.from(document.querySelectorAll("a"))
+          .map((a) => a.href)
+          .filter((a) => a),
+      };
+    })
+    .then((data) => {
+      return data;
+    })
+    .catch((error) => {
+      logger.error({ type: "constructFromEvaluatePageError", error });
+      throw new errors.WebhoodScannerPageError(
+        "Error while evaluating page:" + error
+      );
+    });
 }
 
 const MAX_BYTES = 50_000_000; // 50MB, max size of a file that can be uploaded to pocketbase. This is set in the pocketbase field configuration.
@@ -291,22 +301,23 @@ async function screenshot(
     }, WAIT_FOR_DOWNLOAD_TIMEOUT);
   }
   */
-  let finalUrl;
+  logger.debug({ type: "evaluateScanData", scanId });
+  // construct scan data
   try {
-    finalUrl = await page.evaluate(() => document.location.href);
-    logger.debug({ type: "evaluateScanData", scanId });
-    // construct scan data
     scanData.document = await constructFromEvaluatePage(page);
-    scanData.version = "1.1";
-    scanData.request = parsedRequest(getNow(), pageRes?.request()) || undefined;
-    scanData.response = parsedResponse(getNow(), pageRes) || undefined;
   } catch (error) {
-    logger.error({ type: "evaluateScanDataError", scanId });
+    logger.error({ type: "constructFromEvaluatePageError", scanId });
     reject(
-      new errors.WebhoodScannerPageError("Error while evaluating scan data")
+      new errors.WebhoodScannerPageError(
+        "Error while constructing scan data:" + error
+      )
     );
     return;
   }
+  const { url: finalUrl } = scanData.document;
+  scanData.version = "1.1";
+  scanData.request = parsedRequest(getNow(), pageRes?.request()) || undefined;
+  scanData.response = parsedResponse(getNow(), pageRes) || undefined;
 
   if (
     !finalUrl ||
