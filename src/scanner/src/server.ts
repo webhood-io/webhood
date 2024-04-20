@@ -279,10 +279,14 @@ async function screenshot(
   }
   // finally, wait for network idle
   logger.debug({ type: "waitForNetworkIdle", scanId });
-  await page.waitForNetworkIdle({
-    concurrency: 2,
-    timeout: rateConfigSet.goto_timeout,
-  });
+  try {
+    await page.waitForNetworkIdle({
+      concurrency: 2,
+      timeout: rateConfigSet.goto_timeout,
+    });
+  } catch (error) {
+    logger.info({ type: "waitForNetworkIdleTimeout", scanId });
+  }
   logger.debug({ type: "networkIdleDone", scanId });
   logger.debug({
     type: "pageIsClosed",
