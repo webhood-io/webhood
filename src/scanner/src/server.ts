@@ -241,7 +241,10 @@ async function screenshot(
   let pageRes: HTTPResponse | null = null;
   const rateConfigSet = rateConfig[scanOptions?.rate || DEFAULT_RATE];
   try {
-    pageRes = await page.goto(url, { timeout: rateConfigSet.goto_timeout });
+    pageRes = await page.goto(url, {
+      timeout: rateConfigSet.goto_timeout,
+      waitUntil: "domcontentloaded",
+    });
   } catch (e) {
     logger.info({ type: "pageLoadingTimeout", scanId });
     /*
@@ -261,19 +264,26 @@ async function screenshot(
       logger.error({ type: "recaptchaError", scanId });
     }
   }
-  // wait until page is fully loaded
+  // wait for navigation if pageRes is null
   if (!pageRes) {
     logger.debug({ type: "pageResIsNull", scanId });
     try {
       logger.debug({ type: "waitForNavigation", scanId });
       pageRes = await page.waitForNavigation({
         waitUntil: "domcontentloaded",
-        timeout: 2000,
+        timeout: rateConfigSet.goto_timeout,
       });
     } catch (error) {
       logger.debug({ type: "documentLoadedTimeout", scanId });
     }
   }
+  // finally, wait for network idle
+  logger.debug({ type: "waitForNetworkIdle", scanId });
+  await page.waitForNetworkIdle({
+    concurrency: 2,
+    timeout: rateConfigSet.goto_timeout,
+  });
+  logger.debug({ type: "networkIdleDone", scanId });
   logger.debug({
     type: "pageIsClosed",
     isClosed: page.isClosed(),
