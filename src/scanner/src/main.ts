@@ -244,7 +244,7 @@ async function startScanning({
       }
     } finally {
       const completedAt = new Date();
-      const tookSeconds = completedAt.getTime() - tsNow.getTime();
+      const tookSeconds = (completedAt.getTime() - tsNow.getTime()) / 1000;
       await saveScanMetadata(scanId, {
         version: "1.1",
         meta: {
