@@ -353,7 +353,7 @@ async function screenshot(
     );
     return;
   }
-  logger.debug({ type: "evaluatedDone", finalUrl, next: "html" });
+  logger.debug({ type: "evaluatedDone", finalUrl, next: "html", scanId });
   const html = await page.content();
   const endDateTime = new Date().toISOString();
   const imageId = uuidv4();
