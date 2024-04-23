@@ -325,6 +325,7 @@ setInterval(async function () {
 
 process.on("unhandledRejection", (error) => {
   console.log("(unhandledRejection listener)", error);
+  process.exit(1);
 });
 
 // Check for old scans every 15 seconds
