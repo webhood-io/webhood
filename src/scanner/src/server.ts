@@ -258,6 +258,11 @@ async function screenshot(
       logger.debug({ type: "solveRecaptcha", scanId });
       const results = await page.solveRecaptchas();
       logger.debug({ type: "recaptchaResults", results, scanId });
+      logger.info({
+        type: "recaptchasSolved",
+        count: results.solved.length,
+        scanId,
+      });
       // if any captchas were solved, assume we are being redirected
       if (results.solved.length > 0) await page.waitForNavigation();
     } catch (e) {
@@ -436,6 +441,7 @@ async function screenshot(
   logger.debug({
     type: "saveScanMetadataSuccess",
   });
+  logger.info({ type: "scanDone", scanId });
   resolve("done");
 }
 
