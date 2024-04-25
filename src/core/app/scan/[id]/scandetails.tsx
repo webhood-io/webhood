@@ -1,174 +1,20 @@
 "use client"
 
-import { ReactNode, useEffect, useMemo, useState } from "react"
-import Link from "next/link"
+import { useEffect, useMemo, useState } from "react"
 import { scanSingleFetcher } from "@/hooks/use-api"
-import { useFile, useToken } from "@/hooks/use-file"
 import { useSubscription } from "@/hooks/use-sub"
-import Editor from "@monaco-editor/react"
-import { ScansResponse } from "@webhood/types"
 import { Loader } from "lucide-react"
-import { useTheme } from "next-themes"
 import useSWR, { useSWRConfig } from "swr"
 
 import { cn } from "@/lib/utils"
 import { Icons } from "@/components/icons"
-import { ImageFileComponent } from "@/components/ImageFileComponent"
 import { Title } from "@/components/title"
 import Traceviewer from "@/components/TraceViewer"
-import { GenericTooltip } from "@/components/ui/generic-tooltip"
-import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { columns } from "./columns"
-import { DataTable } from "./data-table"
-
-interface ScanImageProps {
-  scanItem: ScansResponse
-}
-
-function ScanImage({ scanItem }: ScanImageProps) {
-  const fileName = scanItem.screenshots[0]
-  return (
-    <div>
-      {scanItem && fileName ? (
-        <ImageFileComponent
-          alt="Screenshot image of the page"
-          width={1920 / 2}
-          height={1080 / 2}
-          placeholder={"blur"}
-          blurDataURL={Icons.placeholder}
-          fileName={fileName}
-          document={scanItem}
-        />
-      ) : (
-        <div className="mx-auto w-full p-4 shadow">
-          <div className="flex h-96 w-full animate-pulse space-x-4">
-            <div className="flex-1 space-y-6 py-1">
-              <div className="h-2 rounded bg-slate-700"></div>
-              <div className="space-y-3">
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="col-span-2 h-2 rounded bg-slate-700"></div>
-                  <div className="col-span-1 h-2 rounded bg-slate-700"></div>
-                </div>
-                <div className="h-2 rounded bg-slate-700"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
-const ScanDetailItem = ({
-  label,
-  value,
-}: {
-  label: string
-  value: string | ReactNode
-}) => {
-  return (
-    <div className="grid grid-cols-5 gap-4">
-      <div className="text-sm font-medium text-gray-500">{label}</div>
-      <div className="col-span-4 text-sm font-medium">{value}</div>
-    </div>
-  )
-}
-function ScanDetails({ scanItem }: { scanItem: ScansResponse }) {
-  const valsGen = (item) => {
-    if (!scanItem.scandata || !scanItem.scandata[item]) return []
-    const val = scanItem.scandata[item]
-    return Object.keys(val).map((key) => {
-      return { key: `${item}.${key}`, value: val[key] }
-    })
-  }
-  if (!scanItem.scandata) return <p>No details available</p>
-  const data = [
-    ...valsGen("request"),
-    ...valsGen("response"),
-    ...valsGen("document"),
-  ]
-  return (
-    <div className="truncate">
-      <DataTable columns={columns} data={data} />
-    </div>
-  )
-}
-
-function ScanMetadetails({ scanItem }: { scanItem: ScansResponse }) {
-  const { token } = useToken()
-  const url = useFile(scanItem, "files", token, 0)
-  return (
-    <div className="flex flex-col gap-2 truncate">
-      <h4 className="text-md font-medium dark:text-gray-300">Scan results</h4>
-      <ScanDetailItem label="Input URL" value={scanItem?.url} />
-      <ScanDetailItem label="Final URL" value={scanItem?.final_url} />
-      <Separator />
-      <h4 className="text-md font-medium dark:text-gray-300">Scan metadata</h4>
-      <ScanDetailItem label="Scan ID" value={scanItem?.id} />
-      <ScanDetailItem label="Status" value={scanItem?.status} />
-      <ScanDetailItem label={"Started"} value={scanItem?.created} />
-      <ScanDetailItem label={"Finished"} value={scanItem?.done_at} />
-      <ScanDetailItem
-        label={"Error message"}
-        value={scanItem?.error || <i>none</i>}
-      />
-      <ScanDetailItem
-        label={"Downloaded file"}
-        value={
-          scanItem?.files.length > 0 ? (
-            <div className="flex h-fit flex-row gap-2">
-              {scanItem?.files[0]}
-              {url && (
-                <Link className="text-blue-700 underline" href={url || ""}>
-                  Download
-                </Link>
-              )}
-              <GenericTooltip>
-                The Download link will initiate a download on your browser for a
-                .zip file containting the file downloaded from the scanned page.
-              </GenericTooltip>
-            </div>
-          ) : (
-            "No file downloaded"
-          )
-        }
-      />
-    </div>
-  )
-}
-
-function CodeViewer({ scanItem }: ScanImageProps) {
-  const { resolvedTheme } = useTheme()
-  const [html, setHtml] = useState("")
-  const { token } = useToken()
-  const htmlUrl = useFile(scanItem, "html", token)
-  useEffect(() => {
-    if (scanItem?.id && htmlUrl) {
-      // fetch the html file using fetch
-      fetch(htmlUrl)
-        .then((res) => res.text())
-        .then((html) => setHtml(html))
-    }
-  }, [scanItem?.id, htmlUrl])
-  return (
-    html && (
-      <Editor
-        height="90vh"
-        defaultLanguage="html"
-        theme={resolvedTheme == "dark" ? "vs-dark" : "vs-light"}
-        loading={
-          <div>
-            Loading...
-            <Icons.loader className={"inline"} />
-          </div>
-        }
-        options={{ readOnly: true, links: false }}
-        defaultValue={html}
-      />
-    )
-  )
-}
+import { CodeViewer } from "./tabs/CodeViewer"
+import { ScanDetails } from "./tabs/ScanDetails"
+import { ScanImage } from "./tabs/ScanImage"
+import { ScanMetadetails } from "./tabs/ScanMetadetails"
 
 function getScanIcon(status: string) {
   const className = "md:size-[45px] size-[25px]"
@@ -202,6 +48,7 @@ function getScanIcon(status: string) {
   }
 }
 
+//#region ScanPage
 export default function ScanPage({ id }: { id: string }) {
   const [tabState, setTabState] = useState("screenshot")
   const scanId = id

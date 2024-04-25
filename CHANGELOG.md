@@ -5,15 +5,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [v1.0.0]
+
+With this 1.0 update, in addition to feature updates, we introduce [Webhood Cloud](https://cloud.webhood.io). Webhood Cloud enables you to quickly and easily set up scanners and management consoles in the cloud. The cloud scanner is a fully managed service that allows you to scan websites without having to set up your own scanner. Read more here.
+
+Webhood Cloud also enables you to connect your self-hosted scanners to the Scanner API to get additional features such as Captcha solving and other features that require cloud connectivity.
+
+You can now and always use Webhood as a completely self-hosted solution. No information is sent to the cloud unless you explicitly connect your scanner to the cloud.
 
 ### Added
 
+- Scan options: 
+  - When starting a new scan, it is now possible to configure different speeds `Fast`, `Balanced (default)` and `Slow` for the scan. The `Slow` setting may help scanning some websites that are slow to load and do not show all images or other website resources upon finishing the scan. Likewise, the `Fast` setting may sometimes be preferable if scanning websites that do no properly notify the browser that the site has loaded its most important resources (such as [DOMContentLoaded event](https://developer.mozilla.org/en-US/docs/Web/API/Document/DOMContentLoaded_event)).
+
+    For now the settings simply set different timeouts on the scanner, but we may fine tune the specific settings further in the future.
+
+- Scan metadata fields:
+  - `Initiated at`: when the scan was first initiated
+  - `Started scanning at`: when the scan was actually picked up by a scanner
+  - `Finished`: when the scanner finished with the scan
+  - `Duration`: seconds between `Started` and `Finished`
+  - `Initiated by user`: which user created the scan.
+  - `Scanner config`: the configuration of the scanner at the tie when the scan was run.
+  - `Scan options`: any additional options passed to the specific scan (via `scan options` setting in the UI).
+
+- Recent scans fields: 
+  - username (or API key ID) of whoever started the scan.
+  - name (or ID) of the scanner which performed the scan.
+
+- Scanner settings:
+  - Added dropdown menu to create and delete a scanner instance and refresh the API token for the scanner.
+  - Added new `Use Cloud API` setting. This setting and its sub-configurations allow connecting to [cloud.webhood.io](https://cloud.webhood.io) for additional features. Currently, a Captcha solver can be used to bypass Captchas nowadays common on phishing websites to try prevent automated scanning of the site.
+
+
 ### Fixed
 
-### Changed
+- Scanner should now exit properly in case of non-scanning issues such as not being able to connect to the backend. 
 
 ### Removed
+
+- Default scanner object has been removed from the backend migrations. This means that new deployments will not be provided with a default scanner object. The scanner object must be created manually after deployment using the Scanner Settings menu in the UI, or the cli command. The default scanner __is not__ removed from existing deployments on update.
+
 
 ## [v0.9.1] - 2024-04-04
 

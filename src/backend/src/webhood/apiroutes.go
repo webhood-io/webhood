@@ -31,31 +31,10 @@ var fields = []string{
 	"options",
 }
 
-func RequireCustomRoleAuth(roleName string) echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			// Allow admin to pass
-			admin, _ := c.Get("admin").(*models.Admin)
-			if admin != nil {
-				return next(c)
-			}
-			// Else check for the role
-			record, _ := c.Get("authRecord").(*models.Record)
-			if record == nil {
-				return apis.NewUnauthorizedError("The request requires valid authorization token to be set.", nil)
-			}
-			if record.Get("role").(string) != roleName {
-				return apis.NewUnauthorizedError("The request requires valid role authorization token to be set.", nil)
-			}
-
-			return next(c)
-		}
-	}
-}
-
 func WebhoodApiMiddleware(app core.App) []echo.MiddlewareFunc {
 	return []echo.MiddlewareFunc{
 		apis.ActivityLogger(app),
+		apis.RequireRecordAuth("users", "api_tokens"),
 		RequireCustomRoleAuth("scanner"), // TODO: role auths
 	}
 }
@@ -156,11 +135,20 @@ func ScansPostRoute(app core.App) echo.Route {
 				"slug":   hostname + "-" + cast.ToString(time.Now().Unix()),
 				"status": "pending",
 			})
+
+			event := new(core.RecordCreateEvent)
+			event.HttpContext = c
+			event.Collection = collection
+			event.Record = record
+
 			// validate and submit (internally it calls app.Dao().SaveRecord(record) in a transaction)
 			if err := form.Submit(); err != nil {
 				log.Println("Error creating record: " + err.Error())
 				return apis.NewApiError(401, "Error creating record.", nil)
 			}
+			app.OnRecordAfterCreateRequest().Trigger(event, func(e *core.RecordCreateEvent) error {
+				return nil
+			})
 			query := app.Dao().DB().Select(
 				fields...,
 			).From("scans").Where(dbx.HashExp{"id": record.Id})

@@ -1,6 +1,6 @@
-import { errorMessage } from "../server";
-import { logger } from "../logging";
 import { ScansResponse } from "@webhood/types";
+import { logger } from "../logging";
+import { errorMessage } from "../server";
 import { resolvesPublicIp } from "./dnsUtils";
 
 export async function filterScans(
@@ -30,4 +30,29 @@ export async function filterScans(
 }
 export function isRestrictedPrivateIp(): boolean {
   return process.env.SCANNER_NO_PRIVATE_IPS === "true";
+}
+
+export function isObject(item: any) {
+  return item && typeof item === "object" && !Array.isArray(item);
+}
+
+export function mergeDeep(...objects: any): object {
+  const isObject = (obj: any) => obj && typeof obj === "object";
+
+  return objects.reduce((prev: any, obj: any) => {
+    Object.keys(obj).forEach((key) => {
+      const pVal = prev[key];
+      const oVal = obj[key];
+
+      if (Array.isArray(pVal) && Array.isArray(oVal)) {
+        prev[key] = pVal.concat(...oVal);
+      } else if (isObject(pVal) && isObject(oVal)) {
+        prev[key] = mergeDeep(pVal, oVal);
+      } else {
+        prev[key] = oVal;
+      }
+    });
+
+    return prev;
+  }, {});
 }

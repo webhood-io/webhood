@@ -1,4 +1,4 @@
-import { ScanOptions, ScansResponse } from "@webhood/types";
+import { ScannerConfigEmbed, ScanOptions, ScansResponse } from "@webhood/types";
 import { Semaphore } from "async-mutex";
 import fs from "node:fs";
 import * as os from "os";
@@ -10,12 +10,13 @@ import {
   checkForNewScans,
   checkForOldScans,
   errorMessage,
-  pb,
   refreshConfig,
+  saveScanMetadata,
   screenshot,
-  updateScanStatus
+  updateScanStatus,
 } from "./server";
 import { filterScans } from "./utils/other";
+import { pb } from "./utils/pbUtils";
 
 /*
  * Main file for the scanner
@@ -35,7 +36,7 @@ let localLock: string[] = [];
 
 const createTmpIfNotExists = async () => {
   fs.mkdirSync("tmp", { recursive: true });
-}
+};
 
 const maxScansCount = (): number => {
   const simultaneousScans =
@@ -132,7 +133,7 @@ function scansAvailableMem(): AvailableMemory {
   const neededPerScan = 150; // in MB
   const baseSize = 100; // in MB
   const availableScans = Math.floor(available / (neededPerScan + baseSize));
-  logger.debug({
+  logger.trace({
     type: "memoryCheck",
     availableMemory: available,
     isMemoryConstrained: constrainedMemory !== undefined,
@@ -141,6 +142,20 @@ function scansAvailableMem(): AvailableMemory {
   return {
     availableScans,
     isMemoryConstrained: constrainedMemory !== undefined,
+  };
+}
+
+function getScannerConfig() {
+  return pb.authStore.model?.expand?.config.config;
+}
+
+function embedScannerConfig(): ScannerConfigEmbed {
+  const config = getScannerConfig();
+  return {
+    ua: config.ua,
+    lang: config.lang,
+    useStealth: config.useStealth,
+    useSkipCookiePrompt: config.useSkipCookiePrompt,
   };
 }
 
@@ -189,6 +204,16 @@ async function startScanning({
     logger.info({ type: "newScan", scanId, url: scan.url });
     // update status here to prevent multiple same scans from running at the same time
     try {
+      await saveScanMetadata(scanId, {
+        version: "1.1",
+        scanOptions: options,
+        scannerConfig: embedScannerConfig(),
+        meta: {
+          startedAt: tsNow.toISOString(),
+          scannedByScanner: pb.authStore.model?.config,
+          initiatedAt: new Date(scan.created).toISOString(),
+        },
+      });
       await updateScanStatus(scanId, "running");
     } catch (e) {
       logger.error({
@@ -200,12 +225,12 @@ async function startScanning({
     }
     const url = scan.url;
     const prom = new Promise((resolve, reject) => {
-      screenshot(null, url, scanId, browser, resolve, reject)
+      screenshot(url, scanId, browser, options, resolve, reject);
     });
     try {
-     await prom 
+      await prom;
     } catch (e) {
-      console.log("error while screenhost. ScanID:", scanId, e,);
+      console.log("error while screenshot. ScanID:", scanId, e);
       if (e instanceof errors.WebhoodScannerPageError) {
         errorMessage(e.message, scanId);
       } else if (e instanceof errors.WebhoodScannerTimeoutError) {
@@ -217,9 +242,16 @@ async function startScanning({
       } else {
         errorMessage("Unknown error occurred during scan", scanId);
       }
-    }
-    finally {
-      const tookSeconds = (new Date()).getSeconds() - tsNow.getSeconds()
+    } finally {
+      const completedAt = new Date();
+      const tookSeconds = (completedAt.getTime() - tsNow.getTime()) / 1000;
+      await saveScanMetadata(scanId, {
+        version: "1.1",
+        meta: {
+          completedAt: completedAt.toISOString(),
+          duration: tookSeconds,
+        },
+      });
       logger.debug({ type: "scanFinished", scanId, tookSeconds });
     }
   }
@@ -260,8 +292,8 @@ async function intelligentCheckForNewScans() {
     const browser = await browserinit();
     await Promise.all(
       filteredScans.map(async (scan) => {
-        /* Limit possibility of race condition causing multiple scans to start. 
-         * The race condition is caused by both the setInterval and the 
+        /* Limit possibility of race condition causing multiple scans to start.
+         * The race condition is caused by both the setInterval and the
          * realtime subscription calling intelligentCheckForNewScans at the same time
          */
         if (localLock.includes(scan.id)) return;
@@ -293,6 +325,7 @@ setInterval(async function () {
 
 process.on("unhandledRejection", (error) => {
   console.log("(unhandledRejection listener)", error);
+  process.exit(1);
 });
 
 // Check for old scans every 15 seconds

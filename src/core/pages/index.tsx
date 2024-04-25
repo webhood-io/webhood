@@ -2,7 +2,7 @@
 
 import { useEffect } from "react"
 import Head from "next/head"
-import { latestScansFetcher } from "@/hooks/use-api"
+import { latestScansFetcher, scannersFetcher } from "@/hooks/use-api"
 import { useSubscription } from "@/hooks/use-sub"
 import { useToast } from "@/hooks/use-toast"
 import { ScansResponse } from "@webhood/types"
@@ -17,10 +17,15 @@ import { UrlForm } from "@/components/UrlForm"
 import { ScanListItem } from "../components/ScanListItem"
 
 function ScanList({ scans }: { scans: ScansResponse[] }) {
+  const { data: scannersData } = useSWR("/api/scanners", scannersFetcher)
   return (
     <div className="flex w-full flex-col divide-y divide-slate-500">
       {scans?.map((document) => (
-        <ScanListItem key={document.id} document={document} />
+        <ScanListItem
+          key={document.id}
+          document={document}
+          scanners={scannersData}
+        />
       ))}
     </div>
   )

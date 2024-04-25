@@ -3,12 +3,12 @@
 // /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome in mac
 // C:\Program Files (x86)\Google\Chrome\Application\chrome.exe in windows
 
-import { HTTPRequest, HTTPResponse, Page } from "puppeteer-core";
 import {
   WebhoodScandataRequest,
   WebhoodScandataResponse,
 } from "@webhood/types";
 import MemoryStream from "memorystream";
+import { HTTPRequest, HTTPResponse, Page } from "puppeteer-core";
 
 //
 const chromePath = (function () {
@@ -126,9 +126,9 @@ function stopTracing(stream: MemoryStream): object {
 
 export {
   chromePath,
-  startTracing,
-  stopTracing,
+  getNow,
   parsedRequest,
   parsedResponse,
-  getNow,
+  startTracing,
+  stopTracing,
 };
