@@ -30,7 +30,7 @@ async function decodeRecaptchaAsync(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: `${token}`,
     },
     body: JSON.stringify({
       vendor,
