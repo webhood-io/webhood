@@ -1,6 +1,6 @@
 "use client"
 
-import { FormEvent, useEffect, useState } from "react"
+import { FormEvent, Suspense, useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { scansSearchFetcher } from "@/hooks/use-api"
 import useSWR from "swr"
@@ -65,7 +65,7 @@ function getRangeNumber(value: string): number | null {
   return parsed
 }
 
-export default function DashboardPage() {
+export function Search() {
   const router = useRouter()
   const params = useSearchParams()
   const page = params.get("page")
@@ -201,5 +201,13 @@ export default function DashboardPage() {
         </div>
       </form>
     </div>
+  )
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense>
+      <Search />
+    </Suspense>
   )
 }
