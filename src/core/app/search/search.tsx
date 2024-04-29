@@ -4,6 +4,7 @@ import querystring from "querystring"
 import { FormEvent, Suspense, useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { scansSearchFetcher } from "@/hooks/use-api"
+import { useSubscription } from "@/hooks/use-sub"
 import useSWR from "swr"
 import { useLocalStorage } from "usehooks-ts"
 
@@ -58,6 +59,7 @@ function LimitSelector({
     </>
   )
 }
+let timer
 
 export function Search() {
   const router = useRouter()
@@ -67,10 +69,18 @@ export function Search() {
   const [limit, setLimit] = useLocalStorage("searchLimit", 10)
   const [searchInput, setSearchInput] = useState<string | null>(null)
 
-  const { data, error, isLoading } = useSWR(
+  const { data, error, isLoading, mutate } = useSWR(
     { search, limit, page },
     scansSearchFetcher
   )
+  function debounce() {
+    // prevent scan changes from triggering mutate too often
+    clearTimeout(timer)
+    timer = setTimeout(() => {
+      mutate()
+    }, 1000)
+  }
+  useSubscription("scans", "*", () => debounce())
   // Form was submitted
   const onSearchSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
