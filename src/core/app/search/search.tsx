@@ -8,7 +8,7 @@ import useSWR from "swr"
 import { useLocalStorage } from "usehooks-ts"
 
 import { cn } from "@/lib/utils"
-import SelectScrollable from "@/components/AutocompleteSearch"
+import AutocompleteSearch from "@/components/AutocompleteSearch"
 import { Icons } from "@/components/icons"
 import { ScanListItem } from "@/components/ScanListItem"
 import { Button } from "@/components/ui/button"
@@ -59,38 +59,32 @@ function LimitSelector({
   )
 }
 
-function getRangeNumber(value: string): number | null {
-  if (!value) return null
-  const parsed = parseInt(value)
-  if (isNaN(parsed) || parsed < 0) return null
-  return parsed
-}
-
 export function Search() {
   const router = useRouter()
   const params = useSearchParams()
   const page = Number(params.get("page")) || 1
   const search = params.get("filter")
   const [limit, setLimit] = useLocalStorage("searchLimit", 10)
-  const [searchInput, setSearchInput] = useState<string>("")
-  // const [range, setRange] = useState<Range>({ start: 0, end: limit - 1 })
-  const { data, error } = useSWR({ search, limit, page }, scansSearchFetcher)
+  const [searchInput, setSearchInput] = useState<string | null>(null)
 
-  const isLoading = !data && !error
-
-  const onSearch = (e: FormEvent<HTMLFormElement>) => {
+  const { data, error, isLoading } = useSWR(
+    { search, limit, page },
+    scansSearchFetcher
+  )
+  // Form was submitted
+  const onSearchSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const form = e.currentTarget
     const formData = new FormData(form)
     const search = formData.get("search-query")
-    if (!search) setSearch("")
-    else setSearch(search.toString())
+    if (!search) setSearchQuery("")
+    else setSearchQuery(search.toString())
   }
   const onReset = () => {
-    setSearch("")
+    setSearchQuery("")
     setSearchInput("")
   }
-  const setSearch = (search: string) => {
+  const setSearchQuery = (search: string) => {
     const queryString = querystring.stringify({ filter: search, page: 1 })
     router.push(`/search?${queryString}`)
   }
@@ -110,7 +104,11 @@ export function Search() {
   }
   const onLimitChange = (newLimit: number) => {
     setLimit(newLimit)
-    router.push(`/search?page=${1}`)
+    const queryString = querystring.stringify({
+      filter: search,
+      page: 1,
+    })
+    router.push(`/search?${queryString}`)
   }
   const data_length = (): number => {
     if (data) {
@@ -119,34 +117,43 @@ export function Search() {
     return 0
   }
 
-  // debounce search
+  // debounce search input, i.e. change the search in query params only after 1 second of inactivity
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (searchInput !== search) {
-        setSearch(searchInput)
+        setSearchQuery(searchInput)
       }
     }, 1000)
     return () => clearTimeout(timeout)
   }, [searchInput])
 
+  // On load, set the search input to the query param
   useEffect(() => {
     if (search) {
       setSearchInput(search)
+    } else {
+      setSearchInput("")
     }
   }, [])
 
   return (
     <div className="flex w-full flex-col gap-8 truncate">
-      <form onSubmit={onSearch} autoComplete="off">
+      <form onSubmit={onSearchSubmit} autoComplete="off">
         <div className="flex flex-col gap-4 truncate">
           <div className="mx-1 flex flex-col items-start gap-2">
             <div className="grid w-full items-center gap-1.5">
               <Label>Search</Label>
               <div className="flex flex-row items-center">
-                <SelectScrollable
-                  value={searchInput}
-                  setValue={setSearchInput}
-                />
+                {searchInput !== null && (
+                  <AutocompleteSearch
+                    value={searchInput}
+                    setValue={setSearchInput}
+                  />
+                )}
+                {searchInput === null && (
+                  // Placeholder to prevent the dom from moving
+                  <AutocompleteSearch value="" setValue={setSearchInput} />
+                )}
                 <Button
                   className={cn("-ml-11", search ? "block" : "hidden")}
                   size="sm"
@@ -158,7 +165,7 @@ export function Search() {
                 </Button>
               </div>
             </div>
-            <div className="flex justify-end">
+            <div className="flex w-full items-center justify-between">
               <IconButton
                 isLoading={isLoading}
                 type="submit"
@@ -166,6 +173,14 @@ export function Search() {
               >
                 Search{" "}
               </IconButton>
+              {error && (
+                <TypographySubtle>
+                  Search query is not yet valid
+                </TypographySubtle>
+              )}
+              {!error && search && (
+                <TypographySubtle>✔ Query is valid</TypographySubtle>
+              )}
             </div>
           </div>
           {/* Data */}
@@ -220,6 +235,7 @@ export function Search() {
   )
 }
 
+// Suspense must be used when using useSearchParams
 export default function SearchPage() {
   return (
     <Suspense>

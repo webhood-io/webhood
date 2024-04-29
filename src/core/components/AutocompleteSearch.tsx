@@ -18,11 +18,12 @@ enum OperatorStateOptions {
   join = "join",
 }
 
-const DataList = ({ values, updateValue, selected }) => {
+const DataList = ({ values, updateValue, selected, setSelected }) => {
   return values.map((option, index) => (
     <div
       key={option.value}
       onClick={() => updateValue(option.value)}
+      onMouseOver={() => setSelected(index)}
       className={cn(
         "cursor-pointer",
         index === selected && " bg-gray-100 text-gray-900"
@@ -78,19 +79,18 @@ export default function SelectManipulate({ value, setValue }) {
     OperatorStateOptions.field
   )
   const inputRef = useRef<HTMLInputElement>(null)
-  const updateValue = (newValue: string) => {
+  const updateValueFromDropdown = (newValue: string) => {
     let finalValue = value.trim() + " " + newValue
-    if (newValue === '""') {
-      inputRef.current.focus()
-      inputRef.current.setSelectionRange(1, 5)
-    } else {
-      updateOperatorState(finalValue)
-      inputRef.current.focus()
+    updateOperatorState(finalValue)
+    inputRef.current.focus()
+    if (newValue !== '""') {
+      // don't add space, otherwide useEffect that positions the cursor will not work
       finalValue = finalValue + " "
     }
     setValue(finalValue)
   }
   useEffect(() => {
+    console.log("value changed", value)
     // if last two characters are "" then go to the middle of the quotes
     if (value.slice(-2) === '""') {
       inputRef.current.focus()
@@ -100,6 +100,11 @@ export default function SelectManipulate({ value, setValue }) {
     }
     if (value === "") setIsOperator(OperatorStateOptions.field)
   }, [value])
+  // On load, we need to update the operator state
+  useEffect(() => {
+    console.log("mount", value)
+    if (value) updateOperatorState(value)
+  }, [])
   const getCurrentList = () => {
     if (isOperator === "field") return fields
     if (isOperator === "operator") return OperatorOptions
@@ -113,11 +118,11 @@ export default function SelectManipulate({ value, setValue }) {
     }
     if (isOperator === "join") return join
   }
-  const updateOperatorState = (newValue: string) => {
-    const valueSplit = splitJoins(newValue)
+  const updateOperatorState = (currentInputValue: string) => {
+    const valueSplit = splitJoins(currentInputValue)
     const lastValue = valueSplit[valueSplit.length - 1]
     setIsOperator(getOperatorState(lastValue))
-    if (newValue[newValue.length - 1] === " ") {
+    if (currentInputValue[currentInputValue.length - 1] === " ") {
       setFocused(true)
     }
   }
@@ -163,7 +168,7 @@ export default function SelectManipulate({ value, setValue }) {
             }
             if (e.key === "Enter") {
               if (selected !== null) {
-                updateValue(getCurrentList()[selected].value)
+                updateValueFromDropdown(getCurrentList()[selected].value)
                 setSelected(null)
               }
             }
@@ -178,8 +183,9 @@ export default function SelectManipulate({ value, setValue }) {
       >
         <div className="text-sm">
           <DataList
+            setSelected={setSelected}
             values={getCurrentList()}
-            updateValue={updateValue}
+            updateValue={updateValueFromDropdown}
             selected={selected}
           />
         </div>
