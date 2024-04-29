@@ -26,12 +26,13 @@ const DataList = ({ values, updateValue, selected, setSelected }) => {
       onMouseOver={() => setSelected(index)}
       className={cn(
         "cursor-pointer",
-        index === selected && " bg-gray-100 text-gray-900"
+        index === selected &&
+          " bg-gray-100 text-slate-900 dark:bg-slate-900 dark:text-gray-100"
       )}
     >
       <div className="grid grid-cols-3 items-center">
         <div>
-          <div className="m-0.5 w-fit rounded bg-slate-200 px-2 tracking-tighter ">
+          <div className="m-0.5 w-fit rounded bg-slate-200 px-2 tracking-tighter dark:bg-slate-700 ">
             {option.value}
           </div>
         </div>
