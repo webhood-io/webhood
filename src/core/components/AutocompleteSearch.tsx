@@ -221,6 +221,7 @@ const OperatorOptions = [
   { value: ">=", label: "Greater Than or Equals" },
   { value: "<", label: "Less Than" },
   { value: "<=", label: "Less Than or Equals" },
+  /* TODO: regex does not currently support these
   { value: "?=", label: "Any/At least one of Equals" },
   { value: "?!=", label: "Any/At least one of Not Equals" },
   { value: "?>", label: "Any/At least one of Greater Than" },
@@ -229,6 +230,7 @@ const OperatorOptions = [
   { value: "?<=", label: "Any/At least one of Less Than or Equals" },
   { value: "?~", label: "Any/At least one of Like/Contains" },
   { value: "?!~", label: "Any/At least one of Not Like/Contains" },
+  */
 ]
 
 const fields = [
