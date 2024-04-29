@@ -21,7 +21,7 @@ export const siteConfig: SiteConfig = {
     },
     {
       title: "Search",
-      href: "/search",
+      href: "/search?filter=&page=1",
     },
     {
       title: "Account",
