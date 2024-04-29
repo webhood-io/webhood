@@ -1,5 +1,6 @@
 "use client"
 
+import querystring from "querystring"
 import { FormEvent, Suspense, useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { scansSearchFetcher } from "@/hooks/use-api"
@@ -68,21 +69,14 @@ function getRangeNumber(value: string): number | null {
 export function Search() {
   const router = useRouter()
   const params = useSearchParams()
-  const page = params.get("page")
+  const page = Number(params.get("page")) || 1
+  const search = params.get("filter")
   const [limit, setLimit] = useLocalStorage("searchLimit", 10)
-  const [search, setSearch] = useState<string>("")
   const [searchInput, setSearchInput] = useState<string>("")
   // const [range, setRange] = useState<Range>({ start: 0, end: limit - 1 })
   const { data, error } = useSWR({ search, limit, page }, scansSearchFetcher)
 
   const isLoading = !data && !error
-
-  const pageNumber = getRangeNumber(page as string) || 1
-  useEffect(() => {
-    if (pageNumber < 1) {
-      router.push("/search?page=1")
-    }
-  }, [pageNumber])
 
   const onSearch = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -96,11 +90,23 @@ export function Search() {
     setSearch("")
     setSearchInput("")
   }
+  const setSearch = (search: string) => {
+    const queryString = querystring.stringify({ filter: search, page: 1 })
+    router.push(`/search?${queryString}`)
+  }
   const incrementPage = () => {
-    router.push(`/search?page=${pageNumber + 1}`)
+    const queryString = querystring.stringify({
+      filter: search,
+      page: page + 1,
+    })
+    router.push(`/search?${queryString}`)
   }
   const decrementPage = () => {
-    router.push(`/search?page=${pageNumber - 1}`)
+    const queryString = querystring.stringify({
+      filter: search,
+      page: page - 1,
+    })
+    router.push(`/search?${queryString}`)
   }
   const onLimitChange = (newLimit: number) => {
     setLimit(newLimit)
@@ -116,10 +122,18 @@ export function Search() {
   // debounce search
   useEffect(() => {
     const timeout = setTimeout(() => {
-      setSearch(searchInput)
+      if (searchInput !== search) {
+        setSearch(searchInput)
+      }
     }, 1000)
     return () => clearTimeout(timeout)
   }, [searchInput])
+
+  useEffect(() => {
+    if (search) {
+      setSearchInput(search)
+    }
+  }, [])
 
   return (
     <div className="flex w-full flex-col gap-8 truncate">
@@ -166,19 +180,21 @@ export function Search() {
                 <IconButton
                   icon={<Icons.left className={"h-full"} />}
                   variant="outline"
-                  disabled={pageNumber === 1}
+                  type="button"
+                  disabled={page === 1}
                   onClick={decrementPage}
                 />
-                {pageNumber
-                  ? pageNumber * limit -
+                {page
+                  ? page * limit -
                     limit +
                     1 +
                     " - " +
-                    (pageNumber * limit - limit + data_length())
+                    (page * limit - limit + data_length())
                   : ""}
                 <IconButton
                   icon={<Icons.right className={"h-full"} />}
                   variant="outline"
+                  type="button"
                   disabled={data_length() < limit}
                   onClick={incrementPage}
                 />
