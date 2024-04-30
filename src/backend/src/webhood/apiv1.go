@@ -258,9 +258,9 @@ func (api *scansApi) get(c echo.Context) error {
 		return apis.NewNotFoundError("", nil)
 	}
 	query := app.Dao().DB().Select(
-		fields...,
+		v1fields...,
 	).From("scans").Where(dbx.HashExp{"id": recordId})
-	record := scanRecord{}
+	record := scanRecordV1{}
 	query.One(&record)
 	if record.Id == "" {
 		return apis.NewNotFoundError("", nil)
