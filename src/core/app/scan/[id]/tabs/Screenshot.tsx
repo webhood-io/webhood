@@ -4,26 +4,29 @@ import { ScansResponse } from "@webhood/types"
 
 import { Icons } from "@/components/icons"
 import { ImageFileComponent } from "@/components/ImageFileComponent"
+import { ScreenshotContextMenu } from "@/components/ScreenshotActionMenu"
 
 export interface ScanImageProps {
   scanItem: ScansResponse
 }
 
 //#region ScanImage
-export function ScanImage({ scanItem }: ScanImageProps) {
+export function Screenshot({ scanItem }: ScanImageProps) {
   const fileName = scanItem.screenshots[0]
   return (
     <div>
       {scanItem && fileName ? (
-        <ImageFileComponent
-          alt="Screenshot image of the page"
-          width={1920 / 2}
-          height={1080 / 2}
-          placeholder={"blur"}
-          blurDataURL={Icons.placeholder}
-          fileName={fileName}
-          document={scanItem}
-        />
+        <ScreenshotContextMenu imageUrl={fileName} record={scanItem}>
+          <ImageFileComponent
+            alt="Screenshot image of the page"
+            width={1920 / 2}
+            height={1080 / 2}
+            placeholder={"blur"}
+            blurDataURL={Icons.placeholder}
+            fileName={fileName}
+            document={scanItem}
+          />
+        </ScreenshotContextMenu>
       ) : (
         <div className="mx-auto w-full p-4 shadow">
           <div className="flex h-96 w-full animate-pulse space-x-4">

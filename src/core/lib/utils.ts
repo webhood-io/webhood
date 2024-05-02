@@ -1,5 +1,6 @@
 import { ImageLoaderProps } from "next/image"
 import { clsx, type ClassValue } from "clsx"
+import { FileOptions } from "pocketbase"
 import { twMerge } from "tailwind-merge"
 
 import { pb } from "./pocketbase"
@@ -91,21 +92,30 @@ const urlWithParams = (url: string, options: any) => {
   return urlWithParams
 }
 
-// TODO: once pocketbase supports width and quality, enable it here
+const getPbFileUrl = (record, src, token, additionalOptions?: FileOptions) => {
+  if (!src) return
+  return pb.files.getUrl(record, src, {
+    token: token,
+    ...additionalOptions,
+  })
+}
+
 const imageLoader = (
   { src, width, quality }: ImageLoaderProps,
   record,
   token
 ) => {
   if (!src) return
-  const url = pb.files.getUrl(record, src, { token: token })
-  return url
+  return getPbFileUrl(record, src, token, {
+    thumb: `${width}x0`,
+  })
 }
 
 export {
   copyToClipboard,
   dateToLocaleString,
   generateSlug,
+  getPbFileUrl,
   imageLoader,
   parseUrl,
   urlWithParams,
