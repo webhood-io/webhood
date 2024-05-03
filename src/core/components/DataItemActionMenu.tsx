@@ -207,14 +207,14 @@ export function DataItemContextMenu({
           {isUrl(content) && (
             <ContextMenuSpecific
               actionItems={domainMenuItems}
-              label="Domain"
+              label="Domain actions"
               content={content}
             />
           )}
           {isIp(content) && (
             <ContextMenuSpecific
               actionItems={ipMenuItems}
-              label="IP"
+              label="IP actions"
               content={content}
             />
           )}
