@@ -21,7 +21,9 @@ function Content(props: {
           {props.content === null || props.content === undefined ? (
             <i>Empty</i>
           ) : (
-            props.content
+            <DataItemContextMenu content={props.content}>
+              {props.content}
+            </DataItemContextMenu>
           )}
         </div>
         <div>

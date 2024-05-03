@@ -83,6 +83,11 @@ function generateSlug(url: string) {
   return slug
 }
 
+function stringToUrl(rawUrl: string) {
+  const url = rawUrl.trim().replace(/^(?!(?:\w+:)?\/\/)/, "https://")
+  return url
+}
+
 const urlWithParams = (url: string, options: any) => {
   let urlWithParams = new URL(url, document.URL)
   const params = options.params || {}
@@ -118,6 +123,7 @@ export {
   getPbFileUrl,
   imageLoader,
   parseUrl,
+  stringToUrl,
   urlWithParams,
   validateUrlRegex,
 }

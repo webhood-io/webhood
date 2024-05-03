@@ -1,6 +1,8 @@
 import { ContextMenuSeparator } from "@radix-ui/react-context-menu"
 import { ExternalLink } from "lucide-react"
 
+import { pb } from "@/lib/pocketbase"
+import { stringToUrl } from "@/lib/utils"
 import {
   ContextMenu,
   ContextMenuContent,
@@ -8,6 +10,7 @@ import {
   ContextMenuLabel,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu"
+import ErrorBoundary from "./ErrorBoundary"
 
 const basicMenuItems = [
   {
@@ -20,6 +23,10 @@ const domainMenuItems = [
   {
     label: "Copy Domain to Clipboard",
     action: copyDomainToClipboard,
+  },
+  {
+    label: "Scan on Webhood",
+    action: scanOnWebhood,
   },
   {
     label: "Search on Google",
@@ -45,13 +52,12 @@ const domainMenuItems = [
 
 const urlMenuItems = [
   {
-    label: "Search on Google",
-    action: searchUrlOnGoogle,
-    external: true,
+    label: "Scan on Webhood",
+    action: scanOnWebhood,
   },
   {
-    label: "Search on Shodan",
-    action: searchUrlOnShodan,
+    label: "Search on Google",
+    action: searchUrlOnGoogle,
     external: true,
   },
 ]
@@ -108,6 +114,19 @@ function searchDomainOnWhois({ content }: ActionProps) {
   window.open(`https://www.whois.com/whois/${url.host}`, "_blank")
 }
 
+function scanOnWebhood({ content }: ActionProps) {
+  const url = stringToUrl(content)
+  return pb
+    .send("/api/ui/scans", {
+      method: "POST",
+      body: JSON.stringify({ url: url }),
+    })
+    .then((res) => {
+      window.open(`/scan/${res.slug}`, "_blank")
+      console.log(res)
+    })
+}
+
 function isUrl(str: string) {
   try {
     new URL(str)
@@ -118,10 +137,7 @@ function isUrl(str: string) {
 }
 
 function isIp(str: string) {
-  const regex = new RegExp(
-    "^(?!0)(?!.*.$)((1?d?d|25[0-5]|2[0-4]d)(.|$)){4}$",
-    "i"
-  )
+  const regex = /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/
   return regex.test(str)
 }
 
@@ -172,35 +188,37 @@ export function DataItemContextMenu({
     <ContextMenu>
       <ContextMenuTrigger>{children}</ContextMenuTrigger>
       <ContextMenuContent>
-        {basicMenuItems.map((item) => (
-          <ContextMenuItem
-            key={item.label}
-            onSelect={() => item.action({ content })}
-          >
-            {item.label}
-          </ContextMenuItem>
-        ))}
-        {isUrl(content) && (
-          <ContextMenuSpecific
-            actionItems={urlMenuItems}
-            label="URL Actions"
-            content={content}
-          />
-        )}
-        {isUrl(content) && (
-          <ContextMenuSpecific
-            actionItems={domainMenuItems}
-            label="Domain"
-            content={content}
-          />
-        )}
-        {isIp(content) && (
-          <ContextMenuSpecific
-            actionItems={ipMenuItems}
-            label="IP"
-            content={content}
-          />
-        )}
+        <ErrorBoundary>
+          {basicMenuItems.map((item) => (
+            <ContextMenuItem
+              key={item.label}
+              onSelect={() => item.action({ content })}
+            >
+              {item.label}
+            </ContextMenuItem>
+          ))}
+          {isUrl(content) && (
+            <ContextMenuSpecific
+              actionItems={urlMenuItems}
+              label="URL Actions"
+              content={content}
+            />
+          )}
+          {isUrl(content) && (
+            <ContextMenuSpecific
+              actionItems={domainMenuItems}
+              label="Domain"
+              content={content}
+            />
+          )}
+          {isIp(content) && (
+            <ContextMenuSpecific
+              actionItems={ipMenuItems}
+              label="IP"
+              content={content}
+            />
+          )}
+        </ErrorBoundary>
       </ContextMenuContent>
     </ContextMenu>
   )
