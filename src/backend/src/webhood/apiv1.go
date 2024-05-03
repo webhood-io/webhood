@@ -85,6 +85,21 @@ func BindScansApiV1(app core.App, rg *echo.Group) {
 	subGroup.GET("/scans/:id", api.get, apis.RequireRecordAuth("users", "api_tokens"), RequireCustomRoleAuth("scanner"))
 	subGroup.POST("/scans", api.post, apis.RequireRecordAuth("users", "api_tokens"), RequireCustomRoleAuth("scanner"))
 }
+func BindScansApiUser(app core.App, rg *echo.Group) {
+	api := scansApi{app: app}
+
+	subGroup := rg.Group(
+		"/ui",
+		apis.ActivityLogger(app),
+	)
+
+	subGroup.GET("/scans", api.list, apis.RequireRecordAuth("users"))
+	subGroup.GET("/scans/:id/trace", api.trace, LoadScanRecordContext(app), apis.RequireRecordAuth("users"))
+	subGroup.GET("/scans/:id/html", api.html, LoadScanRecordContext(app), apis.RequireRecordAuth("users"))
+	subGroup.GET("/scans/:id/screenshot", api.screenshot, LoadScanRecordContext(app), apis.RequireRecordAuth("users"))
+	subGroup.GET("/scans/:id", api.get, apis.RequireRecordAuth("users"))
+	subGroup.POST("/scans", api.post, apis.RequireRecordAuth("users"))
+}
 
 func (api *scansApi) list(c echo.Context) error {
 	dao := api.app.Dao()

@@ -87,6 +87,7 @@ func main() {
 		e.Router.AddRoute(webhood.CreateScannerTokenRoute(app))
 		api := e.Router.Group("/api")
 		webhood.BindScansApiV1(app, api)
+		webhood.BindScansApiUser(app, api)
 		return nil
 	})
 	// Add metadata to scans record on after it has been created
