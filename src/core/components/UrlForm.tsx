@@ -10,7 +10,7 @@ import useSWR from "swr"
 import { z } from "zod"
 
 import { pb } from "@/lib/pocketbase"
-import { generateSlug } from "@/lib/utils"
+import { generateSlug, stringToUrl } from "@/lib/utils"
 import { Icons } from "@/components/icons"
 import {
   StatusMessage,
@@ -96,7 +96,7 @@ export function UrlForm() {
   const postUrl = async (rawUrl: string) => {
     console.log("Posting URL", rawUrl)
     // remove trailing whitespace and newlines
-    const url = rawUrl.trim().replace(/^(?!(?:\w+:)?\/\/)/, "https://")
+    const url = stringToUrl(rawUrl)
     let slug
     if (rawUrl.length === 0) {
       setInputError({ status: "error", message: "Empty URL" })
