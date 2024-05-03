@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Search now supports advanced search queries using the [Pocketbase filter syntax](https://pocketbase.io/docs/api-rules-and-filters/#filters-syntax). The new Search input now includes autocomplete suggestions for the filter syntax to help users with the query format. The autocomplete displays only the most commmon fields and will be updated with more fields in the future.
+
+- On right-clicking the screenshot in the scan results, there is now a custom context menu that allows you to open the image in a new tab or copy the image URL.
+
+- On right-clicking any items in the `Trace` view or the `Details` view in the scan result page, there is now a custom context menu that allows you to perform actions based on the type of data. Currently, the context menu allows you:
+  - Copy the value to the clipboard
+  - Scan the URL or domain name in Webhood.
+  - Search the IP, URL or domain name in Google, Shodan, Whois, or Talos Intelligence.
+
+### Changed
+
+- Search query is now included in the URL. This means that you can now share search queries with others by simply copying the URL from the browser.
+
+### Fixed
+
+- When going back to the Search page from the Scan result page, the search results and the scroll location are restored. 
+
+### Removed
+
+- Former "simple search" is now removed from the UI. The search bar now only supports searching by advanced search queries.
+
 ## [v1.0.0]
 
 With this 1.0 update, in addition to feature updates, we introduce [Webhood Cloud](https://cloud.webhood.io). Webhood Cloud enables you to quickly and easily set up scanners and management consoles in the cloud. The cloud scanner is a fully managed service that allows you to scan websites without having to set up your own scanner. Read more here.
