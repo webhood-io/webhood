@@ -156,13 +156,18 @@ export function Search() {
               <div className="flex flex-row items-center">
                 {searchInput !== null && (
                   <AutocompleteSearch
+                    name="search-query"
                     value={searchInput}
                     setValue={setSearchInput}
                   />
                 )}
                 {searchInput === null && (
                   // Placeholder to prevent the dom from moving
-                  <AutocompleteSearch value="" setValue={setSearchInput} />
+                  <AutocompleteSearch
+                    name="search-input-placeholder"
+                    value=""
+                    setValue={setSearchInput}
+                  />
                 )}
                 <Button
                   className={cn("-ml-11", search ? "block" : "hidden")}

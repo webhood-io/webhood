@@ -73,7 +73,7 @@ const splitJoins = (value: string) => {
   return value.split(/(\|\||&&)/g)
 }
 
-export default function SelectManipulate({ value, setValue }) {
+export default function SelectManipulate({ value, setValue, name }) {
   const [focused, setFocused] = useState(false)
   const [selected, setSelected] = useState<number | null>(null)
   const [isOperator, setIsOperator] = useState<OperatorStateOptions>(
@@ -131,7 +131,7 @@ export default function SelectManipulate({ value, setValue }) {
     <Popover open={focused}>
       <PopoverAnchor className="w-full">
         <Input
-          name="search-query"
+          name={name}
           placeholder="Search for past scan results"
           ref={inputRef}
           onFocus={(e) => {

@@ -40,7 +40,7 @@ describe('webhood-ui', () => {
     // wait for name search-input to be visible
     cy.get('[name=search-query]').should('be.visible')
     // type example.com
-    cy.get('[name=search-query]').type('example.com')
+    cy.get('[name=search-query]').type('url ~ "example.com"')
     // submit form
     cy.get('form').submit()
     // should have url in list of spans
