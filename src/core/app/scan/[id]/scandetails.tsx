@@ -13,8 +13,8 @@ import Traceviewer from "@/components/TraceViewer"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CodeViewer } from "./tabs/CodeViewer"
 import { ScanDetails } from "./tabs/ScanDetails"
-import { ScanImage } from "./tabs/ScanImage"
 import { ScanMetadetails } from "./tabs/ScanMetadetails"
+import { Screenshot } from "./tabs/Screenshot"
 
 function getScanIcon(status: string) {
   const className = "md:size-[45px] size-[25px]"
@@ -142,7 +142,9 @@ export default function ScanPage({ id }: { id: string }) {
             <TabsTrigger value="meta">Metadata</TabsTrigger>
           </TabsList>
           <TabsContent value={"screenshot"}>
-            {scanId && <ScanImage scanItem={scanItem} key={scanId as string} />}
+            {scanId && (
+              <Screenshot scanItem={scanItem} key={scanId as string} />
+            )}
           </TabsContent>
           <TabsContent value={"details"}>
             <ScanDetails scanItem={scanItem} key={scanId as string} />

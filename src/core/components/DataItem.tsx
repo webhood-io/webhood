@@ -4,6 +4,7 @@ import { useCopyToClipboard } from "@/hooks/use-copyclipboard"
 
 import { Icons } from "@/components/icons"
 import { Label } from "@/components/ui/label"
+import { DataItemContextMenu } from "./DataItemActionMenu"
 
 function Content(props: {
   copied: boolean
@@ -20,7 +21,9 @@ function Content(props: {
           {props.content === null || props.content === undefined ? (
             <i>Empty</i>
           ) : (
-            props.content
+            <DataItemContextMenu content={props.content}>
+              {props.content}
+            </DataItemContextMenu>
           )}
         </div>
         <div>
@@ -68,7 +71,9 @@ export function DataItemValueOnly(props: { content: string }) {
   })
   return (
     <div className="grid grid-cols-1 rounded-md border-2 border-solid p-2">
-      <Content content={props.content} copied={copied} onClick={onClick} />
+      <DataItemContextMenu content={props.content}>
+        <Content content={props.content} copied={copied} onClick={onClick} />
+      </DataItemContextMenu>
     </div>
   )
 }

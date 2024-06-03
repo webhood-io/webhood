@@ -77,7 +77,7 @@ function scansSearchFetcher({ search, limit, page }) {
   return pb
     .collection("scans")
     .getList(page, limit, {
-      filter: `url ~ "${search}"`,
+      filter: search,
       sort: "-created",
     })
     .then((data) => {
@@ -200,13 +200,13 @@ function useApiv2() {
 export {
   accountFetcher,
   latestScansFetcher,
-  scanSingleFetcher,
-  scanStatsFetcher,
   scannerFetcher,
   scannersFetcher,
+  scanSingleFetcher,
   scansSearchFetcher,
-  tokenSingleFetcher,
+  scanStatsFetcher,
   tokensFetcher,
+  tokenSingleFetcher,
   useAccount,
   useApiv2,
   usersFetcher,

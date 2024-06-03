@@ -11,7 +11,7 @@ interface SiteConfig {
 }
 
 export const siteConfig: SiteConfig = {
-  name: "WebHood",
+  name: "Webhood",
   description:
     "Modern, simple and private URL scanner that helps you analyze website and find if they are safe to visit by you and your organization's users.",
   mainNav: [
@@ -21,7 +21,8 @@ export const siteConfig: SiteConfig = {
     },
     {
       title: "Search",
-      href: "/search",
+      href: "/search?filter=&page=1",
+      path: "/search",
     },
     {
       title: "Account",

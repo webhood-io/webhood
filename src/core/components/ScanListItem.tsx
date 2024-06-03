@@ -92,6 +92,17 @@ export function ScanListItem({
         />
       )
       break
+    case "running":
+      img = (
+        <Image
+          src={ScanLoading}
+          alt={"Placeholder image"}
+          placeholder={"blur"}
+          width={192 / 2}
+          height={108 / 2}
+        />
+      )
+      break
   }
   return (
     <ScanListItemComponent

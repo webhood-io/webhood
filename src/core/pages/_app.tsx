@@ -23,6 +23,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <>
       <Head>
         <link rel="icon" href={Icons.favicon.src} />
+        <meta name="referrer" content="no-referrer" />
       </Head>
       <style jsx global>{`
 				:root {

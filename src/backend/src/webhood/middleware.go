@@ -3,6 +3,7 @@ package webhood
 import (
 	"github.com/labstack/echo/v5"
 	"github.com/pocketbase/pocketbase/apis"
+	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/models"
 )
 
@@ -23,6 +24,23 @@ func RequireCustomRoleAuth(roleName string) echo.MiddlewareFunc {
 				return apis.NewUnauthorizedError("The request requires valid role authorization token to be set.", nil)
 			}
 
+			return next(c)
+		}
+	}
+}
+
+func LoadScanRecordContext(app core.App) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			recordId := c.PathParam("id")
+			if recordId == "" {
+				return apis.NewNotFoundError("", nil)
+			}
+			record, fetchErr := app.Dao().FindRecordById("scans", recordId)
+			if fetchErr != nil {
+				return fetchErr
+			}
+			c.Set("scanRecord", record)
 			return next(c)
 		}
 	}

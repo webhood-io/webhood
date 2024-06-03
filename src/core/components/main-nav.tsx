@@ -30,6 +30,11 @@ export function MainNav({ items }: MainNavProps) {
     if (error) router.push("/login")
   }, [error])
 
+  const isCurrentPath = (href: string) => {
+    if (href === "/") return pathname === "" || pathname === "/"
+    return pathname.startsWith(href)
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <Link href="/" className="hidden h-12 items-center space-x-2 md:flex">
@@ -53,14 +58,14 @@ export function MainNav({ items }: MainNavProps) {
                       variant="ghost"
                       className={cn(
                         "-ml-2 h-8 w-full justify-between pl-2 text-left",
-                        pathname === item.href &&
+                        isCurrentPath(item.path || item.href) &&
                           "bg-slate-100 hover:bg-gray-100 dark:bg-slate-700 dark:hover:bg-gray-700"
                       )}
                       key={index}
                       type="button"
                     >
                       {item.title}
-                      {pathname === item.href && (
+                      {isCurrentPath(item.path || item.href) && (
                         <Icons.open className="h-4 w-4" />
                       )}
                     </Button>
