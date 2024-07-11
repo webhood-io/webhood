@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v1.1.1]
+
+- This is a boring dependency update. Dependencies need to be updated even when no bugs are fixed, no features added to make sure we stay up to date with latest security patches and bug fixes of third party software used by the Webhood stack of tools.
+
+## [v1.1.0]
+
 ### Added
 
 - Search now supports advanced search queries using the [Pocketbase filter syntax](https://pocketbase.io/docs/api-rules-and-filters/#filters-syntax). The new Search input now includes autocomplete suggestions for the filter syntax to help users with the query format. The autocomplete displays only the most commmon fields and will be updated with more fields in the future.
