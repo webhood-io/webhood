@@ -88,7 +88,7 @@ describe("E2E scanner tests", function () {
   it("should download sample file", async () => {
     const scans = pb.collection("scans");
     const data = await scans.create({
-      url: "https://getsamplefiles.com/download/mp4/sample-5.mp4",
+      url: "https://www.webhood.io/test.zip",
       status: "pending",
       slug: randomSlug(),
     });
