@@ -49,7 +49,7 @@
     "@types/jsonwebtoken": "^9.0.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
-    "cmdk": "^0.2.0",
+    "cmdk": "^1.0.0",
     "jose": "^4.15.5",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.368.0",
