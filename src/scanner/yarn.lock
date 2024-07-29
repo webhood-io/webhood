@@ -1998,10 +1998,10 @@ pkgroll@^2.0.1:
     magic-string "^0.30.10"
     rollup "^4.17.2"
 
-pocketbase@^0.21.0:
-  version "0.21.3"
-  resolved "https://registry.yarnpkg.com/pocketbase/-/pocketbase-0.21.3.tgz#83e16bec07ba649649c313e85cc5786a84dc422e"
-  integrity sha512-bsQRZ1mj4dhPJ4P5iSrDqWQtBX2NtuBkf6IOZwTv27zZOw6zrISgo963i5JD/99qKKD5aMSMDPGk1BE9ZyI7Cg==
+pocketbase@^0.21.4:
+  version "0.21.4"
+  resolved "https://registry.yarnpkg.com/pocketbase/-/pocketbase-0.21.4.tgz#8ea951009a98e74d24606e3b403ca05e505ef715"
+  integrity sha512-WJHyaqdAt95JgZ1OCRD099+DST4IIG0M/jMrCckWYDSN/6ocp61qsz7m6h0xI0J2N79ScBljceEC0fFAaQrrAw==
 
 pretty-format@^29.7.0:
   version "29.7.0"
