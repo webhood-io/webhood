@@ -35,9 +35,10 @@ import { getBrowserInfo, getScanInfoStatic, pb } from "./utils/pbUtils";
 global.EventSource = EventSource;
 
 if (!process.env.ENDPOINT || !process.env.SCANNER_TOKEN) {
-  console.error(
+  throw new Error(
     "Please set the ENDPOINT and SCANNER_TOKEN environment variables"
   );
+  
 }
 
 export async function refreshConfig() {
@@ -570,5 +571,6 @@ export {
   saveScanMetadata,
   screenshot,
   updateDocument,
-  updateScanStatus,
+  updateScanStatus
 };
+
