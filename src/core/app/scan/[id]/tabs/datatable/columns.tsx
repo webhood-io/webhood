@@ -19,7 +19,6 @@ export const columns = [
           <PinOff size={15} />
         </Button>
       ) : (
-        <div style={{ display: "flex", gap: "4px" }}>
           <Button
             size="sm"
             variant="ghost"
@@ -27,8 +26,7 @@ export const columns = [
           >
             <Pin size={15} />
           </Button>
-        </div>
-      ),
+      )
   },
   {
     accessorKey: "key",
@@ -45,13 +43,17 @@ export const columns = [
       if (Array.isArray(row.original.value)) {
         if (row.original.value.length === 0)
           return <DataItemValueOnly content={null} />
-        return row.original.value.map((v, i) => (
-          <div key={i}>
-            <DataItemValueOnly
-              content={typeof v === "object" ? JSON.stringify(v) : v}
-            />
+        return (
+          <div className="flex flex-col gap-1">
+            {row.original.value.map((v, i) => (
+              <div key={i}>
+                <DataItemValueOnly
+                  content={typeof v === "object" ? JSON.stringify(v) : v}
+                />
+              </div>
+            ))}
           </div>
-        ))
+        )
       }
       if (typeof row.original.value === "object" && row.original.value !== null)
         return Object.keys(row.original.value).map((k, i) => (
