@@ -1,8 +1,6 @@
 import { ContextMenuSeparator } from "@radix-ui/react-context-menu"
 import { ExternalLink } from "lucide-react"
 
-import { pb } from "@/lib/pocketbase"
-import { stringToUrl } from "@/lib/utils"
 import {
   ContextMenu,
   ContextMenuContent,
@@ -10,12 +8,19 @@ import {
   ContextMenuLabel,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu"
+import { pb } from "@/lib/pocketbase"
+import { stringToUrl } from "@/lib/utils"
 import ErrorBoundary from "./ErrorBoundary"
 
 const basicMenuItems = [
   {
     label: "Copy to Clipboard",
     action: copyItemToClipboard,
+  },
+  {
+    label: "Translate on Google",
+    action: translateOnGoogle,
+    external: true,
   },
 ]
 
@@ -114,6 +119,10 @@ function searchDomainOnWhois({ content }: ActionProps) {
   window.open(`https://www.whois.com/whois/${url.host}`, "_blank")
 }
 
+function translateOnGoogle({ content }: ActionProps) {
+  window.open(`https://translate.google.com/?sl=auto&tl=en&text=${content}`, "_blank")
+}
+
 function scanOnWebhood({ content }: ActionProps) {
   const url = stringToUrl(content)
   return pb
@@ -195,6 +204,7 @@ export function DataItemContextMenu({
               onSelect={() => item.action({ content })}
             >
               {item.label}
+              {item.external && <ExternalLink className="ml-1 h-4" color="gray" />}
             </ContextMenuItem>
           ))}
           {isUrl(content) && (
