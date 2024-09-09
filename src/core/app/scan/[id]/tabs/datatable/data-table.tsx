@@ -1,7 +1,5 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
-import { useToast } from "@/hooks/use-toast"
 import {
   Column,
   ColumnDef,
@@ -14,6 +12,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 import { X } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -119,8 +118,6 @@ export function DataTable<TData, TValue>({
     top: [],
   })
   const savedPin = localStorage.getItem("rowPinning")
-  const { toast } = useToast()
-  console.log(rowPinning)
   const table = useReactTable({
     data,
     columns,
